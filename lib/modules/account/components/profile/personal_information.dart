@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:tac/data/data/constants/app_colors.dart';
+import 'package:tac/data/data/constants/app_spacing.dart';
+import 'package:tac/data/data/constants/app_assets.dart';
 
 import '../../../../controllers/user_controller.dart';
 import '../../../../dataproviders/api_service.dart';
@@ -31,12 +34,11 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
   void initState() {
     super.initState();
 
-    // Load data from UserController and set into controllers
-    final user = userController.userData.value; // Or however you access it
+    final user = userController.userData.value;
     nameController.text = user!.fullName ?? '';
     emailController.text = user.email ?? '';
     dobController.text = user.dob ?? '';
-    genderController.text = user.gender ?? '';
+    selectedGender = user.gender;
     contactController.text = user.phone ?? '';
     postalCodeController.text = '';
     addressController.text = user.postalAddress ?? '';
@@ -62,7 +64,10 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
         backgroundColor: AppColors.kDarkestBlue,
         elevation: 0,
         title: const Text("Edit Personal Information",
-            style: TextStyle(color: AppColors.kWhite, fontSize: 17)),
+            style: TextStyle(
+                color: AppColors.kWhite,
+                fontSize: 17,
+                fontWeight: FontWeight.w600)),
         centerTitle: false,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
@@ -85,44 +90,96 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
                       const Text(
                         "Update Information according to your official document data.",
                         style: TextStyle(
-                            color: AppColors.kWhite,
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold),
+                          color: AppColors.kWhite,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 10),
                       buildTextField(
-                          controller: nameController,
-                          label: "Full Name",
-                          icon: Icons.person),
+                        controller: nameController,
+                        label: "Full Name",
+                        iconPath: AppAssets.kPer,
+                        maxLength: 180,
+                      ),
                       buildTextField(
-                          controller: emailController,
-                          label: "Email",
-                          icon: Icons.email),
+                        controller: emailController,
+                        label: "Email",
+                        iconPath: AppAssets.kMail,
+                        keyboardType: TextInputType.emailAddress,
+                        maxLength: 180,
+                      ),
                       buildDropdownField(
-                          label: "Gender",
-                          icon: Icons.person_outline,
-                          value: selectedGender,
-                          onChanged: (val) {
+                        label: "Gender",
+                        icon: Icons.person_outline,
+                        value: selectedGender,
+                        onChanged: (val) {
+                          setState(() {
+                            selectedGender = val!;
+                          });
+                        },
+                      ),
+                      buildTextField(
+                        controller: dobController,
+                        label: "Date of Birth",
+                        iconPath: AppAssets.kCal,
+                        readOnly: true,
+                        onTap: () async {
+                          final picked = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime(1900),
+                            lastDate: DateTime.now(),
+                            builder: (context, child) {
+                              return Theme(
+                                data: Theme.of(context).copyWith(
+                                  dialogBackgroundColor: AppColors.kDarkestBlue,
+                                  colorScheme: ColorScheme.dark(
+                                    primary: AppColors.kSkyBlue,
+                                    onPrimary: Colors.black,
+                                    surface: AppColors.kDarkestBlue,
+                                    onSurface: Colors.white,
+                                  ),
+                                  textButtonTheme: TextButtonThemeData(
+                                    style: TextButton.styleFrom(
+                                      foregroundColor: AppColors
+                                          .kSkyBlue, // Button text color
+                                    ),
+                                  ),
+                                ),
+                                child: child!,
+                              );
+                            },
+                          );
+                          if (picked != null) {
                             setState(() {
-                              selectedGender = val!;
+                              dobController.text =
+                                  picked.toIso8601String().split('T').first;
                             });
-                          }),
+                          }
+                        },
+                      ),
                       buildTextField(
-                          controller: dobController,
-                          label: "Date of Birth",
-                          icon: Icons.calendar_today),
+                        controller: contactController,
+                        label: "Contact Number",
+                        iconPath: AppAssets.kNum,
+                        keyboardType: TextInputType.phone,
+                        maxLength: 11,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly
+                        ],
+                      ),
                       buildTextField(
-                          controller: contactController,
-                          label: "Contact Number",
-                          icon: Icons.phone),
+                        controller: postalCodeController,
+                        label: "Postal Code",
+                        iconPath: AppAssets.kLoc,
+                        keyboardType: TextInputType.number,
+                      ),
                       buildTextField(
-                          controller: postalCodeController,
-                          label: "Postal Code",
-                          icon: Icons.location_on),
-                      buildTextField(
-                          controller: addressController,
-                          label: "Address",
-                          icon: Icons.home),
+                        controller: addressController,
+                        label: "Address",
+                        iconPath: AppAssets.kLoc,
+                      ),
                     ],
                   ),
                 ),
@@ -191,14 +248,25 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
   }
 
   Future<void> updatePersonalInfo() async {
-    final apiService = MyApIService(); // create instance
-    try{
+    if (selectedGender == null) {
+      Get.snackbar(
+        "Missing Information",
+        "Please select your gender before updating.",
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    final apiService = MyApIService();
+    try {
       final userModel = UserUpdateModel(
         fullName: nameController.text,
         email: emailController.text,
         phone: contactController.text,
         postalAddress: addressController.text,
-        masterSecurityLicense: userController.userData.value!.masterSecurityLicense!,
+        masterSecurityLicense:
+            userController.userData.value!.masterSecurityLicense!,
         dob: dobController.text,
         gender: selectedGender!,
       );
@@ -216,8 +284,7 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
         debugPrint("data from API ${response.body}");
         debugPrint('Error update personal info failed: ${response.body}');
       }
-    }
-    catch(e){
+    } catch (e) {
       debugPrint('Error Network error: ${e.toString()}');
     }
   }
@@ -225,17 +292,38 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
   Widget buildTextField({
     required TextEditingController controller,
     required String label,
-    required IconData icon,
+    String? iconPath, // <-- updated
+    TextInputType? keyboardType,
+    bool readOnly = false,
+    VoidCallback? onTap,
+    int? maxLength,
+    List<TextInputFormatter>? inputFormatters,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
+      padding: const EdgeInsets.symmetric(vertical: 10),
       child: TextField(
         controller: controller,
         style: const TextStyle(color: AppColors.kWhite),
+        readOnly: readOnly,
+        onTap: onTap,
+        keyboardType: keyboardType,
+        maxLength: maxLength,
+        inputFormatters: inputFormatters,
         decoration: InputDecoration(
+          counterText: "",
           labelText: label,
           labelStyle: const TextStyle(color: AppColors.kinput),
-          prefixIcon: Icon(icon, color: AppColors.kinput),
+          prefixIcon: iconPath != null
+              ? Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Image.asset(
+                    iconPath,
+                    width: 20,
+                    height: 20,
+                    color: AppColors.kinput,
+                  ),
+                )
+              : null,
           enabledBorder: const UnderlineInputBorder(
             borderSide: BorderSide(color: AppColors.kinput),
           ),
@@ -254,7 +342,7 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
     required void Function(String?) onChanged,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
+      padding: const EdgeInsets.symmetric(vertical: 10),
       child: DropdownButtonFormField<String>(
         value: value,
         dropdownColor: const Color(0xFF1F2937),
@@ -274,11 +362,6 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
           DropdownMenuItem(value: 'other', child: Text("Other")),
         ],
         onChanged: onChanged,
-        onSaved: (value) {
-          setState(() {
-            selectedGender = value;
-          });
-        },
       ),
     );
   }

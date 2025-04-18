@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:tac/data/data/constants/app_assets.dart';
 import 'package:tac/data/data/constants/app_colors.dart';
+import 'package:tac/data/data/constants/app_typography.dart';
+import 'package:tac/data/data/constants/app_colors.dart';
+import 'package:tac/data/data/constants/app_spacing.dart';
 
 import '../../../../controllers/user_controller.dart';
 import '../../../../dataproviders/api_service.dart';
@@ -11,10 +16,12 @@ class EditProfessionalInfoScreen extends StatefulWidget {
   const EditProfessionalInfoScreen({super.key});
 
   @override
-  State<EditProfessionalInfoScreen> createState() => _EditProfessionalInfoScreenState();
+  State<EditProfessionalInfoScreen> createState() =>
+      _EditProfessionalInfoScreenState();
 }
 
-class _EditProfessionalInfoScreenState extends State<EditProfessionalInfoScreen> {
+class _EditProfessionalInfoScreenState
+    extends State<EditProfessionalInfoScreen> {
   final UserController userController = Get.find<UserController>();
 
   String? selectedExperience;
@@ -25,7 +32,7 @@ class _EditProfessionalInfoScreenState extends State<EditProfessionalInfoScreen>
 
   Future<void> updateProfessionalInfo() async {
     final apiService = MyApIService(); // create instance
-    try{
+    try {
       final userModel = UserUpdateModel(
         yearsOfExperience: selectedExperience,
         licenseNumber: licenseNumber.text,
@@ -46,12 +53,41 @@ class _EditProfessionalInfoScreenState extends State<EditProfessionalInfoScreen>
         debugPrint("data from API ${response.body}");
         debugPrint('Error update professional info failed: ${response.body}');
       }
-    }
-    catch(e){
+    } catch (e) {
       debugPrint('Error Network error: ${e.toString()}');
     }
   }
 
+  Future<void> selectExpiryDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData.dark().copyWith(
+            colorScheme: ColorScheme.dark(
+              primary: AppColors.kSkyBlue,
+              onPrimary: AppColors.kBlack,
+              surface: AppColors.kDarkestBlue,
+              onSurface: AppColors.kWhite,
+            ),
+            dialogBackgroundColor: AppColors.kDarkestBlue,
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null) {
+      setState(() {
+        expiryDate.text = "${picked.day.toString().padLeft(2, '0')}/"
+            "${picked.month.toString().padLeft(2, '0')}/"
+            "${picked.year}";
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -94,16 +130,36 @@ class _EditProfessionalInfoScreenState extends State<EditProfessionalInfoScreen>
 
                   const SizedBox(height: 14),
                   buildTextField(
-                      label: 'License Number', icon: Icons.credit_card, controller: licenseNumber),
+                    label: 'License Number',
+                    iconPath: AppAssets.klicense,
+                    controller: licenseNumber,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(11),
+                    ],
+                  ),
                   const SizedBox(height: 14),
-                  buildTextField(label: 'Expiry Date', icon: Icons.date_range, controller: expiryDate),
+                  buildTextField(
+                    label: 'Expiry Date',
+                    iconPath: AppAssets.kCal,
+                    controller: expiryDate,
+                    isDate: true,
+                  ),
                   const SizedBox(height: 14),
-                  buildTextField(label: 'ABN', icon: Icons.business, controller: abnNumber),
+                  buildTextField(
+                    label: 'ABN',
+                    iconPath: AppAssets.kAbn,
+                    controller: abnNumber,
+                    maxLength: 11,
+                    keyboardType: TextInputType.number,
+                  ),
                   const SizedBox(height: 14),
                   buildTextField(
                     label: 'Preferred Work Location Address',
-                    icon: Icons.location_on,
+                    iconPath: AppAssets.kLoc,
                     controller: preferredWorkLocation,
+                    inputFormatters: [LengthLimitingTextInputFormatter(180)],
                   ),
                 ],
               ),
@@ -156,19 +212,49 @@ class _EditProfessionalInfoScreenState extends State<EditProfessionalInfoScreen>
     );
   }
 
-  Widget buildTextField({required String label, required IconData icon, TextEditingController? controller}) {
-    return TextField(
-      controller: controller,
-      style: const TextStyle(color: AppColors.kWhite),
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: const TextStyle(color: AppColors.kinput),
-        prefixIcon: Icon(icon, color: AppColors.kinput),
-        enabledBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: AppColors.kinput),
-        ),
-        focusedBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: AppColors.kSkyBlue),
+  Widget buildTextField({
+    required String label,
+    required TextEditingController controller,
+    String? iconPath,
+    IconData? icon,
+    TextInputType? keyboardType,
+    List<TextInputFormatter>? inputFormatters,
+    bool isDate = false,
+    int? maxLength,
+  }) {
+    return GestureDetector(
+      onTap: isDate ? () => selectExpiryDate(context) : null,
+      child: AbsorbPointer(
+        absorbing: isDate,
+        child: TextField(
+          controller: controller,
+          keyboardType: keyboardType ?? TextInputType.text,
+          inputFormatters: inputFormatters,
+          maxLength: maxLength,
+          style: AppTypography.kLight14.copyWith(color: AppColors.kWhite),
+          decoration: InputDecoration(
+            labelText: label,
+            labelStyle:
+                AppTypography.kLight14.copyWith(color: AppColors.kinput),
+            counterText: "",
+            prefixIcon: iconPath != null
+                ? Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Image.asset(
+                      iconPath,
+                      width: 24,
+                      height: 24,
+                      color: AppColors.kinput,
+                    ),
+                  )
+                : Icon(icon, color: AppColors.kinput),
+            enabledBorder: const UnderlineInputBorder(
+              borderSide: BorderSide(color: AppColors.kinput),
+            ),
+            focusedBorder: const UnderlineInputBorder(
+              borderSide: BorderSide(color: AppColors.kSkyBlue),
+            ),
+          ),
         ),
       ),
     );

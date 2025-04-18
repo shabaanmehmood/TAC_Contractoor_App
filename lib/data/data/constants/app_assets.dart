@@ -28,6 +28,14 @@ class AppAssets {
   static String kArrowBackward = 'assets/icon/backwardarrow.png';
   static String kPen = 'assets/icon/pen.png';
   static String kTimer = 'assets/icon/timer.png';
+  static String kAbn = 'assets/icon/abn.png';
+  static String kLoc = 'assets/icon/location.png';
+  static String kMail = 'assets/icon/email.png';
+  static String klicense = 'assets/icon/license.png';
+  static String kPer = 'assets/icon/person.png';
+  static String kGen = 'assets/icon/gender.png';
+  static String kNum = 'assets/icon/call.png';
+  static String kCal = 'assets/icon/calender.png';
 
   // static String kFaceBook = 'assets/icons/facebook.svg';
   // static String kGoogle = 'assets/icons/google.svg';
