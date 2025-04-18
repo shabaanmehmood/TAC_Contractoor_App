@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:tac/controllers/user_controller.dart';
 import 'package:tac/data/data/constants/app_colors.dart';
+import 'package:tac/widhets/common%20overlays/uploadFile_overlay.dart';
 
-class AddLicenseScreen extends StatefulWidget {
-  const AddLicenseScreen({super.key});
+import '../../../../dataproviders/api_service.dart';
+import '../../../../routes/app_routes.dart';
 
-  @override
-  State<AddLicenseScreen> createState() => _AddLicenseScreenState();
-}
-
-class _AddLicenseScreenState extends State<AddLicenseScreen> {
-  String? selectedLicenseType;
+class AddLicenseController extends GetxController {
+  String selectedLicenseType = "";
 
   final List<String> licenseTypes = [
     'Security Guard',
@@ -20,7 +18,19 @@ class _AddLicenseScreenState extends State<AddLicenseScreen> {
     'Surveillance Training',
   ];
 
-  void showLicenseTypeBottomSheet() {
+  void selectLicenseType(String type) {
+    selectedLicenseType = type;
+    update(); // notify UI widgets that use `GetBuilder`
+  }
+}
+
+class AddLicenseScreen extends StatelessWidget {
+  AddLicenseScreen({super.key});
+
+  final AddLicenseController addLicenseController = Get.put(AddLicenseController());
+
+  void showLicenseTypeBottomSheet(BuildContext context) {
+    final controller = Get.find<AddLicenseController>();
     Get.bottomSheet(
       Container(
         decoration: const BoxDecoration(
@@ -42,21 +52,19 @@ class _AddLicenseScreenState extends State<AddLicenseScreen> {
               ),
             ),
             const Divider(color: Colors.white24),
-            ...licenseTypes.map((type) {
-              final isSelected = type == selectedLicenseType;
+            ...controller.licenseTypes.map((type) {
+              final isSelected = type == controller.selectedLicenseType;
               return ListTile(
                 title: Text(
                   type,
                   style: TextStyle(
                     color: isSelected ? AppColors.kSkyBlue : Colors.white,
                     fontWeight:
-                        isSelected ? FontWeight.bold : FontWeight.normal,
+                    isSelected ? FontWeight.bold : FontWeight.normal,
                   ),
                 ),
                 onTap: () {
-                  setState(() {
-                    selectedLicenseType = type;
-                  });
+                  controller.selectLicenseType(type);
                   Get.back();
                 },
               );
@@ -99,99 +107,105 @@ class _AddLicenseScreenState extends State<AddLicenseScreen> {
         children: [
           SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  "Details",
-                  style: TextStyle(
-                    color: AppColors.kSkyBlue,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                  ),
-                ),
-                const SizedBox(height: 14),
-                buildDropdownField(
-                  selectedLicenseType ?? "Licenses Type",
-                  Icons.folder_open,
-                  showLicenseTypeBottomSheet,
-                ),
-                const SizedBox(height: 16),
-                buildTextField("License Number", Icons.badge),
-                const SizedBox(height: 16),
-                buildTextField("Expiry Date", Icons.calendar_today),
-                const SizedBox(height: 24),
-                const Text(
-                  "Scan Copy of License",
-                  style: TextStyle(
-                    color: AppColors.kSkyBlue,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-                  decoration: BoxDecoration(
-                    color: AppColors.kJobCardColor,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Icon(Icons.attach_file,
-                          color: AppColors.kinput, size: 20),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
-                            Row(
-                              children: [
-                                Text(
-                                  "Attach Doc",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w500,
-                                  ),
+            child: GetBuilder<AddLicenseController>(
+              builder: (controller) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Details",
+                      style: TextStyle(
+                        color: AppColors.kSkyBlue,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    buildDropdownField(
+                      controller.selectedLicenseType.isEmpty
+                          ? "Licenses Type"
+                          : controller.selectedLicenseType,
+                      Icons.folder_open,
+                          () => showLicenseTypeBottomSheet(context),
+                    ),
+                    const SizedBox(height: 16),
+                    buildTextField("License Number", Icons.badge),
+                    const SizedBox(height: 16),
+                    buildTextField("Expiry Date", Icons.calendar_today),
+                    const SizedBox(height: 24),
+                    const Text(
+                      "Scan Copy of License",
+                      style: TextStyle(
+                        color: AppColors.kSkyBlue,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 14),
+                      decoration: BoxDecoration(
+                        color: AppColors.kJobCardColor,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(Icons.attach_file,
+                              color: AppColors.kinput, size: 20),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: const [
+                                Row(
+                                  children: [
+                                    Text(
+                                      "Attach Doc",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      "Optional",
+                                      style: TextStyle(
+                                        color: AppColors.kalert,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                SizedBox(width: 8),
+                                SizedBox(height: 6),
                                 Text(
-                                  "Optional",
+                                  "Min 10MB. Upload only PDF, DOC, DOCX, JPG, PNG",
                                   style: TextStyle(
-                                    color: AppColors.kalert,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
+                                    color: AppColors.kinput,
+                                    fontSize: 11,
                                   ),
                                 ),
                               ],
                             ),
-                            SizedBox(height: 6),
-                            Text(
-                              "Min 10MB. Upload only PDF, DOC, DOCX, JPG, PNG",
+                          ),
+                          GestureDetector(
+                            onTap: () => showUploadFileBottomSheet(context, false, true),
+                            child: const Text(
+                              "Upload",
                               style: TextStyle(
-                                color: AppColors.kinput,
-                                fontSize: 11,
+                                color: AppColors.kSkyBlue,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
-                          ],
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () {},
-                        child: const Text(
-                          "Upload",
-                          style: TextStyle(
-                            color: AppColors.kSkyBlue,
-                            fontWeight: FontWeight.bold,
                           ),
-                        ),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
-              ],
+                    ),
+                  ],
+                );
+              },
             ),
           ),
           Align(
@@ -221,8 +235,7 @@ class _AddLicenseScreenState extends State<AddLicenseScreen> {
                           onPressed: () => Get.back(),
                           style: OutlinedButton.styleFrom(
                             shape: RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.circular(10)), // 🔹 RECTANGLE
+                                borderRadius: BorderRadius.circular(10)),
                             side: const BorderSide(color: AppColors.kSkyBlue),
                             foregroundColor: AppColors.kSkyBlue,
                             padding: const EdgeInsets.symmetric(vertical: 16),
@@ -234,11 +247,12 @@ class _AddLicenseScreenState extends State<AddLicenseScreen> {
                       Expanded(
                         flex: 7,
                         child: ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            // Save license
+                          },
                           style: ElevatedButton.styleFrom(
                             shape: RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.circular(10)), // 🔹 RECTANGLE
+                                borderRadius: BorderRadius.circular(10)),
                             backgroundColor: AppColors.kSkyBlue,
                             foregroundColor: Colors.black,
                             padding: const EdgeInsets.symmetric(vertical: 16),
@@ -294,18 +308,13 @@ class _AddLicenseScreenState extends State<AddLicenseScreen> {
             children: [
               Icon(icon, color: AppColors.kinput, size: 18),
               const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  hint,
-                  style: TextStyle(
-                    color: hint == "Licenses Type"
-                        ? AppColors.kinput
-                        : Colors.white,
-                    fontSize: 14,
-                  ),
+              Text(
+                hint,
+                style: const TextStyle(
+                  color: AppColors.kinput,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
-              const Icon(Icons.keyboard_arrow_down, color: AppColors.kinput),
             ],
           ),
           const Divider(color: AppColors.kSkyBlue, thickness: 1),

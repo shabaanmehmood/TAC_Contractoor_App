@@ -1,4 +1,7 @@
+import 'package:tac/models/personaldetails_model.dart';
 import 'package:tac/models/profileImages_model.dart';
+
+import 'documents_model.dart';
 
 class UserDataModel {
   String? message;
@@ -34,7 +37,7 @@ class Data {
   String? password;
   String? role;
   String? dob;
-  Null? token;
+  String? token;
   bool? isVerified;
   String? fcmToken;
   String? gender;
@@ -42,29 +45,34 @@ class Data {
   bool? isDeleted;
   String? createdDate;
   String? updatedDate;
+  String? appleId;
   List<ProfileImages>? profileImages;
-  Null? personalDetails;
+  PersonalDetails? personalDetails;
+  List<Documents>? documents;
 
-  Data(
-      {this.id,
-        this.fullName,
-        this.email,
-        this.phone,
-        this.postalAddress,
-        this.masterSecurityLicense,
-        this.password,
-        this.role,
-        this.dob,
-        this.token,
-        this.isVerified,
-        this.fcmToken,
-        this.gender,
-        this.isActive,
-        this.isDeleted,
-        this.createdDate,
-        this.updatedDate,
-        this.profileImages,
-        this.personalDetails});
+  Data({
+    this.id,
+    this.fullName,
+    this.email,
+    this.phone,
+    this.postalAddress,
+    this.masterSecurityLicense,
+    this.password,
+    this.role,
+    this.dob,
+    this.token,
+    this.isVerified,
+    this.fcmToken,
+    this.gender,
+    this.isActive,
+    this.isDeleted,
+    this.createdDate,
+    this.updatedDate,
+    this.appleId,
+    this.profileImages,
+    this.personalDetails,
+    this.documents,
+  });
 
   Data.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -84,39 +92,60 @@ class Data {
     isDeleted = json['isDeleted'];
     createdDate = json['createdDate'];
     updatedDate = json['updatedDate'];
+    appleId = json['appleId'];
+
     if (json['profileImages'] != null) {
       profileImages = <ProfileImages>[];
       json['profileImages'].forEach((v) {
-        profileImages!.add(new ProfileImages.fromJson(v));
+        profileImages!.add(ProfileImages.fromJson(v));
       });
     }
-    personalDetails = json['personalDetails'];
+
+    personalDetails = json['personalDetails'] != null
+        ? PersonalDetails.fromJson(json['personalDetails'])
+        : null;
+
+    if (json['documents'] != null) {
+      documents = <Documents>[];
+      json['documents'].forEach((v) {
+        documents!.add(Documents.fromJson(v));
+      });
+    }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['fullName'] = this.fullName;
-    data['email'] = this.email;
-    data['phone'] = this.phone;
-    data['postalAddress'] = this.postalAddress;
-    data['masterSecurityLicense'] = this.masterSecurityLicense;
-    data['password'] = this.password;
-    data['role'] = this.role;
-    data['dob'] = this.dob;
-    data['token'] = this.token;
-    data['isVerified'] = this.isVerified;
-    data['fcmToken'] = this.fcmToken;
-    data['gender'] = this.gender;
-    data['isActive'] = this.isActive;
-    data['isDeleted'] = this.isDeleted;
-    data['createdDate'] = this.createdDate;
-    data['updatedDate'] = this.updatedDate;
-    if (this.profileImages != null) {
-      data['profileImages'] =
-          this.profileImages!.map((v) => v.toJson()).toList();
+    final Map<String, dynamic> data = {};
+    data['id'] = id;
+    data['fullName'] = fullName;
+    data['email'] = email;
+    data['phone'] = phone;
+    data['postalAddress'] = postalAddress;
+    data['masterSecurityLicense'] = masterSecurityLicense;
+    data['password'] = password;
+    data['role'] = role;
+    data['dob'] = dob;
+    data['token'] = token;
+    data['isVerified'] = isVerified;
+    data['fcmToken'] = fcmToken;
+    data['gender'] = gender;
+    data['isActive'] = isActive;
+    data['isDeleted'] = isDeleted;
+    data['createdDate'] = createdDate;
+    data['updatedDate'] = updatedDate;
+    data['appleId'] = appleId;
+
+    if (profileImages != null) {
+      data['profileImages'] = profileImages!.map((v) => v.toJson()).toList();
     }
-    data['personalDetails'] = this.personalDetails;
+
+    if (personalDetails != null) {
+      data['personalDetails'] = personalDetails!.toJson();
+    }
+
+    if (documents != null) {
+      data['documents'] = documents!.map((v) => v.toJson()).toList();
+    }
+
     return data;
   }
 }

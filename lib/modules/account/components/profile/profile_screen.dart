@@ -3,9 +3,12 @@ import 'package:get/get.dart';
 import 'package:tac/modules/account/components/profile/document.dart';
 import 'package:tac/modules/account/components/profile/personal_information.dart';
 import 'package:tac/modules/account/components/profile/professional_information.dart';
+import 'package:tac/widhets/common%20overlays/uploadFile_overlay.dart';
 import '../../../../controllers/user_controller.dart';
 import '../../../../data/data/constants/app_assets.dart';
 import '../../../../dataproviders/api_service.dart';
+import '../../../../models/profileImages_model.dart';
+import '../../../../models/userupdate_model.dart';
 import 'profile_dummy_data.dart';
 import 'package:tac/data/data/constants/app_colors.dart';
 
@@ -19,6 +22,11 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
 
   final UserController userController = Get.find<UserController>();
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -90,7 +98,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   TextButton(
                     onPressed: () {
-                      // Future upload logic
+                      showUploadFileBottomSheet(context, true, false);
                     },
                     child: const Text(
                       'Update',
@@ -150,13 +158,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
             buildDualColumnInfoSection(
               title: "Personal Information",
               info: [
-                {"label": "Full Name", "value": profile.fullName},
-                {"label": "Email Address", "value": profile.email},
-                {"label": "Gender", "value": profile.gender},
-                {"label": "Date of Birth", "value": profile.dob},
-                {"label": "Contact Number", "value": profile.phone},
-                {"label": "Postal Code", "value": profile.postcode},
-                {"label": "Residential Address", "value": profile.address},
+                {"label": "Full Name", "value": userController.userData.value?.fullName ?? "-"},
+                {"label": "Email Address", "value": userController.userData.value?.email ?? "-"},
+                {"label": "Gender", "value": userController.userData.value?.gender ?? "-"},
+                {"label": "Date of Birth", "value": userController.userData.value?.dob ?? "-"},
+                {"label": "Contact Number", "value": userController.userData.value?.phone ?? "-"},
+                {"label": "Postal Code", "value": "-"},
+                {"label": "Residential Address", "value": userController.userData.value?.postalAddress ?? "-"},
               ],
               onEdit: () => Get.to(() => const EditPersonalInfoScreen()),
             ),
@@ -166,18 +174,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
             buildDualColumnInfoSection(
               title: "Professional Information",
               info: [
-                {"label": "Year of Experience", "value": profile.experience},
-                {"label": "Level", "value": profile.level},
+                {"label": "Year of Experience", "value": userController.userData.value?.personalDetails?.yearsOfExperience.toString() ?? "-"},
+                // {"label": "Occupation", "value": profile.occupation},
+                // {"label": "Suburb", "value": profile.suburb},
+                // {"label": "State", "value": profile.state},
+                // {"label": "Country", "value": profile.country},
+                {"label": "Level", "value": "-"},
                 {
                   "label": "Security Licence Number",
-                  "value": profile.licenceNumber
+                  "value": userController.userData.value?.personalDetails?.licenseNumber.toString() ?? "-"
                 },
-                {"label": "Licence Expiry Date", "value": profile.expiryDate},
-                {"label": "ABN", "value": profile.abn},
-                {"label": "Professional Badge", "value": profile.badge},
+                {"label": "Licence Expiry Date", "value": '-'},
+                {"label": "ABN", "value": userController.userData.value?.personalDetails?.abn.toString() ?? "-"},
+                {"label": "Professional Badge", "value": '-'},
                 {
                   "label": "Preferred Work Location",
-                  "value": profile.professionalAddress
+                  "value": userController.userData.value?.personalDetails?.preferredLocationAddresses.toString() ?? "-"
                 },
               ],
               onEdit: () => Get.to(() => const EditProfessionalInfoScreen()),

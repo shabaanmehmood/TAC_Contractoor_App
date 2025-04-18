@@ -1,6 +1,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:get/get_navigation/src/routes/get_route.dart';
+import 'package:tac/modules/account/account.dart';
 import 'package:tac/modules/account/components/profile/profile_screen.dart';
 import 'package:tac/modules/auth/sign_up_view.dart';
 import 'package:tac/modules/auth/sign_in_view.dart';
@@ -40,7 +41,7 @@ class AppRoutes {
     ),
     GetPage<Route<dynamic>>(
       name: profile,
-      page: () => const ProfileScreen(),
+      page: () => const AccountScreen(),
     ),
     // GetPage<Route<dynamic>>(
     //   name: settings,

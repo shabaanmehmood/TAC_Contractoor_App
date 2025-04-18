@@ -32,7 +32,7 @@ class SecurityLicenseScreen extends StatelessWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () => Get.to(() => const AddLicenseScreen()),
+            onPressed: () => Get.to(() => AddLicenseScreen()),
             child: const Text(
               "Add License",
               style: TextStyle(

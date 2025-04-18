@@ -22,15 +22,15 @@ class AccountScreen extends StatelessWidget {
 
   void navigateToPlaceholder(String screenName) {
     Get.to(() => Scaffold(
-          appBar: AppBar(title: Text(screenName)),
-          body: Center(child: Text('$screenName Screen Coming Soon')),
-        ));
+      appBar: AppBar(title: Text(screenName)),
+      body: Center(child: Text('$screenName Screen Coming Soon')),
+    ));
   }
 
   @override
   Widget build(BuildContext context) {
     final AccountController controller = Get.put(AccountController());
-    final userController = Get.find<UserController>();
+    final userController = Get.find<UserController>().obs;
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
@@ -55,7 +55,8 @@ class AccountScreen extends StatelessWidget {
                   children: [
                     // Square Profile Image
                     Obx(() {
-                      final imagePath = userController.userData.value?.profileImages?.first.imageUrl;
+                      final imagePath = userController.value.userData.value?.profileImages?.first.imageUrl;
+                      // userController.userData.value?.profileImages?.first.imageUrl
                       final imageUrl = MyApIService.fullImageUrl(imagePath);
                       return Container(
                         width: 34,
@@ -125,7 +126,8 @@ class AccountScreen extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            Text(userController.userData.value?.fullName ?? '',
+                            Text(userController.value.userData.value?.fullName ?? '',
+                            // Text(userController.userData.value?.fullName ?? '',
                                 style: TextStyle(
                                     color: AppColors.kWhite,
                                     fontSize: 18,

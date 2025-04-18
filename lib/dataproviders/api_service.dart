@@ -7,6 +7,7 @@ import 'package:tac/models/getUserById_model.dart';
 
 import '../controllers/user_controller.dart';
 import '../models/userdata_model.dart';
+import '../models/userupdate_model.dart';
 
 class MyApIService {
 
@@ -141,7 +142,7 @@ class MyApIService {
     return response;
   }
 
-  Future<http.StreamedResponse> uploadFile(String fileType, String userId, String filePath) async {
+  Future<http.StreamedResponse> uploadFile(String userId, String fileType, String filePath) async {
     var functionUrl = 'user-documents/upload';
     final request = http.MultipartRequest('POST',Uri.parse(baseurl + functionUrl))
       ..fields['userId'] = userId
@@ -184,40 +185,91 @@ class MyApIService {
     return '$imageBaseUrl$imagePath';
   }
 
+  // Future<http.Response> updatePersonalInfo(
+  //     String? userId,
+  //     String? fullName,
+  //     String? email,
+  //     String? phone,
+  //     String? postalAddress,
+  //     String? masterSecurityLicense,
+  //     String? password,
+  //     String? role,
+  //     String? dob,
+  //     String? gender,
+  //     String? fcmToken,
+  //     String? appleId,
+  //     int? yearsOfExperience,
+  //     String? licenseNumber,
+  //     String? abn,
+  //     List<String>? preferredLocationAddresses,
+  //     ) async {
+  //   var functionUrl = 'users/$userId';
+  //
+  //   Map<String, dynamic> body = {};
+  //
+  //   if (fullName != null) body['fullName'] = fullName;
+  //   if (email != null) body['email'] = email;
+  //   if (phone != null) body['phone'] = phone;
+  //   if (postalAddress != null) body['postalAddress'] = postalAddress;
+  //   if (masterSecurityLicense != null) body['masterSecurityLicense'] = masterSecurityLicense;
+  //   if (password != null) body['password'] = password;
+  //   if (role != null) body['role'] = role;
+  //   if (dob != null) body['dob'] = dob;
+  //   if (gender != null) body['gender'] = gender;
+  //   if (fcmToken != null) body['fcmToken'] = fcmToken;
+  //   if (appleId != null) body['appleId'] = appleId;
+  //
+  //   Map<String, dynamic> personalDetails = {};
+  //   if (yearsOfExperience != null) personalDetails['yearsOfExperience'] = yearsOfExperience;
+  //   if (licenseNumber != null) personalDetails['licenseNumber'] = licenseNumber;
+  //   if (abn != null) personalDetails['abn'] = abn;
+  //   if (preferredLocationAddresses != null) personalDetails['preferredLocationAddresses'] = preferredLocationAddresses;
+  //
+  //   if (personalDetails.isNotEmpty) body['personalDetails'] = personalDetails;
+  //
+  //   final response = await http.patch(
+  //     Uri.parse(baseurl + functionUrl),
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //       'ngrok-skip-browser-warning': 'true',
+  //     },
+  //     body: jsonEncode(body),
+  //   );
+  //
+  //   if (response.statusCode == 200) {
+  //     final json = jsonDecode(response.body);
+  //     final userData = GetUserById.fromJson(json).data;
+  //
+  //     if (userData != null) {
+  //       Get.find<UserController>().setUser(userData);
+  //       debugPrint('User loaded and stored in session');
+  //     }
+  //   } else {
+  //     debugPrint('Error updating user: ${response.statusCode}');
+  //   }
+  //
+  //   return response;
+  // }
+
   Future<http.Response> updatePersonalInfo(
-      String? userId, String? fullName, String? email, String? phone, String? postalAddress, String? masterSecurityLicense,
-      String? password, String? role, String? dob, String? gender, String? fcmToken) async {
-    var functionUrl = 'users/$userId';
+      String userId, UserUpdateModel userModel) async {
+    final functionUrl = 'users/$userId';
     final response = await http.patch(
       Uri.parse(baseurl + functionUrl),
       headers: {
         "Content-Type": "application/json",
         'ngrok-skip-browser-warning': 'true',
       },
-      body: jsonEncode({
-        "fullName": fullName,
-        "email": email,
-        "phone": phone,
-        "postalAddress": postalAddress,
-        "masterSecurityLicense": masterSecurityLicense,
-        "password": password,
-        "role": role,
-        "dob": dob,
-        "gender": gender,
-        "fcmToken": fcmToken,
-      }),
+      body: jsonEncode(userModel.toJson()),
     );
+
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body);
-      final userData = GetUserById.fromJson(json).data;
-
-      if (userData != null) {
-        Get.find<UserController>().setUser(userData);
-        debugPrint('User loaded and stored in session');
-      }
+      debugPrint('Response in updatePersonalInfo: $json');
     } else {
       debugPrint('Error updating user: ${response.statusCode}');
     }
+
     return response;
   }
 

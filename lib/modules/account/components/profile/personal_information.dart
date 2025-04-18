@@ -4,6 +4,7 @@ import 'package:tac/data/data/constants/app_colors.dart';
 
 import '../../../../controllers/user_controller.dart';
 import '../../../../dataproviders/api_service.dart';
+import '../../../../models/userupdate_model.dart';
 import '../../../../routes/app_routes.dart';
 
 class EditPersonalInfoScreen extends StatefulWidget {
@@ -23,8 +24,6 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
   final TextEditingController contactController = TextEditingController();
   final TextEditingController postalCodeController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
-  final String role = 'user';
-  final String fcmToken = 'sampleToken';
 
   String? selectedGender;
 
@@ -45,7 +44,6 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
 
   @override
   void dispose() {
-    // Dispose controllers to avoid memory leaks
     nameController.dispose();
     emailController.dispose();
     genderController.dispose();
@@ -195,23 +193,25 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
   Future<void> updatePersonalInfo() async {
     final apiService = MyApIService(); // create instance
     try{
+      final userModel = UserUpdateModel(
+        fullName: nameController.text,
+        email: emailController.text,
+        phone: contactController.text,
+        postalAddress: addressController.text,
+        masterSecurityLicense: userController.userData.value!.masterSecurityLicense!,
+        dob: dobController.text,
+        gender: selectedGender!,
+      );
+
       final response = await apiService.updatePersonalInfo(
         userController.userData.value!.id!,
-        nameController.text,
-        emailController.text,
-        contactController.text,
-        addressController.text,
-        userController.userData.value!.masterSecurityLicense!,
-        userController.userData.value!.password!,
-        role,
-        dobController.text,
-        selectedGender!,
-        fcmToken,
+        userModel,
       );
 
       if (response.statusCode == 200) {
         debugPrint("data from API ${response.body}");
-        Get.offAndToNamed(AppRoutes.getProfilePageRoute());
+        await apiService.getUserByID(userController.userData.value!.id!);
+        Get.offAndToNamed(AppRoutes.getLandingPageRoute());
       } else {
         debugPrint("data from API ${response.body}");
         debugPrint('Error update personal info failed: ${response.body}');
@@ -269,11 +269,16 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
         style: const TextStyle(color: AppColors.kWhite),
         iconEnabledColor: AppColors.kinput,
         items: const [
-          DropdownMenuItem(value: 'male', child: Text("male")),
-          DropdownMenuItem(value: 'female', child: Text("female")),
-          DropdownMenuItem(value: 'other', child: Text("other")),
+          DropdownMenuItem(value: 'male', child: Text("Male")),
+          DropdownMenuItem(value: 'female', child: Text("Female")),
+          DropdownMenuItem(value: 'other', child: Text("Other")),
         ],
         onChanged: onChanged,
+        onSaved: (value) {
+          setState(() {
+            selectedGender = value;
+          });
+        },
       ),
     );
   }
