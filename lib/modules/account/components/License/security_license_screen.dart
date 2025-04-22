@@ -203,7 +203,8 @@ class SecurityLicenseScreen extends StatelessWidget {
 
   Widget userProfileImageWidget() {
     return Obx(() {
-      final imagePath = userController.userData.value?.profileImages?.first.imageUrl;
+      final imagePath = userController.userData.value?.documents?.first.fileUrl;
+      // final imagePath = userController.userData.value?.profileImages?.first.imageUrl;
       final imageUrl = MyApIService.fullImageUrl(imagePath);
 
       return Container(

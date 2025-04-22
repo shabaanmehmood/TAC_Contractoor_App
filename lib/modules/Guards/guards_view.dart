@@ -7,7 +7,9 @@ import 'package:tac/data/data/constants/constants.dart';
 import 'package:tac/modules/home/components/search_field.dart';
 import 'package:tac/widhets/common%20widgets/buttons/job_card.dart';
 
+import '../../controllers/user_controller.dart';
 import '../../data/data/constants/app_colors.dart';
+import '../../dataproviders/api_service.dart';
 import '../alerts/notification_view.dart';
 import 'dummy_data.dart';
 
@@ -112,6 +114,7 @@ class _GuardsViewState extends State<GuardsView> {
 }
 
 Widget _appBar(BuildContext context) {
+  final userController = Get.find<UserController>();
   return Column(
     children: [
       Row(
@@ -155,14 +158,24 @@ Widget _appBar(BuildContext context) {
             ],
           ),
           const SizedBox(width: 10,),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(10.0),//or 15.0
-            child: SizedBox(
-                height: 40.0,
-                width: 40.0,
-                child: Image.asset(AppAssets.kUserPicture)
-            ),
-          )
+          Obx(() {
+            final imagePath = userController.userData.value?.profileImages?.first.imageUrl;
+            // userController.userData.value?.profileImages?.first.imageUrl
+            final imageUrl = MyApIService.fullImageUrl(imagePath);
+            return Container(
+              width: 34,
+              height: 34,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(4),
+                image: DecorationImage(
+                  image: imageUrl != null
+                      ? NetworkImage(imageUrl)
+                      : AssetImage(AppAssets.kUserPicture) as ImageProvider,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            );
+          }),
         ],
       ),
       SizedBox(height: AppSpacing.tenVertical,),

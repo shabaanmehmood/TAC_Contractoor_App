@@ -2,8 +2,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
+import 'package:tac/controllers/user_controller.dart';
 import 'package:tac/data/data/constants/app_colors.dart';
 import 'package:tac/modules/account/components/Settings/reset.dart';
+
+import '../../../../dataproviders/api_service.dart';
 
 class OtpScreen extends StatefulWidget {
   const OtpScreen({super.key});
@@ -16,6 +19,13 @@ class _OtpScreenState extends State<OtpScreen> {
   late Timer _timer;
   int _secondsRemaining = 30;
   bool _canResend = false;
+  final UserController userController = Get.put(UserController());
+  //Enter OTP Screen usage things
+  var otpCode = ''.obs; // Holds the entered OTP
+  List<TextEditingController> otpControllers = List.generate(4, (index) => TextEditingController());
+  final List<FocusNode> focusNodes =
+  List.generate(4, (index) => FocusNode());
+
 
   @override
   void initState() {
@@ -44,9 +54,26 @@ class _OtpScreenState extends State<OtpScreen> {
     super.dispose();
   }
 
-  void verifyOtp(String otp) {
-    // Add verification logic here
-    print("Entered OTP: $otp");
+  //verify OTP
+  Future<void> verifyOtp() async {
+      final apiService = MyApIService(); // create instance
+      try{
+        final response = await apiService.verifyOtp(
+          userController.userData.value!.email.toString(),
+          otpControllers.map((controller) => controller.text).join().toString(),
+        );
+
+        if (response.statusCode == 200) {
+          debugPrint("data from API ${response.body}");
+          Get.to(() => ResetPasswordScreen());
+        } else {
+          debugPrint("data from API ${response.body}");
+          debugPrint('Error verify Otp failed: ${response.body}');
+        }
+      }
+      catch(e){
+        debugPrint('Error Network error: ${e.toString()}');
+      }
   }
 
   @override
@@ -87,25 +114,38 @@ class _OtpScreenState extends State<OtpScreen> {
               style: TextStyle(color: AppColors.kinput, fontSize: 13),
             ),
             const SizedBox(height: 24),
-            PinCodeTextField(
-              appContext: context,
-              length: 6,
-              obscureText: true,
-              obscuringCharacter: '*',
-              animationType: AnimationType.fade,
-              pinTheme: PinTheme(
-                shape: PinCodeFieldShape.underline,
-                fieldHeight: 50,
-                fieldWidth: 40,
-                activeColor: AppColors.kSkyBlue,
-                inactiveColor: AppColors.kinput,
-                selectedColor: AppColors.kSkyBlue,
-              ),
-              textStyle: const TextStyle(color: Colors.white, fontSize: 20),
-              cursorColor: AppColors.kSkyBlue,
-              keyboardType: TextInputType.number,
-              onChanged: (_) {},
-              onCompleted: verifyOtp,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(4, (index) {
+                return Container(
+                  width: 40,
+                  height: 50,
+                  margin: EdgeInsets.symmetric(horizontal: 5),
+                  // decoration: BoxDecoration(
+                  //   border: Border.all(color: AppColors.kSkyBlue),
+                  //   borderRadius: BorderRadius.circular(8),
+                  // ),
+                  child: TextFormField(
+                    controller: otpControllers[index],
+                    focusNode: focusNodes[index],
+                    keyboardType: TextInputType.number,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: AppColors.kWhite, fontSize: 18),
+                    maxLength: 1,
+                    decoration: const InputDecoration(
+                      counterText: "",
+                      border: UnderlineInputBorder(),
+                    ),
+                    onChanged: (value) {
+                      if (value.isNotEmpty && index < 4) {
+                        FocusScope.of(context).nextFocus();
+                      } else if (value.isEmpty && index > 0) {
+                        FocusScope.of(context).previousFocus();
+                      }
+                    },
+                  ),
+                );
+              }),
             ),
             const SizedBox(height: 24),
             SizedBox(
@@ -113,7 +153,13 @@ class _OtpScreenState extends State<OtpScreen> {
               height: 50,
               child: ElevatedButton(
                 onPressed: () {
-                  Get.to(() => const ResetPasswordScreen());
+                  if (otpControllers.every((controller) => controller.text.isNotEmpty)) {
+                    verifyOtp();
+                  } else {
+                    Get.snackbar("Error", "Please enter all OTP digits",
+                        backgroundColor: Colors.red,
+                        colorText: Colors.white);
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.kSkyBlue,

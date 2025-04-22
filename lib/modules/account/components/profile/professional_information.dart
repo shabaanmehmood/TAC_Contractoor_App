@@ -24,7 +24,7 @@ class _EditProfessionalInfoScreenState
     extends State<EditProfessionalInfoScreen> {
   final UserController userController = Get.find<UserController>();
 
-  String? selectedExperience;
+  int? selectedExperience;
   final TextEditingController licenseNumber = TextEditingController();
   final TextEditingController expiryDate = TextEditingController();
   final TextEditingController abnNumber = TextEditingController();
@@ -87,6 +87,25 @@ class _EditProfessionalInfoScreenState
             "${picked.year}";
       });
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    final userData = userController.userData.value;
+    selectedExperience = userData!.personalDetails?.yearsOfExperience;
+    licenseNumber.text = userData!.masterSecurityLicense ?? '';
+    abnNumber.text = userData!.personalDetails?.abn ?? '';
+    preferredWorkLocation.text = userData!.personalDetails?.preferredLocationAddresses.toString() ?? '';
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    licenseNumber.dispose();
+    expiryDate.dispose();
+    abnNumber.dispose();
+    preferredWorkLocation.dispose();
   }
 
   @override
@@ -276,13 +295,13 @@ class _EditProfessionalInfoScreenState
       ),
       style: const TextStyle(color: AppColors.kWhite),
       iconEnabledColor: AppColors.kinput,
-      value: null,
+      value: selectedExperience?.toString(),
       items: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '10+']
           .map((e) => DropdownMenuItem(value: e, child: Text(e)))
           .toList(),
       onChanged: (value) {
         setState(() {
-          selectedExperience = value;
+          selectedExperience = int.tryParse(value!);
         });
       },
     );

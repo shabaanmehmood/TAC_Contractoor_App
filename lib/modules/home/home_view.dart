@@ -9,9 +9,11 @@ import 'package:tac/models/userdata_model.dart';
 import 'package:tac/modules/alerts/notification_view.dart';
 import 'package:tac/modules/home/components/search_field.dart';
 import 'package:tac/modules/location/current_location.dart';
+import 'package:tac/modules/map/liveTrackingPage.dart';
 
 import '../../controllers/user_controller.dart';
 import '../../data/data/constants/app_colors.dart';
+import '../../dataproviders/api_service.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -45,16 +47,17 @@ class _HomeViewState extends State<HomeView> {
                 onTap: () {
                   Get.to(() => CurrentLocationView());
                 },
-                child: GoogleMap(
-                  mapToolbarEnabled: true,
-                  initialCameraPosition: CameraPosition(
-                    target: _center,
-                    zoom: 11.0,
-                  ),
-                  onMapCreated: _onMapCreated,
-                  myLocationEnabled: true,
-                  myLocationButtonEnabled: true,
-                )
+                child: Livetrackingpage(),
+                // GoogleMap(
+                //   mapToolbarEnabled: true,
+                //   initialCameraPosition: CameraPosition(
+                //     target: _center,
+                //     zoom: 11.0,
+                //   ),
+                //   onMapCreated: _onMapCreated,
+                //   myLocationEnabled: true,
+                //   myLocationButtonEnabled: true,
+                // )
               ),
             )
           ],
@@ -67,6 +70,7 @@ class _HomeViewState extends State<HomeView> {
 }
 
 Widget _appBar(BuildContext context) {
+  final UserController userController = Get.find<UserController>();
   return Padding(
     padding: EdgeInsets.symmetric(horizontal: AppSpacing.twentyHorizontal),
     child: SizedBox(
@@ -109,14 +113,24 @@ Widget _appBar(BuildContext context) {
                 ],
               ),
               const SizedBox(width: 10),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(10.0), // or 15.0
-                child: SizedBox(
-                  height: 40.0,
-                  width: 40.0,
-                  child: Image.asset(AppAssets.kUserPicture),
-                ),
-              ),
+              Obx(() {
+                final imagePath = userController.userData.value?.profileImages?.first.imageUrl;
+                // userController.userData.value?.profileImages?.first.imageUrl
+                final imageUrl = MyApIService.fullImageUrl(imagePath);
+                return Container(
+                  width: 34,
+                  height: 34,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(4),
+                    image: DecorationImage(
+                      image: imageUrl != null
+                          ? NetworkImage(imageUrl)
+                          : AssetImage(AppAssets.kUserPicture) as ImageProvider,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                );
+              }),
             ],
           ),
           SizedBox(height: AppSpacing.tenVertical),

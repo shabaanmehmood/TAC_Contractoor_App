@@ -60,11 +60,11 @@ class UploadFileController extends GetxController {
     try {
       final response = await apiService.uploadFile(
         userController.userData.value!.id!,
-        addLicenseController.selectedLicenseType!,
+        addLicenseController.selectedLicenseType,
         filePath,
       );
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 201) {
         debugPrint("Document uploaded successfully");
         await apiService.getUserByID(userController.userData.value!.id!);
         Get.offAndToNamed(AppRoutes.getProfilePageRoute());

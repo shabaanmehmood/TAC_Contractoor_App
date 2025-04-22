@@ -196,7 +196,7 @@ class AccountScreen extends StatelessWidget {
                       Icons.account_balance,
                       'Set payment method and withdrawal settings',
                       'Bank Details',
-                      onTap: () => Get.to(() => const BankDetailsScreen())),
+                      onTap: () => Get.to(() => BankDetailsScreen())),
                   buildCard(screenWidth, 'Help & Support', Icons.help,
                       'Get assistance', 'Help',
                       onTap: () => Get.to(() => const HelpSupportScreen())),

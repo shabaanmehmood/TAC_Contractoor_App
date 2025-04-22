@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tac/data/data/constants/app_colors.dart';
 
+import '../../../../controllers/user_controller.dart';
+import '../../../../dataproviders/api_service.dart';
+import '../../../../routes/app_routes.dart';
+
 class ResetPasswordScreen extends StatefulWidget {
   const ResetPasswordScreen({super.key});
 
@@ -12,6 +16,31 @@ class ResetPasswordScreen extends StatefulWidget {
 class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   bool _obscureNewPassword = true;
   bool _obscureConfirmPassword = true;
+  final userController = Get.put(UserController());
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController = TextEditingController();
+
+  Future<void> resetPassword() async {
+   final apiService = MyApIService(); // create instance
+      try{
+        final response = await apiService.resetPassword(
+          userController.userData.value!.email.toString(),
+          passwordController.text.toString(),
+          confirmPasswordController.text.toString(),
+        );
+
+        if (response.statusCode == 200) {
+          debugPrint("data from API ${response.body}");
+          Get.offAndToNamed(AppRoutes.getLandingPageRoute());
+        } else {
+          debugPrint("data from API ${response.body}");
+          debugPrint('Error Reset Password failed: ${response.body}');
+        }
+      }
+      catch(e){
+        debugPrint('Error Network error: ${e.toString()}');
+      }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,6 +78,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
             // New Password Field
             TextField(
+              controller: passwordController,
               obscureText: _obscureNewPassword,
               style: const TextStyle(color: Colors.white),
               decoration: InputDecoration(
@@ -81,6 +111,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
             // Confirm Password Field
             TextField(
+              controller: confirmPasswordController,
               obscureText: _obscureConfirmPassword,
               style: const TextStyle(color: Colors.white),
               decoration: InputDecoration(
@@ -123,8 +154,14 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   ),
                 ),
                 onPressed: () {
-                  // Handle password update logic
-                  Get.back(); // Example: go back after update
+                  if (passwordController.text.isNotEmpty &&
+                      confirmPasswordController.text.isNotEmpty) {
+                    resetPassword();
+                  } else {
+                    Get.snackbar("Error", "Please fill all fields",
+                        backgroundColor: Colors.red,
+                        colorText: Colors.white);
+                  }
                 },
                 child: const Text("Update Password",
                     style: TextStyle(

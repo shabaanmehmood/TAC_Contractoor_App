@@ -18,7 +18,6 @@ void main() async {
     [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown],
   );
   Get.put(UserController());
-  await dotenv.load(fileName: ".env");
   runApp(const Main());
 }
 

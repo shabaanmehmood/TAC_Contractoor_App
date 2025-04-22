@@ -14,7 +14,7 @@ class UserUpdateModel {
   String? gender;
   String? fcmToken;
   String? appleId;
-  String? yearsOfExperience;
+  int? yearsOfExperience;
   String? licenseNumber;
   String? abn;
   List<String>? preferredLocationAddresses;

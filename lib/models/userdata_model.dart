@@ -1,6 +1,7 @@
 import 'package:tac/models/personaldetails_model.dart';
 import 'package:tac/models/profileImages_model.dart';
 
+import 'bankDetails_model.dart';
 import 'documents_model.dart';
 
 class UserDataModel {
@@ -49,6 +50,7 @@ class Data {
   List<ProfileImages>? profileImages;
   PersonalDetails? personalDetails;
   List<Documents>? documents;
+  List<BankDetails>? bankDetails;
 
   Data({
     this.id,
@@ -72,6 +74,7 @@ class Data {
     this.profileImages,
     this.personalDetails,
     this.documents,
+    this.bankDetails,
   });
 
   Data.fromJson(Map<String, dynamic> json) {
@@ -111,6 +114,12 @@ class Data {
         documents!.add(Documents.fromJson(v));
       });
     }
+    if (json['bankDetails'] != null) {
+      bankDetails = <BankDetails>[];
+      json['bankDetails'].forEach((v) {
+        bankDetails!.add(BankDetails.fromJson(v));
+      });
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -144,6 +153,10 @@ class Data {
 
     if (documents != null) {
       data['documents'] = documents!.map((v) => v.toJson()).toList();
+    }
+
+    if (bankDetails != null) {
+      data['bankDetails'] = bankDetails!.map((v) => v.toJson()).toList();
     }
 
     return data;

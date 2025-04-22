@@ -4,6 +4,9 @@ import 'package:tac/data/data/constants/app_colors.dart';
 import 'package:tac/modules/account/components/Settings/DeleteAccountScreen.dart';
 import 'package:tac/modules/account/components/Settings/otp.dart';
 
+import '../../../../controllers/user_controller.dart';
+import '../../../../dataproviders/api_service.dart';
+
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -14,6 +17,27 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   bool liveLocation = false;
   bool biometricLogin = false;
+  final userController = Get.put(UserController());
+
+  Future<void> sendOtp() async {
+    final apiService = MyApIService(); // create instance
+    try{
+      final response = await apiService.sendOtp(
+        userController.userData.value!.email.toString(),
+      );
+
+      if (response.statusCode == 200) {
+        debugPrint("data from API ${response.body}");
+        Get.to(() => OtpScreen());
+      } else {
+        debugPrint("data from API ${response.body}");
+        debugPrint('Error login failed: ${response.body}');
+      }
+    }
+    catch(e){
+      debugPrint('Error Network error: ${e.toString()}');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +82,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   title: 'Update Password',
                   subtitle: 'Manage your details',
                   onTap: () {
-                    Get.to(() => OtpScreen());
+                    sendOtp();
                   },
                 ),
                 const SizedBox(height: 12),

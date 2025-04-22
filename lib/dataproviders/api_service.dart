@@ -3,9 +3,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:http/http.dart' as http;
-import 'package:tac/models/getUserById_model.dart';
 
 import '../controllers/user_controller.dart';
+import '../models/getUserById_model.dart';
 import '../models/userdata_model.dart';
 import '../models/userupdate_model.dart';
 
@@ -73,8 +73,10 @@ class MyApIService {
 
       if (userDataModel.data != null) {
         final userId = userDataModel.data!.id;
+        debugPrint('User ID: $userId');
         userController.setUser(userDataModel.data!);
-        await getUserByID(userId!);
+        final getuserbyid = await getUserByID(userId!);
+        debugPrint('get user by ID called $getuserbyid');
       }
     } else {
       debugPrint('inside Login method call: ${response.statusCode}');
@@ -127,6 +129,20 @@ class MyApIService {
         "confirmPassword": confirmPassword,
       }),
     );
+    if (response.statusCode == 200) {
+      final jsonData = jsonDecode(response.body);
+      final userDataModel = UserDataModel.fromJson(jsonData);
+
+      if (userDataModel.data != null) {
+        final userId = userDataModel.data!.id;
+        debugPrint('User ID: $userId');
+        userController.setUser(userDataModel.data!);
+        final getuserbyid = await getUserByID(userId!);
+        debugPrint('get user by ID called $getuserbyid');
+      }
+    } else {
+      debugPrint('inside Reset Password method call: ${response.statusCode}');
+    }
     return response;
   }
 
@@ -167,6 +183,7 @@ class MyApIService {
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body);
       final userData = GetUserById.fromJson(json).data;
+      debugPrint('User data: $userData');
 
       if (userData != null) {
         Get.find<UserController>().setUser(userData);
@@ -183,6 +200,71 @@ class MyApIService {
   static String? fullImageUrl(String? imagePath) {
     if (imagePath == null || imagePath.isEmpty) return null;
     return '$imageBaseUrl$imagePath';
+  }
+
+  Future<http.Response> addBankDetails(String bankName, String accountTitle, String accountNumber, String iban, String expiryDate, String userId) async {
+    var functionUrl = 'userBankDetails';
+    final response = await http.post(
+      Uri.parse(baseurl + functionUrl),
+      headers: {
+        "Content-Type": "application/json",
+        'ngrok-skip-browser-warning': 'true',
+      },
+      body: jsonEncode({
+        "bankName": bankName,
+        "accountTitle": accountTitle,
+        "accountNumber": accountNumber,
+        "IBAN": iban,
+        "entityDate": expiryDate,
+        "userId": userId,
+      }),
+    );
+    return response;
+  }
+
+  Future<http.Response> getBankDetails(String userId) async {
+    var functionUrl = 'userBankDetails/$userId';
+    final response = await http.get(Uri.parse(baseurl + functionUrl),
+      headers: {
+        "Content-Type": "application/json",
+        'ngrok-skip-browser-warning': 'true',
+      },
+    );
+    if (response.statusCode == 200) {
+      final json = jsonDecode(response.body);
+      final userData = GetUserById.fromJson(json).data;
+      debugPrint('User data: $userData');
+
+      if (userData != null) {
+        Get.find<UserController>().setUser(userData);
+        debugPrint('User bank details loaded and stored in session');
+      }
+    } else {
+      // handle error
+    }
+    return response;
+  }
+
+  Future<http.Response> getBankDetailsWithParams(Map<String, String> queryParams) async {
+    var functionUrl = 'userBankDetails/';
+    final uri = Uri.parse(baseurl+ functionUrl).replace(queryParameters: queryParams);
+
+    final response = await http.get(
+      uri,
+      headers: {
+        "Content-Type": "application/json",
+        'ngrok-skip-browser-warning': 'true',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final json = jsonDecode(response.body);
+      final dataList = json['data'];
+
+    } else {
+      debugPrint('Error: ${response.statusCode} - ${response.body}');
+    }
+    return response;
   }
 
   // Future<http.Response> updatePersonalInfo(

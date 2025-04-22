@@ -1,97 +1,129 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tac/data/data/constants/app_colors.dart';
+import 'package:tac/models/bankDetails_model.dart';
 
-class BankDetailModel {
-  final String bankName;
-  final String accountTitle;
-  final String accountNumber;
-  final String iban;
-  final String expiryDate;
+import '../../../../controllers/user_controller.dart';
+import '../../../../dataproviders/api_service.dart';
+import '../../../../routes/app_routes.dart';
+import 'add_bank_details_screen.dart';
 
-  BankDetailModel({
-    required this.bankName,
-    required this.accountTitle,
-    required this.accountNumber,
-    required this.iban,
-    required this.expiryDate,
-  });
+class BankDetailsScreen extends StatefulWidget {
+  BankDetailsScreen({super.key});
+
+  @override
+  State<BankDetailsScreen> createState() => _BankDetailsScreenState();
 }
 
-class DummyBankDetails {
-  static List<BankDetailModel> getList() {
-    return [
-      BankDetailModel(
-        bankName: 'Allied Bank Limited',
-        accountTitle: 'Ashar Atique',
-        accountNumber: '5386 6012 3412 3456',
-        iban: 'PK12ABCD1234567890123456',
-        expiryDate: '12 / 33',
-      ),
-      BankDetailModel(
-        bankName: 'Habib Bank Limited',
-        accountTitle: 'Ashar Atique',
-        accountNumber: '1234 5678 9012 3456',
-        iban: 'PK34HBL1234567890123456',
-        expiryDate: '01 / 30',
-      ),
-    ];
+class _BankDetailsScreenState extends State<BankDetailsScreen> {
+  late Future<List<BankDetails>> bankDetailsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    bankDetailsFuture = fetchBankDetails();
   }
-}
 
-class BankDetailsScreen extends StatelessWidget {
-  const BankDetailsScreen({super.key});
+  Future<List<BankDetails>> fetchBankDetails() async {
+    final apiService = MyApIService();
+    final userId = Get.find<UserController>().userData.value?.id ?? '';
+    final response = await apiService.getBankDetailsWithParams({'userId': userId});
+
+    if (response.statusCode == 200) {
+      final jsonResponse = jsonDecode(response.body);
+      final dataList = jsonResponse['data'];
+      if (dataList != null && dataList is List) {
+        debugPrint('Bank details fetched successfully: ${dataList.length} items');
+        debugPrint('Bank details: $dataList');
+        return dataList.map<BankDetails>((json) => BankDetails.fromJson(json)).toList();
+      }
+      return [];
+    } else {
+      debugPrint('Failed to fetch bank details: ${response.statusCode}');
+      return [];
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final banks = DummyBankDetails.getList();
     return Scaffold(
       backgroundColor: AppColors.kDarkestBlue,
       appBar: AppBar(
         backgroundColor: AppColors.kDarkestBlue,
         elevation: 0,
-        iconTheme: const IconThemeData(
-          color: AppColors.kWhite, // ← change back button color here
-        ),
-        title: const Text('Bank Details',
-            style: TextStyle(color: AppColors.kWhite)),
+        iconTheme: const IconThemeData(color: AppColors.kWhite),
+        title: const Text('Bank Details', style: TextStyle(color: AppColors.kWhite)),
         actions: [
           TextButton(
-            onPressed: () => Get.to(() => const AddBankDetailsScreen()),
-            child:
-                const Text('Add', style: TextStyle(color: AppColors.kSkyBlue)),
-          )
+            onPressed: () => Get.to(() => AddBankDetailsScreen()),
+            child: const Text('Add', style: TextStyle(color: AppColors.kSkyBlue)),
+          ),
         ],
         bottom: const PreferredSize(
           preferredSize: Size.fromHeight(1),
           child: Divider(color: Colors.white24, height: 1),
         ),
       ),
-      body: banks.isEmpty
-          ? const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.account_balance_wallet_outlined,
-                      color: Colors.white38, size: 64),
-                  SizedBox(height: 12),
-                  Text('No bank details found',
-                      style: TextStyle(color: Colors.white54)),
-                ],
+      body: FutureBuilder<List<BankDetails>>(
+        future: bankDetailsFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(
+              child: Text(
+                'Error loading bank details',
+                style: TextStyle(color: Colors.white54),
               ),
-            )
-          : Padding(
+            );
+          } else {
+            final bankList = snapshot.data ?? [];
+
+            if (bankList.isEmpty) {
+              return const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.account_balance_wallet_outlined, color: Colors.white38, size: 64),
+                    SizedBox(height: 12),
+                    Text('No bank details found', style: TextStyle(color: Colors.white54)),
+                  ],
+                ),
+              );
+            }
+
+            return Padding(
               padding: const EdgeInsets.all(16),
               child: ListView.separated(
-                itemCount: banks.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 20),
-                itemBuilder: (_, index) => buildBankCard(context, banks[index]),
+                itemCount: bankList.length,
+                separatorBuilder: (context, index) => const SizedBox(height: 20),
+                itemBuilder: (context, index) {
+                  final bank = bankList[index];
+                  return buildBankCard(
+                    context,
+                    bank.bankName ?? 'Bank Name',
+                    bank.accountNumber ?? 'Account Number',
+                    bank.accountTitle ?? 'Account Title',
+                    bank.entityDate ?? 'Expiry Date',
+                  );
+                },
               ),
-            ),
+            );
+          }
+        },
+      ),
     );
   }
 
-  Widget buildBankCard(BuildContext context, BankDetailModel data) {
+  Widget buildBankCard(
+      BuildContext context,
+      String bankName,
+      String accountNumber,
+      String accountTitle,
+      String expiryDate,
+      ) {
     return Stack(
       children: [
         Container(
@@ -111,7 +143,7 @@ class BankDetailsScreen extends StatelessWidget {
               Row(
                 children: [
                   Text(
-                    data.bankName,
+                    bankName,
                     style: const TextStyle(
                       color: AppColors.kWhite,
                       fontSize: 16,
@@ -119,13 +151,12 @@ class BankDetailsScreen extends StatelessWidget {
                     ),
                   ),
                   const Spacer(),
-                  const Icon(Icons.account_balance,
-                      color: AppColors.kWhite, size: 28),
+                  const Icon(Icons.account_balance, color: AppColors.kWhite, size: 28),
                 ],
               ),
               const SizedBox(height: 28),
               Text(
-                data.accountNumber,
+                accountNumber,
                 style: const TextStyle(
                   color: AppColors.kSkyBlue,
                   fontSize: 22,
@@ -154,7 +185,7 @@ class BankDetailsScreen extends StatelessWidget {
                                   letterSpacing: 1)),
                           const SizedBox(height: 4),
                           Text(
-                            data.expiryDate,
+                            expiryDate,
                             style: const TextStyle(
                               color: AppColors.kWhite,
                               fontSize: 14,
@@ -167,7 +198,7 @@ class BankDetailsScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    data.accountTitle,
+                    accountTitle,
                     style: const TextStyle(
                       color: AppColors.kWhite,
                       fontSize: 16,
@@ -191,34 +222,26 @@ class BankDetailsScreen extends StatelessWidget {
                   color: AppColors.kDarkBlue,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
                 ),
-                padding:
-                    const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+                padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    // ListTile(
+                    //   leading: const Icon(Icons.edit, color: AppColors.kWhite),
+                    //   title: const Text('Edit', style: TextStyle(color: AppColors.kWhite)),
+                    //   onTap: () {
+                    //     Get.back();
+                    //     Get.snackbar('Edit', 'Edit feature coming soon',
+                    //         snackPosition: SnackPosition.BOTTOM,
+                    //         backgroundColor: AppColors.kgrey,
+                    //         colorText: AppColors.kWhite);
+                    //   },
+                    // ),
                     ListTile(
-                      leading: const Icon(Icons.edit, color: AppColors.kWhite),
-                      title: const Text('Edit',
-                          style: TextStyle(color: AppColors.kWhite)),
+                      leading: const Icon(Icons.delete_outline, color: AppColors.kRed),
+                      title: const Text('Delete', style: TextStyle(color: AppColors.kRed)),
                       onTap: () {
-                        Get.back();
-                        Get.snackbar('Edit', 'Edit feature coming soon',
-                            snackPosition: SnackPosition.BOTTOM,
-                            backgroundColor: AppColors.kgrey,
-                            colorText: AppColors.kWhite);
-                      },
-                    ),
-                    ListTile(
-                      leading: const Icon(Icons.delete_outline,
-                          color: AppColors.kRed),
-                      title: const Text('Delete',
-                          style: TextStyle(color: AppColors.kRed)),
-                      onTap: () {
-                        Get.back();
-                        Get.snackbar('Deleted', 'Bank detail deleted',
-                            snackPosition: SnackPosition.BOTTOM,
-                            backgroundColor: AppColors.kRed,
-                            colorText: AppColors.kWhite);
+
                       },
                     ),
                   ],
@@ -228,147 +251,6 @@ class BankDetailsScreen extends StatelessWidget {
             child: const Icon(Icons.more_vert, color: Colors.white70),
           ),
         ),
-      ],
-    );
-  }
-}
-
-class AddBankDetailsScreen extends StatefulWidget {
-  const AddBankDetailsScreen({super.key});
-
-  @override
-  State<AddBankDetailsScreen> createState() => _AddBankDetailsScreenState();
-}
-
-class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
-  final bankNameController = TextEditingController();
-  final accountTitleController = TextEditingController();
-  final accountNumberController = TextEditingController();
-  final ibanController = TextEditingController();
-  final expiryController = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.kDarkestBlue,
-      appBar: AppBar(
-        iconTheme: const IconThemeData(
-          color: AppColors.kWhite, // ← change back button color here
-        ),
-        backgroundColor: AppColors.kDarkestBlue,
-        elevation: 0,
-        title: const Text('Add Bank Details',
-            style: TextStyle(color: AppColors.kWhite)),
-        bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(1),
-          child: Divider(color: Colors.white24, height: 1),
-        ),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: ListView(
-                children: [
-                  const SizedBox(height: 16),
-                  customField(
-                      Icons.account_balance, 'Bank Name', bankNameController),
-                  customField(
-                      Icons.person, 'Account Title', accountTitleController),
-                  customField(
-                      Icons.numbers, 'Account Number', accountNumberController),
-                  customField(Icons.credit_card, 'IBAN', ibanController),
-                  customField(
-                      Icons.calendar_today, 'Expiry Date', expiryController),
-                ],
-              ),
-            ),
-          ),
-          const Divider(color: Colors.white24, height: 1),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-            decoration: BoxDecoration(
-              color: AppColors.kDarkestBlue,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 8,
-                  offset: const Offset(0, -1),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  flex: 3,
-                  child: OutlinedButton(
-                    onPressed: () => Get.back(),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.kWhite,
-                      side: const BorderSide(color: AppColors.kWhite),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(6)),
-                      minimumSize: const Size.fromHeight(56),
-                    ),
-                    child: const Text('Cancel'),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  flex: 7,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Get.snackbar(
-                        'Success',
-                        'Bank details added successfully',
-                        snackPosition: SnackPosition.BOTTOM,
-                        backgroundColor: AppColors.kgreen,
-                        colorText: AppColors.kWhite,
-                      );
-                      Get.back();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.kSkyBlue,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(6)),
-                      minimumSize: const Size.fromHeight(56),
-                    ),
-                    child: const Text(
-                      'Add Bank',
-                      style: TextStyle(color: AppColors.kDarkestBlue),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget customField(
-      IconData icon, String hint, TextEditingController controller) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        TextField(
-          controller: controller,
-          style: const TextStyle(color: AppColors.kWhite),
-          cursorColor: AppColors.kWhite,
-          decoration: InputDecoration(
-            hintText: hint,
-            hintStyle:
-                const TextStyle(color: AppColors.ktextlight, fontSize: 13),
-            prefixIcon: Icon(icon, color: AppColors.ktextlight, size: 18),
-            border: InputBorder.none,
-            isDense: true,
-            contentPadding: const EdgeInsets.symmetric(vertical: 6),
-          ),
-        ),
-        const Divider(color: AppColors.kSkyBlue, thickness: 1),
-        const SizedBox(height: 16),
       ],
     );
   }
