@@ -20,6 +20,7 @@ class AppAssets {
   static String kMessages = 'assets/icon/direct.svg';
   static String kAccount = 'assets/icon/frame.svg';
   static String kCalender = 'assets/icon/calendar.svg';
+  static String kBack = 'assets/icon/LeftIcon.png';
 
   static String kFilter = 'assets/icon/filter.png';
   static String kCross = 'assets/icon/cross.png';

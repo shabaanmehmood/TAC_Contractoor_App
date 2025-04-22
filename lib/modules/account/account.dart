@@ -189,7 +189,7 @@ class AccountScreen extends StatelessWidget {
 
                   buildCard(screenWidth, 'Earnings', Icons.attach_money,
                       'See all your earning here', 'Earnings'),
-                  Obx(() => buildNotificationCard(screenWidth, controller)),
+                  onTap: () => Get.to(() => EarningsScreen())),
                   buildCard(
                       screenWidth,
                       'Bank Details',
