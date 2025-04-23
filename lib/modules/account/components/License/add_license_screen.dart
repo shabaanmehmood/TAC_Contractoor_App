@@ -191,7 +191,13 @@ class AddLicenseScreen extends StatelessWidget {
                             ),
                           ),
                           GestureDetector(
-                            onTap: () => showUploadFileBottomSheet(context, false, true),
+                            onTap: () async{
+                              final UploadFileController uploadFileController = Get.find();
+                              String? imagePath = await uploadFileController.showUploadFileBottomSheet(context, returnBase64: false);
+                              if (imagePath != null) {
+                                await uploadFileController.uploadDocument(imagePath);
+                              }
+                            },
                             child: const Text(
                               "Upload",
                               style: TextStyle(

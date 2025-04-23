@@ -97,9 +97,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   TextButton(
-                    onPressed: () {
-                      showUploadFileBottomSheet(context, true, false);
+                    onPressed: () async {
+                      final UploadFileController uploadFileController = Get.put(UploadFileController());
+                      String? base64image = await uploadFileController.showUploadFileBottomSheet(context, returnBase64: true);
+                      if (base64image != null) {
+                        await uploadFileController.updateFile(base64image);
+                      }
                     },
+                    // onPressed: () {
+                    //   showUploadFileBottomSheet(context, true, false);
+                    // },
                     child: const Text(
                       'Update',
                       style: TextStyle(

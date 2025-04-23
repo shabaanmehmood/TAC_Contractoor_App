@@ -1,26 +1,85 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:tac/controllers/user_controller.dart';
 import 'package:tac/data/data/constants/app_colors.dart';
+import 'package:tac/widhets/common%20overlays/uploadFile_overlay.dart';
+
+import '../../../../../dataproviders/api_service.dart';
+import '../../../../../routes/app_routes.dart';
 
 class DisputeController extends GetxController {
+  final UserController userController = Get.find();
   final selectedDisputeType = ''.obs;
   final agreeToTerms = false.obs;
+  String? base64image;
+  final RxList<String> base64Images = <String>[].obs;
+  final String jobId = '15d7b3e2-15c5-4b93-bd01-b20792d2d18b';
 
-  static const List<String> disputeTypes = [
-    'Job Related',
-    'Earning Related',
+  static const List<Map<String, String>> disputeTypes = [
+    {'label': 'Job Related', 'value': 'jobRelated'},
+    {'label': 'Earning Related', 'value': 'earningRelated'},
   ];
+  final TextEditingController dateOfIncidentController = TextEditingController();
+  final TextEditingController descriptionController = TextEditingController();
+  final TextEditingController transactionIdController = TextEditingController();
+  final TextEditingController transactionDateController = TextEditingController();
+  final TextEditingController disputeAmountController = TextEditingController();
+
+  Future<void> submitDispute() async {
+    final apiService = MyApIService(); // create instance
+    try{
+      if(selectedDisputeType.value == 'jobRelated'){
+        final response = await apiService.addDispute(
+          selectedDisputeType.value,
+          jobId,
+          dateOfIncidentController.text,
+          userController.userData.value!.id!,
+          descriptionController.text,
+          base64Images.toList(),
+          null,
+          null,
+          null
+        );
+        if (response.statusCode == 201) {
+          debugPrint("data from API ${response.body}");
+          Get.offAndToNamed(AppRoutes.getLandingPageRoute());
+        } else {
+          debugPrint("data from API ${response.body}");
+          debugPrint('Error Add dispute failed: ${response.body}');
+        }
+      }
+      else if (selectedDisputeType.value == 'earningRelated'){
+        final response = await apiService.addDispute(
+          selectedDisputeType.value,
+          jobId,
+          dateOfIncidentController.text,
+          userController.userData.value!.id!,
+          descriptionController.text,
+          base64Images.toList(),
+          transactionIdController.text,
+          transactionDateController.text,
+          disputeAmountController.text,
+        );
+        if (response.statusCode == 201) {
+          debugPrint("data from API ${response.body}");
+          Get.offAndToNamed(AppRoutes.getLandingPageRoute());
+        } else {
+          debugPrint("data from API ${response.body}");
+          debugPrint('Error Add dispute failed: ${response.body}');
+        }
+      }
+    }
+    catch(e){
+      debugPrint('Error Network error: ${e.toString()}');
+    }
+  }
+
 }
 
 class DisputeScreen extends StatelessWidget {
   DisputeScreen({super.key});
 
-  final DisputeController controller = Get.put(DisputeController());
-  final TextEditingController issueController = TextEditingController();
-  final TextEditingController transactionIdController = TextEditingController();
-  final TextEditingController transactionDateController =
-      TextEditingController();
-  final TextEditingController disputeAmountController = TextEditingController();
+  DisputeController controller = Get.put(DisputeController());
 
   @override
   Widget build(BuildContext context) {
@@ -74,13 +133,15 @@ class DisputeScreen extends StatelessWidget {
                     const SizedBox(height: 16),
                     _buildInputField(
                         icon: Icons.calendar_today_outlined,
-                        hint: "Date of Incident"),
+                        hint: "Date of Incident",
+                        controller: controller.dateOfIncidentController,
+                    ),
                     const Divider(color: AppColors.kPrimary),
                     const SizedBox(height: 16),
                     _buildInputField(
                         icon: Icons.edit_outlined,
                         hint: "Please describe your issue in detail.",
-                        controller: issueController,
+                        controller: controller.descriptionController,
                         maxLines: null),
                     const Divider(color: AppColors.kPrimary),
                     if (controller.selectedDisputeType.value ==
@@ -95,19 +156,19 @@ class DisputeScreen extends StatelessWidget {
                       _buildInputField(
                           icon: Icons.numbers,
                           hint: "Enter transaction ID",
-                          controller: transactionIdController),
+                          controller: controller.transactionIdController),
                       const Divider(color: AppColors.kPrimary),
                       const SizedBox(height: 16),
                       _buildInputField(
                           icon: Icons.calendar_month,
                           hint: "Transaction Date",
-                          controller: transactionDateController),
+                          controller: controller.transactionDateController),
                       const Divider(color: AppColors.kPrimary),
                       const SizedBox(height: 16),
                       _buildInputField(
                           icon: Icons.attach_money,
                           hint: "Dispute Amount",
-                          controller: disputeAmountController),
+                          controller: controller.disputeAmountController),
                       const Divider(color: AppColors.kPrimary),
                     ],
                     const SizedBox(height: 24),
@@ -142,10 +203,26 @@ class DisputeScreen extends StatelessWidget {
                             ),
                           ),
                           TextButton(
-                            onPressed: () {},
+                            onPressed: () async {
+                              final UploadFileController uploadFileController = Get.put(UploadFileController());
+                              final String? base64Image = await uploadFileController.showUploadFileBottomSheet(context, returnBase64: true);
+                              // controller.base64image = await uploadFileController.showUploadFileBottomSheet(context, returnBase64: true);
+                              if (base64Image != null) {
+                                controller.base64Images.add(base64Image);
+                              }
+                            },
                             child: const Text("Browse",
                                 style: TextStyle(color: AppColors.kSkyBlue)),
-                          )
+                          ),
+                          Obx(() => Column( // Display selected images
+                            children: [
+                              for (var image in controller.base64Images)
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                  child: Text("Selected File: ${image.substring(0, 20)}...", style: TextStyle(color: AppColors.kWhite)), // Show a snippet of the base64 string
+                                ),
+                            ],
+                          )),
                         ],
                       ),
                     ),
@@ -196,7 +273,7 @@ class DisputeScreen extends StatelessWidget {
                                     borderRadius: BorderRadius.circular(8)),
                               ),
                               onPressed: () => Get.back(),
-                              child: const Text('Save as Draft',
+                              child: const Text('Close',
                                   style: TextStyle(
                                       color: AppColors.kSkyBlue, fontSize: 12)),
                             ),
@@ -213,7 +290,11 @@ class DisputeScreen extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                               ),
-                              onPressed: () => Get.back(),
+                              onPressed: () {
+                                if (controller.base64Images.isNotEmpty && controller.agreeToTerms.value == true) {
+                                  controller.submitDispute();
+                                }
+                              },
                               child: const Text('Submit Dispute',
                                   style: TextStyle(color: AppColors.kDarkBlue)),
                             ),
@@ -255,43 +336,34 @@ class DisputeScreen extends StatelessWidget {
                     ),
                   ),
                   const Divider(color: AppColors.kinput),
-                  ...DisputeController.disputeTypes.map((type) {
+                  ...DisputeController.disputeTypes.map((typeMap) {
                     return Column(
                       children: [
                         ListTile(
                           leading: Radio<String>(
-                            value: type,
+                            value: typeMap['label']!,
                             groupValue: controller.selectedDisputeType.value,
                             onChanged: (value) {
-                              controller.selectedDisputeType.value = value!;
+                              controller.selectedDisputeType.value = typeMap['value']!;
                               Navigator.pop(context);
-                              if (value == 'Earning Related') {
-                                Get.off(() => DisputeScreen2());
-                              } else {
-                                Get.off(() => DisputeScreen());
-                              }
                             },
                             activeColor: AppColors.kSkyBlue,
                           ),
-                          title: Text(type,
+                          title: Text(typeMap['label']!,
                               style: const TextStyle(color: AppColors.kWhite)),
                           onTap: () {
-                            controller.selectedDisputeType.value = type;
+                            controller.selectedDisputeType.value = typeMap['value']!;
                             Navigator.pop(context);
-                            if (type == 'Earning Related') {
-                              Get.off(() => DisputeScreen2());
-                            } else {
-                              Get.off(() => DisputeScreen());
-                            }
                           },
                         ),
                         Padding(
-                          padding: const EdgeInsets.only(left: 16.0, right: 16),
-                          child: const Divider(color: AppColors.kPrimary),
+                          padding: const EdgeInsets.only(left: 16.0, right: 16.0),
+                          child: const Divider(color: AppColors.kinput),
                         ),
                       ],
                     );
-                  }).toList()
+                  }).toList(),
+
                 ],
               ),
             ));

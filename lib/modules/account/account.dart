@@ -41,7 +41,7 @@ class AccountScreen extends StatelessWidget {
           Container(
             width: double.infinity,
             padding:
-                const EdgeInsets.only(left: 20, right: 20, top: 40, bottom: 10),
+            const EdgeInsets.only(left: 20, right: 20, top: 40, bottom: 10),
             decoration: const BoxDecoration(
               color: AppColors.kDarkestBlue,
               border: Border(
@@ -55,8 +55,8 @@ class AccountScreen extends StatelessWidget {
                   children: [
                     // Square Profile Image
                     Obx(() {
-                      final imagePath = userController.value.userData.value?.profileImages?.first.imageUrl;
-                      // userController.userData.value?.profileImages?.first.imageUrl
+                      final imagePath = userController.value.userData.value
+                          ?.profileImages?.first.imageUrl;
                       final imageUrl = MyApIService.fullImageUrl(imagePath);
                       return Container(
                         width: 34,
@@ -66,7 +66,8 @@ class AccountScreen extends StatelessWidget {
                           image: DecorationImage(
                             image: imageUrl != null
                                 ? NetworkImage(imageUrl)
-                                : AssetImage(AppAssets.kUserPicture) as ImageProvider,
+                                : AssetImage(AppAssets.kUserPicture)
+                            as ImageProvider,
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -126,12 +127,13 @@ class AccountScreen extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            Text(userController.value.userData.value?.fullName ?? '',
-                            // Text(userController.userData.value?.fullName ?? '',
-                                style: TextStyle(
-                                    color: AppColors.kWhite,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold)),
+                            Text(
+                              userController.value.userData.value?.fullName ?? '',
+                              style: const TextStyle(
+                                  color: AppColors.kWhite,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold),
+                            ),
                             const SizedBox(width: 6),
                             Container(
                               padding: const EdgeInsets.symmetric(
@@ -140,9 +142,11 @@ class AccountScreen extends StatelessWidget {
                                 color: AppColors.kSkyBlue,
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: const Text("Leader",
-                                  style: TextStyle(
-                                      color: AppColors.kWhite, fontSize: 12)),
+                              child: const Text(
+                                "Leader",
+                                style: TextStyle(
+                                    color: AppColors.kWhite, fontSize: 12),
+                              ),
                             )
                           ],
                         ),
@@ -158,10 +162,12 @@ class AccountScreen extends StatelessWidget {
                                 const Icon(Icons.star,
                                     size: 16, color: AppColors.kSkyBlue),
                               const SizedBox(width: 4),
-                              const Text("5.0 ",
-                                  style: TextStyle(
-                                      color: AppColors.ktextlight,
-                                      fontWeight: FontWeight.bold)),
+                              const Text(
+                                "5.0 ",
+                                style: TextStyle(
+                                    color: AppColors.ktextlight,
+                                    fontWeight: FontWeight.bold),
+                              ),
                               const Text("(12 reviews)",
                                   style: TextStyle(
                                       color: AppColors.ktextlight,
@@ -186,10 +192,9 @@ class AccountScreen extends StatelessWidget {
                   buildCard(screenWidth, 'Security Licences', Icons.badge,
                       'Update security licences here', 'Licences',
                       onTap: () => Get.to(() => SecurityLicenseScreen())),
-
                   buildCard(screenWidth, 'Earnings', Icons.attach_money,
-                      'See all your earning here', 'Earnings'),
-                  onTap: () => Get.to(() => EarningsScreen())),
+                      'See all your earning here', 'Earnings',
+                      onTap: () => navigateToPlaceholder('Earnings')),
                   buildCard(
                       screenWidth,
                       'Bank Details',
@@ -212,41 +217,7 @@ class AccountScreen extends StatelessWidget {
                       'Sign Out securely', 'Logout',
                       onTap: () => showLogoutBottomSheet(context)),
 
-                  // Logout Styled Like Card
                   const SizedBox(height: 5),
-                  // GestureDetector(
-                  //   onTap: () => Get.to(() => LogoutScreen()),
-                  //   child: Container(
-                  //     width: screenWidth * 0.92,
-                  //     margin: const EdgeInsets.symmetric(vertical: 8),
-                  //     padding: const EdgeInsets.all(16),
-                  //     decoration: BoxDecoration(
-                  //       color: AppColors.kJobCardColor,
-                  //       borderRadius: BorderRadius.circular(4),
-                  //     ),
-                  //     child: Row(
-                  //       children: const [
-                  //         Icon(Icons.logout, color: AppColors.kPrimary),
-                  //         SizedBox(width: 16),
-                  //         Expanded(
-                  //           child: Column(
-                  //             crossAxisAlignment: CrossAxisAlignment.start,
-                  //             children: [
-                  //               Text('Logout',
-                  //                   style: TextStyle(
-                  //                       color: Colors.white,
-                  //                       fontWeight: FontWeight.bold)),
-                  //               SizedBox(height: 4),
-                  //               Text('Sign out securely',
-                  //                   style: TextStyle(
-                  //                       color: Colors.white54, fontSize: 12)),
-                  //             ],
-                  //           ),
-                  //         ),
-                  //       ],
-                  //     ),
-                  //   ),
-                  // ),
                 ],
               ),
             ),
@@ -257,13 +228,13 @@ class AccountScreen extends StatelessWidget {
   }
 
   Widget buildCard(
-    double screenWidth,
-    String title,
-    IconData icon,
-    String subtitle,
-    String screenName, {
-    VoidCallback? onTap,
-  }) {
+      double screenWidth,
+      String title,
+      IconData icon,
+      String subtitle,
+      String screenName, {
+        VoidCallback? onTap,
+      }) {
     return GestureDetector(
       onTap: onTap ?? () => navigateToPlaceholder(screenName),
       child: Container(
@@ -288,7 +259,7 @@ class AccountScreen extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(subtitle,
                       style:
-                          const TextStyle(color: Colors.white54, fontSize: 12)),
+                      const TextStyle(color: Colors.white54, fontSize: 12)),
                 ],
               ),
             ),
@@ -326,11 +297,12 @@ class AccountScreen extends StatelessWidget {
               ],
             ),
           ),
-          Switch(
+          Obx(() => Switch(
             value: controller.notificationsEnabled.value,
-            onChanged: (value) => controller.notificationsEnabled.value = value,
+            onChanged: (value) =>
+            controller.notificationsEnabled.value = value,
             activeColor: Colors.tealAccent,
-          )
+          ))
         ],
       ),
     );

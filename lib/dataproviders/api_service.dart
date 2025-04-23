@@ -267,6 +267,47 @@ class MyApIService {
     return response;
   }
 
+  Future<http.Response> addDispute(String disputeType, String jobId, String incidentDate, String userId, String description,
+      List<String> supportDocuments, String? transactionId, String? transactionDate, String? disputeAmount) async {
+    var functionUrl = 'userDisputes';
+
+    // Build the request body dynamically
+    final Map<String, dynamic> body = {
+      "type": disputeType,
+      "jobId": jobId,
+      "incidentDate": incidentDate,
+      "userId": userId,
+      "description": description,
+      "supportDocuments": supportDocuments,
+    };
+
+    // Add optional fields only if they are not null or empty
+    if (transactionId != null && transactionId.isNotEmpty) {
+      body["transactionId"] = transactionId;
+    }
+    if (transactionDate != null && transactionDate.isNotEmpty) {
+      body["transactionDate"] = transactionDate;
+    }
+    if (disputeAmount != null && disputeAmount.isNotEmpty) {
+      body["disputeAmount"] = disputeAmount;
+    }
+
+    final response = await http.post(
+      Uri.parse(baseurl + functionUrl),
+      headers: {
+        "Content-Type": "application/json",
+        'ngrok-skip-browser-warning': 'true',
+      },
+      body: jsonEncode(body), // Encode body as JSON string
+    );
+    if (response.statusCode == 201) {
+      final jsonData = jsonDecode(response.body);
+    } else {
+      debugPrint('inside dispute method call: ${response.statusCode}');
+    }
+    return response;
+  }
+
   // Future<http.Response> updatePersonalInfo(
   //     String? userId,
   //     String? fullName,
