@@ -30,9 +30,8 @@ class EarningsScreen extends StatelessWidget {
                   child: Row(
                     children: [
                       Image.asset(
-                        AppAssets
-                            .kBack, // Your custom path, e.g., 'assets/icons/back_arrow.png'
-                        color: Colors.white, // Apply tint if needed
+                        AppAssets.kBack,
+                        color: Colors.white,
                         height: 24,
                         width: 24,
                       ),
@@ -50,22 +49,18 @@ class EarningsScreen extends StatelessWidget {
             ),
           ),
 
-          // Earnings card
+          // Earnings Card
           Container(
             margin: EdgeInsets.only(
-                top: AppSpacing.twentyFiveHorizontal,
-                left: AppSpacing.twentyFiveHorizontal,
-                right: AppSpacing.twentyFiveHorizontal),
-            padding: EdgeInsets.all(
-              AppSpacing.twentyHorizontal,
+              top: AppSpacing.twentyFiveHorizontal,
+              left: AppSpacing.twentyFiveHorizontal,
+              right: AppSpacing.twentyFiveHorizontal,
             ),
+            padding: EdgeInsets.all(AppSpacing.twentyHorizontal),
             decoration: BoxDecoration(
               color: AppColors.kDarkestBlue,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: AppColors.kinput,
-                width: 1,
-              ),
+              border: Border.all(color: AppColors.kinput, width: 1),
             ),
             child: Obx(() {
               var total = controller.currentEarnings
@@ -108,8 +103,50 @@ class EarningsScreen extends StatelessWidget {
             }),
           ),
 
-// Choice chips (below the card)
-          // Choice chips (in one row, evenly spaced and fixed size)
+          // 🔽 NEW: Filter Chips Section
+          Obx(() {
+            final chips = <Widget>[];
+
+            if (controller.selectedClient.value != null) {
+              chips.add(_buildChip(controller.selectedClient.value!, () {
+                controller.selectedClient.value = null;
+              }));
+            }
+            if (controller.startDate.value != null) {
+              chips.add(_buildChip(
+                  controller.startDate.value!.toString().split(' ')[0], () {
+                controller.startDate.value = null;
+              }));
+            }
+            if (controller.endDate.value != null) {
+              chips.add(_buildChip(
+                  controller.endDate.value!.toString().split(' ')[0], () {
+                controller.endDate.value = null;
+              }));
+            }
+
+            if (chips.isEmpty) return SizedBox.shrink();
+
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 4,
+                children: [
+                  ...chips,
+                  ActionChip(
+                    label: Text("Clear All"),
+                    onPressed: () {
+                      controller.clearFilters();
+                      controller.loadEarnings();
+                    },
+                  )
+                ],
+              ),
+            );
+          }),
+
+          // Tabs (This Week, Last Week, etc.)
           SizedBox(height: AppSpacing.twentyVertical),
           Padding(
             padding:
@@ -121,8 +158,7 @@ class EarningsScreen extends StatelessWidget {
                   bool isSelected = controller.selectedIndex.value == index;
                   return Expanded(
                     child: Padding(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 4), // small spacing between chips
+                      padding: EdgeInsets.symmetric(horizontal: 4),
                       child: GestureDetector(
                         onTap: () => controller.selectIndex(index),
                         child: Container(
@@ -159,7 +195,7 @@ class EarningsScreen extends StatelessWidget {
             }),
           ),
 
-// Recent Earnings Text
+          // "Recent Earnings" Header
           SizedBox(height: AppSpacing.fifteenVertical),
           Padding(
             padding:
@@ -167,26 +203,21 @@ class EarningsScreen extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Text(
-                  "Recent Earnings",
-                  style: AppTypography.kBold18.copyWith(color: Colors.white),
-                ),
+                Text("Recent Earnings",
+                    style: AppTypography.kBold18.copyWith(color: Colors.white)),
               ],
             ),
           ),
 
-// Change this to exactly 10 pixels
-
+          // Earnings List
           Expanded(
             child: Obx(() {
               var earnings = controller.currentEarnings;
               if (earnings.isEmpty) {
                 return Center(
-                  child: Text(
-                    "No data available",
-                    style:
-                        AppTypography.kBold16.copyWith(color: AppColors.kWhite),
-                  ),
+                  child: Text("No data available",
+                      style: AppTypography.kBold16
+                          .copyWith(color: AppColors.kWhite)),
                 );
               }
               return ListView.builder(
@@ -196,7 +227,6 @@ class EarningsScreen extends StatelessWidget {
                   return GestureDetector(
                     onTap: () {
                       Get.to(() => TransactionDetailsScreen(job: model));
-                      print("Tapped on: ${model.title}");
                     },
                     child: Container(
                       margin: EdgeInsets.symmetric(
@@ -211,31 +241,23 @@ class EarningsScreen extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            model.title,
-                            style: AppTypography.kBold16
-                                .copyWith(color: AppColors.kWhite),
-                          ),
+                          Text(model.title,
+                              style: AppTypography.kBold16
+                                  .copyWith(color: AppColors.kWhite)),
                           SizedBox(height: AppSpacing.fiveVertical),
-                          Text(
-                            model.date,
-                            style: AppTypography.kLight14
-                                .copyWith(color: AppColors.ktextlight),
-                          ),
+                          Text(model.date,
+                              style: AppTypography.kLight14
+                                  .copyWith(color: AppColors.ktextlight)),
                           SizedBox(height: AppSpacing.fiveVertical),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                model.hours,
-                                style: AppTypography.kLight14
-                                    .copyWith(color: AppColors.ktextlight),
-                              ),
-                              Text(
-                                "\$${model.amount.toStringAsFixed(2)}",
-                                style: AppTypography.kBold16
-                                    .copyWith(color: AppColors.kWhite),
-                              ),
+                              Text(model.hours,
+                                  style: AppTypography.kLight14
+                                      .copyWith(color: AppColors.ktextlight)),
+                              Text("\$${model.amount.toStringAsFixed(2)}",
+                                  style: AppTypography.kBold16
+                                      .copyWith(color: AppColors.kWhite)),
                             ],
                           )
                         ],
@@ -248,6 +270,18 @@ class EarningsScreen extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  // 🔽 NEW: Helper Method to Build Filter Chips
+  Widget _buildChip(String label, VoidCallback onRemove) {
+    return Chip(
+      label: Text(label,
+          style: AppTypography.kBold14
+              .copyWith(fontSize: 10, color: AppColors.kDarkestBlue)),
+      backgroundColor: AppColors.kSkyBlue,
+      deleteIcon: Icon(Icons.close, color: Colors.white),
+      onDeleted: onRemove,
     );
   }
 }

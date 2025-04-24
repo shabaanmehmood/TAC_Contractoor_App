@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tac/data/data/constants/app_colors.dart';
+import 'package:tac/modules/account/components/Earning/earnings_screen.dart';
 import 'package:tac/modules/account/components/bank%20details/bank_details_screen.dart';
 import 'package:tac/modules/account/components/logout.dart';
 import 'package:tac/modules/account/components/profile/profile_screen.dart';
@@ -22,9 +23,9 @@ class AccountScreen extends StatelessWidget {
 
   void navigateToPlaceholder(String screenName) {
     Get.to(() => Scaffold(
-      appBar: AppBar(title: Text(screenName)),
-      body: Center(child: Text('$screenName Screen Coming Soon')),
-    ));
+          appBar: AppBar(title: Text(screenName)),
+          body: Center(child: Text('$screenName Screen Coming Soon')),
+        ));
   }
 
   @override
@@ -41,7 +42,7 @@ class AccountScreen extends StatelessWidget {
           Container(
             width: double.infinity,
             padding:
-            const EdgeInsets.only(left: 20, right: 20, top: 40, bottom: 10),
+                const EdgeInsets.only(left: 20, right: 20, top: 40, bottom: 10),
             decoration: const BoxDecoration(
               color: AppColors.kDarkestBlue,
               border: Border(
@@ -55,8 +56,8 @@ class AccountScreen extends StatelessWidget {
                   children: [
                     // Square Profile Image
                     Obx(() {
-                      final imagePath = userController.value.userData.value
-                          ?.profileImages?.first.imageUrl;
+                      final imagePath = userController
+                          .value.userData.value?.profileImages?.first.imageUrl;
                       final imageUrl = MyApIService.fullImageUrl(imagePath);
                       return Container(
                         width: 34,
@@ -67,7 +68,7 @@ class AccountScreen extends StatelessWidget {
                             image: imageUrl != null
                                 ? NetworkImage(imageUrl)
                                 : AssetImage(AppAssets.kUserPicture)
-                            as ImageProvider,
+                                    as ImageProvider,
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -128,7 +129,8 @@ class AccountScreen extends StatelessWidget {
                         Row(
                           children: [
                             Text(
-                              userController.value.userData.value?.fullName ?? '',
+                              userController.value.userData.value?.fullName ??
+                                  '',
                               style: const TextStyle(
                                   color: AppColors.kWhite,
                                   fontSize: 18,
@@ -194,7 +196,7 @@ class AccountScreen extends StatelessWidget {
                       onTap: () => Get.to(() => SecurityLicenseScreen())),
                   buildCard(screenWidth, 'Earnings', Icons.attach_money,
                       'See all your earning here', 'Earnings',
-                      onTap: () => navigateToPlaceholder('Earnings')),
+                      onTap: () => Get.to(() => EarningsScreen())),
                   buildCard(
                       screenWidth,
                       'Bank Details',
@@ -228,13 +230,13 @@ class AccountScreen extends StatelessWidget {
   }
 
   Widget buildCard(
-      double screenWidth,
-      String title,
-      IconData icon,
-      String subtitle,
-      String screenName, {
-        VoidCallback? onTap,
-      }) {
+    double screenWidth,
+    String title,
+    IconData icon,
+    String subtitle,
+    String screenName, {
+    VoidCallback? onTap,
+  }) {
     return GestureDetector(
       onTap: onTap ?? () => navigateToPlaceholder(screenName),
       child: Container(
@@ -259,7 +261,7 @@ class AccountScreen extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(subtitle,
                       style:
-                      const TextStyle(color: Colors.white54, fontSize: 12)),
+                          const TextStyle(color: Colors.white54, fontSize: 12)),
                 ],
               ),
             ),
@@ -298,11 +300,11 @@ class AccountScreen extends StatelessWidget {
             ),
           ),
           Obx(() => Switch(
-            value: controller.notificationsEnabled.value,
-            onChanged: (value) =>
-            controller.notificationsEnabled.value = value,
-            activeColor: Colors.tealAccent,
-          ))
+                value: controller.notificationsEnabled.value,
+                onChanged: (value) =>
+                    controller.notificationsEnabled.value = value,
+                activeColor: Colors.tealAccent,
+              ))
         ],
       ),
     );

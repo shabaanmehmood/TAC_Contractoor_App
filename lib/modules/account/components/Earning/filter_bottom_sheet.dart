@@ -4,6 +4,7 @@ import 'package:tac/data/data/constants/app_assets.dart';
 import 'package:tac/data/data/constants/app_colors.dart';
 import 'package:tac/data/data/constants/app_spacing.dart';
 import 'package:tac/data/data/constants/app_typography.dart';
+import 'package:tac/modules/account/components/Earning/earnings_controller.dart';
 
 class EarningsFilterOverlay extends StatefulWidget {
   const EarningsFilterOverlay({super.key});
@@ -215,6 +216,12 @@ class _EarningsFilterOverlayState extends State<EarningsFilterOverlay> {
                   onPressed: () {
                     if (startDate.value != null && endDate.value != null) {
                       // You can add filter logic here
+                      final controller = Get.find<EarningsController>();
+                      controller.applyCustomFilter(
+                        client: selectedClient.value,
+                        from: startDate.value,
+                        to: endDate.value,
+                      );
                       Get.back();
                     }
                   },
