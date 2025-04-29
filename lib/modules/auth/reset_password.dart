@@ -132,8 +132,8 @@ class ResetPasswordView extends StatelessWidget {
                       SizedBox(height: AppSpacing.thirtyVertical),
                       PrimaryButton(
                         color: AppColors.kSkyBlue,
-                        onTap: () {
-                          controller.resetPassword();
+                        onTap: ()async  {
+                          await controller.resetPassword();
                         },
                         text: 'Update Password',
                       ),

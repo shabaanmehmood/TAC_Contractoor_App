@@ -142,8 +142,8 @@ class EnterOtpView extends StatelessWidget {
                   // Verify Account Button
                   PrimaryButton(
                     color: AppColors.kSkyBlue,
-                    onTap: () {
-                      controller.verifyOtp();
+                    onTap: () async {
+                      await controller.verifyOtp();
                     },
                     text: 'Verify Account',
                   ),

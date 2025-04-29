@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:tac/data/data/constants/app_assets.dart';
 import 'package:tac/data/data/constants/app_colors.dart';
 import 'package:tac/data/data/constants/app_typography.dart';
@@ -36,6 +37,7 @@ class _EditProfessionalInfoScreenState
       final userModel = UserUpdateModel(
         yearsOfExperience: selectedExperience,
         licenseNumber: licenseNumber.text,
+        licenseExpiryDate: expiryDate.text,
         abn: abnNumber.text,
         preferredLocationAddresses: [preferredWorkLocation.text],
       );
@@ -58,7 +60,7 @@ class _EditProfessionalInfoScreenState
     }
   }
 
-  Future<void> selectExpiryDate(BuildContext context) async {
+  Future<String?> selectExpiryDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -81,12 +83,12 @@ class _EditProfessionalInfoScreenState
     );
 
     if (picked != null) {
-      setState(() {
-        expiryDate.text = "${picked.day.toString().padLeft(2, '0')}/"
-            "${picked.month.toString().padLeft(2, '0')}/"
-            "${picked.year}";
-      });
+      final String formattedDate = DateFormat('yyyy-MM-dd').format(picked);
+      expiryDate.text = formattedDate;
+      return formattedDate;
     }
+
+    return null;
   }
 
   @override
@@ -95,6 +97,7 @@ class _EditProfessionalInfoScreenState
     final userData = userController.userData.value;
     selectedExperience = userData!.personalDetails?.yearsOfExperience;
     licenseNumber.text = userData!.masterSecurityLicense ?? '';
+    expiryDate.text = userData!.personalDetails?.licenseExpiryDate ?? '';
     abnNumber.text = userData!.personalDetails?.abn ?? '';
     preferredWorkLocation.text = userData!.personalDetails?.preferredLocationAddresses.toString() ?? '';
   }

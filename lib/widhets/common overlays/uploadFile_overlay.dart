@@ -240,47 +240,78 @@ import '../../dataproviders/api_service.dart';
 import '../../models/profileImages_model.dart';
 import '../../models/userupdate_model.dart';
 import '../../routes/app_routes.dart';
+import 'package:mime/mime.dart';
 
 class UploadFileController extends GetxController {
   final ImagePicker imagePicker = ImagePicker();
   final UserController userController = Get.find<UserController>();
   final AddLicenseController addLicenseController = Get.put(AddLicenseController());
 
+  bool _isSupportedMimeType(String? mimeType) {
+    return mimeType != null &&
+        (mimeType == 'image/jpeg' ||
+            mimeType == 'image/jpg' ||
+            mimeType == 'image/png' ||
+            mimeType == 'application/pdf');
+  }
+
   /// Picks image from gallery and returns base64 string or file path
   Future<String?> pickImageFromGallery({bool returnBase64 = false}) async {
-    final XFile? image = await imagePicker.pickImage(source: ImageSource.gallery);
-    if (image == null) {
-      debugPrint('No image selected from gallery.');
+    final XFile? file = await imagePicker.pickImage(source: ImageSource.gallery);
+
+    if (file == null) {
+      debugPrint('No file selected from gallery.');
       return null;
     }
+
+    final mimeType = lookupMimeType(file.path);
+    if (!_isSupportedMimeType(mimeType)) {
+      debugPrint('Unsupported file type selected.');
+      return null;
+    }
+
     if (returnBase64) {
-      final bytes = await File(image.path).readAsBytes();
-      final base64Image = base64Encode(bytes);
+      final bytes = await File(file.path).readAsBytes();
+      final base64Data = base64Encode(bytes);
+      final base64Image = 'data:$mimeType;base64,$base64Data';
+
       if (kDebugMode) {
-        print('Gallery image base64: $base64Image');
+        print('Gallery file base64: $base64Image');
       }
+
       return base64Image;
     } else {
-      return image.path;
+      return file.path;
     }
   }
 
   /// Picks image from camera and returns base64 string or file path
   Future<String?> pickImageFromCamera({bool returnBase64 = false}) async {
-    final XFile? image = await imagePicker.pickImage(source: ImageSource.camera);
-    if (image == null) {
-      debugPrint('No image captured from camera.');
+    final XFile? file = await imagePicker.pickImage(source: ImageSource.camera);
+
+    if (file == null) {
+      debugPrint('No file captured from camera.');
       return null;
     }
+
+    final mimeType = lookupMimeType(file.path);
+    if (!_isSupportedMimeType(mimeType)) {
+      debugPrint('Unsupported file type captured.');
+      return null;
+    }
+
     if (returnBase64) {
-      final bytes = await File(image.path).readAsBytes();
-      final base64Image = base64Encode(bytes);
+      final bytes = await File(file.path).readAsBytes();
+      final base64Data = base64Encode(bytes);
+      final base64Image = 'data:$mimeType;base64,$base64Data';
+
       if (kDebugMode) {
-        print('Camera image base64: $base64Image');
+        print('Camera file base64: $base64Image');
       }
+
       return base64Image;
     } else {
-      return image.path;
+      return file.path;
     }
   }
 

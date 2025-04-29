@@ -158,8 +158,8 @@ class SetPasswordView extends StatelessWidget {
                       SizedBox(height: AppSpacing.thirtyVertical),
                       PrimaryButton(
                         color: AppColors.kSkyBlue,
-                        onTap: (){
-                          controller.submitSignup();
+                        onTap: ()async {
+                          await controller.submitSignup();
                         },
                         text: 'Login',
                       ),

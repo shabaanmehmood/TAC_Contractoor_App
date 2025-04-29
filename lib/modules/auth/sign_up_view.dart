@@ -271,7 +271,7 @@ class SignUpView extends StatelessWidget {
                       SizedBox(height: AppSpacing.thirtyVertical),
                       PrimaryButton(
                         color: AppColors.kSkyBlue,
-                        onTap: () {
+                        onTap: ()async  {
                           controller.savePersonalInfoAndGoNext();
                         },
                         text: 'Continue & Set Password',

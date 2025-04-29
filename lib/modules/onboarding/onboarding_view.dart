@@ -223,7 +223,13 @@ class OnboardingView extends StatelessWidget {
                         child: Padding(
                           padding: EdgeInsets.symmetric(horizontal: AppSpacing.tenHorizontal),
                           child: PrimaryButton(
-                            onTap: controller.onNextPage,
+                            onTap: ()async {
+                              if (isLastPage) {
+                                controller.onSkip();
+                              } else {
+                                controller.onNextPage();
+                              }
+                            },
                             text: isLastPage ? 'Get Started >' : '>',
                           ),
                         ),

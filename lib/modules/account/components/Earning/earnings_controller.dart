@@ -1,7 +1,6 @@
 // earnings_controller.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:tac/modules/account/components/Earning/filter_bottom_sheet.dart';
 import 'earning_model.dart';
 import 'dummy_data.dart';
@@ -39,7 +38,7 @@ class EarningsController extends GetxController {
       return matchesClient && matchesDate;
     }).toList();
 
-    selectedClient.value = client ?? '';
+    selectedClient.value = client;
     startDate.value = from;
     endDate.value = to;
     filtersApplied.value = true;
@@ -56,8 +55,36 @@ class EarningsController extends GetxController {
 
   String _convertDate(String input) {
     try {
-      final parsed = DateFormat("MMMM d, yyyy").parse(input);
-      return parsed.toIso8601String();
+      final parts = input.split(','); // e.g. ["March 21", " 2024"]
+      if (parts.length != 2) return '';
+
+      final dateParts = parts[0].trim().split(' '); // ["March", "21"]
+      final monthStr = dateParts[0];
+      final day = int.tryParse(dateParts[1]);
+      final year = int.tryParse(parts[1].trim());
+
+      if (day == null || year == null) return '';
+
+      final months = {
+        'January': 1,
+        'February': 2,
+        'March': 3,
+        'April': 4,
+        'May': 5,
+        'June': 6,
+        'July': 7,
+        'August': 8,
+        'September': 9,
+        'October': 10,
+        'November': 11,
+        'December': 12,
+      };
+
+      final month = months[monthStr];
+      if (month == null) return '';
+
+      final date = DateTime(year, month, day);
+      return date.toIso8601String();
     } catch (e) {
       return '';
     }

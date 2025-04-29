@@ -7,13 +7,14 @@ import 'package:tac/data/data/constants/app_spacing.dart';
 import '../../../data/data/constants/app_typography.dart';
 
 class PrimaryButton extends StatefulWidget {
-  final VoidCallback onTap;
+  final Future<void> Function()? onTap; // Make onTap async to allow for loading
   final String text;
   final double? width;
   final double? height;
   final double? borderRadius;
   final double? fontSize;
   final Color? color;
+
   const PrimaryButton({
     required this.onTap,
     required this.text,
@@ -29,17 +30,8 @@ class PrimaryButton extends StatefulWidget {
   State<PrimaryButton> createState() => _PrimaryButtonState();
 }
 
-class _PrimaryButtonState extends State<PrimaryButton>
-    with SingleTickerProviderStateMixin {
-
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
+class _PrimaryButtonState extends State<PrimaryButton> {
+  bool loadingFlag = false;
 
   @override
   Widget build(BuildContext context) {
@@ -47,8 +39,12 @@ class _PrimaryButtonState extends State<PrimaryButton>
         Theme.of(context).brightness == Brightness.dark;
 
     return GestureDetector(
-      onTap: () {
-        widget.onTap();
+      onTap: () async {
+        if (!loadingFlag && widget.onTap != null) {
+          setState(() => loadingFlag = true);
+          await widget.onTap!();
+          setState(() => loadingFlag = false);
+        }
       },
       child: Container(
         height: widget.height ?? Get.height * 0.06,
@@ -61,7 +57,16 @@ class _PrimaryButtonState extends State<PrimaryButton>
             widget.borderRadius ?? AppSpacing.fiveHorizontal,
           ),
         ),
-        child: Text(
+        child: loadingFlag
+            ? const SizedBox(
+          width: 24,
+          height: 24,
+          child: CircularProgressIndicator(
+            color: Colors.white,
+            strokeWidth: 2,
+          ),
+        )
+            : Text(
           widget.text,
           style: AppTypography.kBold20.copyWith(
             color: widget.color == null ? Colors.white : Colors.black,
@@ -72,3 +77,4 @@ class _PrimaryButtonState extends State<PrimaryButton>
     );
   }
 }
+

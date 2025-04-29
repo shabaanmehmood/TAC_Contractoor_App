@@ -1,16 +1,58 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tac/data/data/constants/app_colors.dart';
+import 'package:tac/models/userLicenses_model.dart';
 import '../../../../controllers/user_controller.dart';
 import '../../../../data/data/constants/app_assets.dart';
 import '../../../../dataproviders/api_service.dart';
 import 'add_license_screen.dart';
+import 'dart:convert';
 
-class SecurityLicenseScreen extends StatelessWidget {
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:tac/data/data/constants/app_colors.dart';
+import 'package:tac/models/bankDetails_model.dart';
+
+import '../../../../controllers/user_controller.dart';
+import '../../../../dataproviders/api_service.dart';
+import '../../../../routes/app_routes.dart';
+
+class SecurityLicenseScreen extends StatefulWidget {
   SecurityLicenseScreen({super.key});
 
-  final userController = Get.find<UserController>();
+  @override
+  State<SecurityLicenseScreen> createState() => _SecurityLicenseScreenState();
+}
 
+class _SecurityLicenseScreenState extends State<SecurityLicenseScreen> {
+  final userController = Get.find<UserController>();
+  late Future<List<UserLicenses>> userLicensesDetailsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    userLicensesDetailsFuture = fetchuserLicensesDetails();
+  }
+
+  Future<List<UserLicenses>> fetchuserLicensesDetails() async {
+    final apiService = MyApIService();
+    final userId = Get.find<UserController>().userData.value?.id ?? '';
+    final response = await apiService.getUserSecurityLicenses(userId);
+
+    if (response.statusCode == 200) {
+      final jsonResponse = jsonDecode(response.body);
+      final dataList = jsonResponse['data'];
+      if (dataList != null && dataList is List) {
+        return dataList.map((item) => UserLicenses.fromJson(item)).toList();
+      } else {
+        debugPrint('Invalid data format: $dataList');
+        return [];
+      }
+    } else {
+      debugPrint('Failed to fetch user Licenses: ${response.statusCode}');
+      return [];
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,84 +60,81 @@ class SecurityLicenseScreen extends StatelessWidget {
       backgroundColor: AppColors.kDarkestBlue,
       appBar: AppBar(
         backgroundColor: AppColors.kDarkestBlue,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
-          onPressed: () => Get.back(),
-        ),
-        title: const Text(
-          'Licenses',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-            fontSize: 16,
-          ),
-        ),
+        elevation: 0,
+        iconTheme: const IconThemeData(color: AppColors.kWhite),
+        title: const Text('Licenses', style: TextStyle(color: AppColors.kWhite)),
         actions: [
           TextButton(
             onPressed: () => Get.to(() => AddLicenseScreen()),
-            child: const Text(
-              "Add License",
-              style: TextStyle(
-                color: AppColors.kSkyBlue,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+            child: const Text('Add License', style: TextStyle(color: AppColors.kSkyBlue)),
           ),
         ],
         bottom: const PreferredSize(
           preferredSize: Size.fromHeight(1),
-          child: Divider(
-            height: 1,
-            thickness: 1,
-            color: AppColors.kDarkBlue,
-          ),
+          child: Divider(color: Colors.white24, height: 1),
         ),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          buildLicenseCard(
-            title: "Driving License No.",
-            number: "N/A",
-            expiry: "–",
-            status: "Verification Pending",
-            statusColor: AppColors.kalert,
-            badgeColor: AppColors.klightalert,
-            showUpdate: false,
-          ),
-          const SizedBox(height: 14),
-          buildLicenseCard(
-            title: "Construction Security License",
-            number: "651331581888184884",
-            expiry: "05 / 2030",
-            status: "Verified",
-            statusColor: AppColors.kgreen,
-            badgeColor: AppColors.kgshade,
-          ),
-          const SizedBox(height: 14),
-          buildLicenseCard(
-            title: "Armed License",
-            number: "651331581888184884",
-            expiry: "05 / 2030",
-            status: "Verified",
-            statusColor: AppColors.kgreen,
-            badgeColor: AppColors.kgshade,
-          ),
-          const SizedBox(height: 14),
-          buildLicenseCard(
-            title: "Mining Security License",
-            number: "651331581888184884",
-            expiry: "05 / 2030",
-            status: "Verification Rejected",
-            statusColor: AppColors.kRed,
-            badgeColor: AppColors.kRed,
-            showUpdate: true,
-          ),
-        ],
+      body: FutureBuilder<List<UserLicenses>>(
+        future: userLicensesDetailsFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(
+              child: Text(
+                'Error loading security licenses',
+                style: TextStyle(color: Colors.white54),
+              ),
+            );
+          } else {
+            final securityLicenseList = snapshot.data ?? [];
+
+            if (securityLicenseList.isEmpty) {
+              return const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.credit_card_outlined, color: Colors.white38, size: 64),
+                    SizedBox(height: 12),
+                    Text('No security licenses found', style: TextStyle(color: Colors.white54)),
+                  ],
+                ),
+              );
+            }
+
+            return Padding(
+              padding: const EdgeInsets.all(16),
+              child: ListView.separated(
+                itemCount: securityLicenseList.length,
+                separatorBuilder: (context, index) => const SizedBox(height: 20),
+                itemBuilder: (context, index) {
+                  final licenseData = securityLicenseList[index];
+                  return buildLicenseCard(
+                    title: licenseData.licenseType?.name ?? 'License Type',
+                    number: licenseData.licenseNumber ?? 'License Number',
+                    expiry: licenseData.expiryDate ?? 'Expiry Date',
+                    status: 'Active',
+                    statusColor: Colors.green,
+                    badgeColor: AppColors.kDarkBlue,
+                    showUpdate: true,
+                    imageUrl: licenseData.licenseDocumentPath,
+                  );
+                  // return buildLicenseCard(
+                  //   title: licenseData.licenseType ?? 'License Type',
+                  //   // context,
+                  //   // bank.bankName ?? 'Bank Name',
+                  //   // bank.accountNumber ?? 'Account Number',
+                  //   // bank.accountTitle ?? 'Account Title',
+                  //   // bank.entityDate ?? 'Expiry Date',
+                  // );
+                },
+              ),
+            );
+          }
+        },
       ),
     );
   }
-
   Widget buildLicenseCard({
     required String title,
     required String number,
@@ -104,6 +143,7 @@ class SecurityLicenseScreen extends StatelessWidget {
     required Color statusColor,
     required Color badgeColor,
     bool showUpdate = false,
+    String? imageUrl,
   }) {
     return Container(
       padding: const EdgeInsets.all(12),
@@ -121,7 +161,7 @@ class SecurityLicenseScreen extends StatelessWidget {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(4),
-                child: userProfileImageWidget(),
+                child: licenseImageWidget(imageUrl),
               ),
               const SizedBox(width: 8),
               Container(
@@ -201,25 +241,44 @@ class SecurityLicenseScreen extends StatelessWidget {
     );
   }
 
-  Widget userProfileImageWidget() {
-    return Obx(() {
-      final imagePath = userController.userData.value?.documents?.first.fileUrl;
-      // final imagePath = userController.userData.value?.profileImages?.first.imageUrl;
-      final imageUrl = MyApIService.fullImageUrl(imagePath);
-
-      return Container(
-        width: 48,
-        height: 48,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          image: DecorationImage(
-            image: imageUrl != null
-                ? NetworkImage(imageUrl)
-                : AssetImage(AppAssets.kUserPicture) as ImageProvider,
-            fit: BoxFit.cover,
-          ),
+  Widget licenseImageWidget(String? imageUrl) {
+    final fullImageUrl = imageUrl != null ? MyApIService.fullImageUrl(imageUrl) : null;
+    return Container(
+      width: 48,
+      height: 48,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        image: DecorationImage(
+          image: fullImageUrl != null
+              ? NetworkImage(fullImageUrl)
+              : AssetImage(AppAssets.kUserPicture) as ImageProvider,
+          fit: BoxFit.cover,
         ),
-      );
-    });
+      ),
+    );
   }
+
+
+  // Widget userProfileImageWidget() {
+  //   return Obx(() {
+  //     final imagePath = userController.userData.value?.userLicenses
+  //     // final imagePath = userController.userData.value?.profileImages?.first.imageUrl;
+  //     final imageUrl = MyApIService.fullImageUrl(imagePath);
+  //
+  //     return Container(
+  //       width: 48,
+  //       height: 48,
+  //       decoration: BoxDecoration(
+  //         borderRadius: BorderRadius.circular(8),
+  //         image: DecorationImage(
+  //           image: imageUrl != null
+  //               ? NetworkImage(imageUrl)
+  //               : AssetImage(AppAssets.kUserPicture) as ImageProvider,
+  //           fit: BoxFit.cover,
+  //         ),
+  //       ),
+  //     );
+  //   });
+  // }
+
 }

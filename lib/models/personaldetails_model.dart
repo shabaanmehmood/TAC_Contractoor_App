@@ -2,6 +2,7 @@ class PersonalDetails {
   int? id;
   int? yearsOfExperience;
   String? licenseNumber;
+  String? licenseExpiryDate;
   String? abn;
   List<String>? preferredLocationAddresses;
   String? createdDate;
@@ -11,6 +12,7 @@ class PersonalDetails {
     this.id,
     this.yearsOfExperience,
     this.licenseNumber,
+    this.licenseExpiryDate,
     this.abn,
     this.preferredLocationAddresses,
     this.createdDate,
@@ -21,6 +23,7 @@ class PersonalDetails {
     id = json['id'];
     yearsOfExperience = json['yearsOfExperience'];
     licenseNumber = json['licenseNumber'];
+    licenseExpiryDate = json['licenseExpiryDate'];
     abn = json['abn'];
     preferredLocationAddresses = json['preferredLocationAddresses'] != null
         ? List<String>.from(json['preferredLocationAddresses'])
@@ -34,6 +37,7 @@ class PersonalDetails {
     data['id'] = id;
     data['yearsOfExperience'] = yearsOfExperience;
     data['licenseNumber'] = licenseNumber;
+    data['licenseExpiryDate'] = licenseExpiryDate;
     data['abn'] = abn;
     data['preferredLocationAddresses'] = preferredLocationAddresses;
     data['createdDate'] = createdDate;

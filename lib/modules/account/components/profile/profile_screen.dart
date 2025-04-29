@@ -170,7 +170,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 {"label": "Gender", "value": userController.userData.value?.gender ?? "-"},
                 {"label": "Date of Birth", "value": userController.userData.value?.dob ?? "-"},
                 {"label": "Contact Number", "value": userController.userData.value?.phone ?? "-"},
-                {"label": "Postal Code", "value": "-"},
+                {"label": "Postal Code", "value": userController.userData.value?.postalCode ?? "-"},
                 {"label": "Residential Address", "value": userController.userData.value?.postalAddress ?? "-"},
               ],
               onEdit: () => Get.to(() => const EditPersonalInfoScreen()),
@@ -182,18 +182,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
               title: "Professional Information",
               info: [
                 {"label": "Year of Experience", "value": userController.userData.value?.personalDetails?.yearsOfExperience.toString() ?? "-"},
-                // {"label": "Occupation", "value": profile.occupation},
-                // {"label": "Suburb", "value": profile.suburb},
-                // {"label": "State", "value": profile.state},
-                // {"label": "Country", "value": profile.country},
-                {"label": "Level", "value": "-"},
+                {"label": "Level", "value": userController.userData.value?.level ?? "-"},
                 {
                   "label": "Security Licence Number",
                   "value": userController.userData.value?.personalDetails?.licenseNumber.toString() ?? "-"
                 },
-                {"label": "Licence Expiry Date", "value": '-'},
+                {"label": "Licence Expiry Date", "value": userController.userData.value?.personalDetails?.licenseExpiryDate.toString() ?? '-'},
                 {"label": "ABN", "value": userController.userData.value?.personalDetails?.abn.toString() ?? "-"},
-                {"label": "Professional Badge", "value": '-'},
+                {"label": "Professional Badge", "value": userController.userData.value?.professionalBadge ?? "-"},
                 {
                   "label": "Preferred Work Location",
                   "value": userController.userData.value?.personalDetails?.preferredLocationAddresses.toString() ?? "-"

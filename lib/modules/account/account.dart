@@ -144,8 +144,9 @@ class AccountScreen extends StatelessWidget {
                                 color: AppColors.kSkyBlue,
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: const Text(
-                                "Leader",
+                              child: Text(
+                                userController.value.userData.value?.professionalBadge ??
+                                    'Leader',
                                 style: TextStyle(
                                     color: AppColors.kWhite, fontSize: 12),
                               ),
@@ -153,7 +154,7 @@ class AccountScreen extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 10),
-                        const Text("Security Professional · Level 2",
+                        Text("Security Professional · ${userController.value.userData.value?.level}",
                             style: TextStyle(color: AppColors.ktextlight)),
                         const SizedBox(height: 8),
                         GestureDetector(

@@ -190,8 +190,8 @@ class SignInView extends StatelessWidget {
                       SizedBox(height: AppSpacing.fifteenVertical,),
                       PrimaryButton(
                         color: AppColors.kSkyBlue,
-                        onTap: () {
-                          controller.submitSignIn();
+                        onTap: () async {
+                          await controller.submitSignIn();
                         },
                         text: 'Login',
                       ),

@@ -40,7 +40,7 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
     dobController.text = user.dob ?? '';
     selectedGender = user.gender;
     contactController.text = user.phone ?? '';
-    postalCodeController.text = '';
+    postalCodeController.text = user.postalCode ??'';
     addressController.text = user.postalAddress ?? '';
   }
 
@@ -265,9 +265,9 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
         email: emailController.text,
         phone: contactController.text,
         postalAddress: addressController.text,
-        masterSecurityLicense:
-            userController.userData.value!.masterSecurityLicense!,
+        masterSecurityLicense: userController.userData.value!.masterSecurityLicense!,
         dob: dobController.text,
+        postalCode: postalCodeController.text,
         gender: selectedGender!,
       );
 

@@ -1,5 +1,6 @@
 import 'package:tac/models/personaldetails_model.dart';
 import 'package:tac/models/profileImages_model.dart';
+import 'package:tac/models/userLicenses_model.dart';
 
 import 'bankDetails_model.dart';
 import 'documents_model.dart';
@@ -34,6 +35,9 @@ class Data {
   String? email;
   String? phone;
   String? postalAddress;
+  String? postalCode;
+  String? level;
+  String? professionalBadge;
   String? masterSecurityLicense;
   String? password;
   String? role;
@@ -51,6 +55,7 @@ class Data {
   PersonalDetails? personalDetails;
   List<Documents>? documents;
   List<BankDetails>? bankDetails;
+  List<UserLicenses>? userLicenses;
 
   Data({
     this.id,
@@ -58,6 +63,9 @@ class Data {
     this.email,
     this.phone,
     this.postalAddress,
+    this.postalCode,
+    this.level,
+    this.professionalBadge,
     this.masterSecurityLicense,
     this.password,
     this.role,
@@ -75,6 +83,7 @@ class Data {
     this.personalDetails,
     this.documents,
     this.bankDetails,
+    this.userLicenses,
   });
 
   Data.fromJson(Map<String, dynamic> json) {
@@ -83,6 +92,9 @@ class Data {
     email = json['email'];
     phone = json['phone'];
     postalAddress = json['postalAddress'];
+    postalCode = json['postalCode'];
+    level = json['level'];
+    professionalBadge = json['professionalBadge'];
     masterSecurityLicense = json['masterSecurityLicense'];
     password = json['password'];
     role = json['role'];
@@ -120,6 +132,12 @@ class Data {
         bankDetails!.add(BankDetails.fromJson(v));
       });
     }
+    if (json['userLicenses'] != null) {
+      userLicenses = <UserLicenses>[];
+      json['userLicenses'].forEach((v) {
+        userLicenses!.add(UserLicenses.fromJson(v));
+      });
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -129,6 +147,9 @@ class Data {
     data['email'] = email;
     data['phone'] = phone;
     data['postalAddress'] = postalAddress;
+    data['postalCode'] = postalCode;
+    data['level'] = level;
+    data['professionalBadge'] = professionalBadge;
     data['masterSecurityLicense'] = masterSecurityLicense;
     data['password'] = password;
     data['role'] = role;
@@ -157,6 +178,10 @@ class Data {
 
     if (bankDetails != null) {
       data['bankDetails'] = bankDetails!.map((v) => v.toJson()).toList();
+    }
+
+    if (userLicenses != null) {
+      data['userLicenses'] = userLicenses!.map((v) => v.toJson()).toList();
     }
 
     return data;

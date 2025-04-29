@@ -413,6 +413,72 @@ class MyApIService {
     return response;
   }
 
+  Future<http.Response> getAllLicense() async {
+    var functionUrl = 'license/';
+    final response = await http.get(Uri.parse(baseurl + functionUrl),
+      headers: {
+        "Content-Type": "application/json",
+        'ngrok-skip-browser-warning': 'true',
+      },
+    );
+    if (response.statusCode == 200) {
+      final json = jsonDecode(response.body);
+      debugPrint('Response in getAllLicense: $json');
+
+    } else {
+      // handle error
+    }
+    return response;
+  }
+
+  Future<http.Response> addSecurityLicense(String licenseNumber, String expiryDate, String licenseTypeId,
+      String userId, String licenseDocumentPath) async {
+    var functionUrl = 'userLicenses/';
+    final response = await http.post(
+      Uri.parse(baseurl + functionUrl),
+      headers: {
+        "Content-Type": "application/json",
+        'ngrok-skip-browser-warning': 'true',
+      },
+      body: jsonEncode({
+        "licenseNumber": licenseNumber,
+        "expiryDate": expiryDate,
+        "licenseTypeId": licenseTypeId,
+        "userId": userId,
+        "licenseDocumentPath": licenseDocumentPath,
+      }),
+    );
+    if (response.statusCode == 201) {
+      debugPrint('User security license added successfully');
+      final json = jsonDecode(response.body);
+      debugPrint('Response in addSecurityLicense: $json');
+    }
+    else {
+      debugPrint('Error adding user security license: ${response.statusCode}');
+    }
+    return response;
+  }
+
+  Future<http.Response> getUserSecurityLicenses(String userId) async {
+    var functionUrl = 'userLicenses/user/$userId';
+
+    final response = await http.get(Uri.parse(baseurl + functionUrl),
+      headers: {
+        "Content-Type": "application/json",
+        'ngrok-skip-browser-warning': 'true',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final json = jsonDecode(response.body);
+      final dataList = json['data'];
+
+    } else {
+      debugPrint('Error: ${response.statusCode} - ${response.body}');
+    }
+    return response;
+  }
+
 
 // Future<http.Response> getData(String url, {String? controllerName}) async {
   //   String mainUrl =
