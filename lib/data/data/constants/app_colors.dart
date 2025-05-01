@@ -18,6 +18,10 @@ class AppColors {
   static const Color kWhite = Color(0xFFFFFFFF);
   static const Color kRed = Colors.red;
   static const Color kTitle = Colors.red;
+  static const Color kGreenS = Color.fromRGBO(4, 199, 89, 0.15);
+  static const Color kYellowS = Color.fromRGBO(255, 165, 0, 0.15);
+  static const Color kRedS = Color.fromRGBO(235, 0, 0, 0.15);
+
   // static const Color kAccent1 = Color(0xFFFCCBB9);
   // static const Color kAccent2 = Color(0xFFB9C2FC);
   // static const Color kAccent3 = Color(0xFFEEB8D8);

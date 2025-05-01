@@ -8,7 +8,9 @@ import 'package:tac/modules/Guards/guards_view.dart';
 import 'package:tac/modules/Jobs/jobs_page.dart';
 import 'package:tac/modules/Jobs/myJobs_view.dart';
 import 'package:tac/modules/account/account.dart';
+import 'package:tac/modules/account/components/Earning/earnings_screen.dart';
 import 'package:tac/modules/home/home_view.dart';
+import 'package:tac/modules/newjob%20section/my_jobs_view.dart';
 
 class LandingPage extends StatefulWidget {
   const LandingPage({super.key});
@@ -22,8 +24,8 @@ class _LandingPageState extends State<LandingPage> {
     const HomeView(),
     const GuardsView(),
     // const JobsView(),
-    const MyJobsView(),
-    const HomeView(),
+    MyJobsView1(),
+    EarningsScreen(),
     const AccountScreen(),
     // const ChatsScreen(),
     // const CourseSchedule(),
@@ -56,10 +58,8 @@ class _LandingPageState extends State<LandingPage> {
                 color: AppColors.kSkyBlue,
                 fontWeight: FontWeight.bold,
               ),
-              unselectedLabelStyle: const TextStyle(
-                fontSize: 13,
-                color: Colors.grey
-              ),
+              unselectedLabelStyle:
+                  const TextStyle(fontSize: 13, color: Colors.grey),
               selectedFontSize: 14,
               unselectedFontSize: 13,
               unselectedItemColor: Colors.grey,

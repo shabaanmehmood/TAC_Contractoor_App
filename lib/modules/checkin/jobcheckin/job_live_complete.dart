@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tac/data/data/constants/app_assets.dart';
 import 'package:tac/data/data/constants/app_colors.dart';
+import 'package:tac/modules/checkin/jobcheckin/shift_close.dart';
 import 'dummy_data.dart';
 import 'job_live_controller.dart';
 
-class JobLiveScreen extends StatelessWidget {
+class JobLiveScreen_complete extends StatelessWidget {
   final controller = Get.put(JobLiveController());
 
-  JobLiveScreen({super.key});
+  JobLiveScreen_complete({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -145,30 +146,23 @@ class JobLiveScreen extends StatelessWidget {
               Text("Shift",
                   style: TextStyle(
                       color: Colors.white, fontWeight: FontWeight.bold)),
-              Text("Waiting For Approval",
-                  style: TextStyle(color: Colors.amberAccent)),
+              Text("Completed", style: TextStyle(color: Colors.greenAccent)),
             ],
           ),
           const SizedBox(height: 6),
           const Text(
-            "The job timer will start after employer approval.",
+            "Start Time  Today, 9:00 AM",
             style: TextStyle(color: Colors.white70),
           ),
           const SizedBox(height: 12),
-          Center(
+          const Center(
             child: Text(
-              controller.timerText,
-              style: const TextStyle(
+              "00:00:00",
+              style: TextStyle(
                   fontSize: 36,
                   fontWeight: FontWeight.bold,
                   color: Colors.white),
             ),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            "If the employer does not approve within 30 minutes, the timer will start automatically.",
-            style: TextStyle(color: Colors.white38),
-            textAlign: TextAlign.center,
           ),
         ],
       ),
@@ -321,52 +315,30 @@ class JobLiveScreen extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Divider(color: AppColors.kinput), // No padding applied here
+        const Divider(color: AppColors.kinput),
         Container(
           padding: const EdgeInsets.fromLTRB(16, 10, 16, 24),
           decoration: const BoxDecoration(
             color: Color(0xFF0A0E21),
             boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 8)],
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Obx(() => Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Checkbox(
-                        value: controller.checkboxValue.value,
-                        onChanged: (val) {
-                          controller.checkboxValue.value = val ?? false;
-                        },
-                        activeColor: Colors.lightBlueAccent,
-                      ),
-                      const Expanded(
-                        child: Text(
-                          "I confirm that I am intentionally ending my shift before the scheduled time. I understand that this action cannot be undone and may require supervisor approval.",
-                          style: TextStyle(color: Colors.white70, fontSize: 10),
-                        ),
-                      )
-                    ],
-                  )),
-              const SizedBox(height: 12),
-              ElevatedButton(
-                onPressed: controller.checkboxValue.value
-                    ? controller.toggleApproval
-                    : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.lightBlueAccent,
-                  disabledBackgroundColor: AppColors.kSkyBlue,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  minimumSize: const Size.fromHeight(40),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: const Text("Close My Shift",
-                    style: TextStyle(fontWeight: FontWeight.bold)),
+          child: ElevatedButton(
+            onPressed: () {
+              Get.bottomSheet(
+                const ShiftCloseBottomSheet(),
+                isScrollControlled: true,
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.lightBlueAccent,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              minimumSize: const Size.fromHeight(40),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
               ),
-            ],
+            ),
+            child: const Text("Close My Shift",
+                style: TextStyle(fontWeight: FontWeight.bold)),
           ),
         ),
       ],

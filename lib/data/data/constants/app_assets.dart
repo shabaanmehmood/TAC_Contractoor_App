@@ -37,6 +37,11 @@ class AppAssets {
   static String kGen = 'assets/icon/gender.png';
   static String kNum = 'assets/icon/call.png';
   static String kCal = 'assets/icon/calender.png';
+  static String kMap = 'assets/map.jpg';
+  static String kCam = 'assets/icon/camera.png';
+  static String kTime = 'assets/icon/time.png';
+  static String kShare = 'assets/icon/share.png';
+  static String kEdit = 'assets/icon/edit.png';
 
   // static String kFaceBook = 'assets/icons/facebook.svg';
   // static String kGoogle = 'assets/icons/google.svg';

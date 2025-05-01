@@ -3,12 +3,13 @@ import 'package:get/get.dart';
 import 'package:tac/data/data/constants/app_assets.dart';
 import 'package:tac/data/data/constants/app_colors.dart';
 import 'dummy_data.dart';
+
 import 'job_live_controller.dart';
 
-class JobLiveScreen extends StatelessWidget {
+class JobLiveScreen_inprogress extends StatelessWidget {
   final controller = Get.put(JobLiveController());
 
-  JobLiveScreen({super.key});
+  JobLiveScreen_inprogress({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -145,15 +146,13 @@ class JobLiveScreen extends StatelessWidget {
               Text("Shift",
                   style: TextStyle(
                       color: Colors.white, fontWeight: FontWeight.bold)),
-              Text("Waiting For Approval",
-                  style: TextStyle(color: Colors.amberAccent)),
+              Text("In Progress",
+                  style: TextStyle(color: Colors.lightBlueAccent)),
             ],
           ),
           const SizedBox(height: 6),
-          const Text(
-            "The job timer will start after employer approval.",
-            style: TextStyle(color: Colors.white70),
-          ),
+          const Text("Start Time  Today, 9:00 AM",
+              style: TextStyle(color: Colors.white70)),
           const SizedBox(height: 12),
           Center(
             child: Text(
@@ -163,12 +162,6 @@ class JobLiveScreen extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                   color: Colors.white),
             ),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            "If the employer does not approve within 30 minutes, the timer will start automatically.",
-            style: TextStyle(color: Colors.white38),
-            textAlign: TextAlign.center,
           ),
         ],
       ),
