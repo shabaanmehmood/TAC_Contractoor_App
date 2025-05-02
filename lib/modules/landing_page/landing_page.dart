@@ -25,7 +25,7 @@ class _LandingPageState extends State<LandingPage> {
     const GuardsView(),
     // const JobsView(),
     MyJobsView1(),
-    EarningsScreen(),
+    // EarningsScreen(),
     const AccountScreen(),
     // const ChatsScreen(),
     // const CourseSchedule(),
