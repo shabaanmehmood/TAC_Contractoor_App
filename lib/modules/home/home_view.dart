@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:tac/controllers/mapController.dart';
 import 'package:tac/data/data/constants/app_assets.dart';
 import 'package:tac/data/data/constants/constants.dart';
 import 'package:tac/models/getUserById_model.dart';
@@ -23,13 +24,12 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
+  final MapController controller = Get.put(MapController());
 
-  late GoogleMapController mapController;
-
-  final LatLng _center = const LatLng(45.521563, -122.677433);
-
-  void _onMapCreated(GoogleMapController controller) {
-    mapController = controller;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
   }
 
   @override
@@ -42,24 +42,20 @@ class _HomeViewState extends State<HomeView> {
           children: [
             _appBar(context),
             SizedBox(height: AppSpacing.tenVertical,),
-            Expanded(
-              child: GestureDetector(
-                onTap: () {
-                  Get.to(() => CurrentLocationView());
-                },
-                child: Livetrackingpage(),
-                // GoogleMap(
-                //   mapToolbarEnabled: true,
-                //   initialCameraPosition: CameraPosition(
-                //     target: _center,
-                //     zoom: 11.0,
-                //   ),
-                //   onMapCreated: _onMapCreated,
-                //   myLocationEnabled: true,
-                //   myLocationButtonEnabled: true,
-                // )
-              ),
-            )
+            Obx(() {
+              return Expanded(
+                child: GoogleMap(
+                  initialCameraPosition: CameraPosition(
+                    target: controller.userPath.isNotEmpty
+                        ? controller.userPath.first
+                        : LatLng(0, 0),
+                    zoom: 15,
+                  ),
+                  markers: controller.markers.value,
+                  onMapCreated: controller.setMapController,
+                ),
+              );
+            }),
           ],
         ),
       ),

@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 
 import '../controllers/user_controller.dart';
 import '../models/getUserById_model.dart';
+import '../models/jobResponse_model.dart';
 import '../models/userdata_model.dart';
 import '../models/userupdate_model.dart';
 
@@ -477,6 +478,35 @@ class MyApIService {
       debugPrint('Error: ${response.statusCode} - ${response.body}');
     }
     return response;
+  }
+
+  Future<NearbyJobsResponse?> fetchJobsLocations(String latitude, String longitude) async {
+    var functionUrl = 'jobs/findNearBy';
+    try {
+      final response = await http.post(
+        Uri.parse(baseurl + functionUrl),
+        headers: {
+          "Content-Type": "application/json",
+          'ngrok-skip-browser-warning': 'true',
+        },
+        body: jsonEncode({
+          "latitude": latitude,
+          "longitude": longitude,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final jsonData = jsonDecode(response.body);
+        final jobsResponse = NearbyJobsResponse.fromJson(jsonData);
+        return jobsResponse;
+      } else {
+        print('Failed to load jobs. Status code: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error fetching jobs: $e');
+      return null;
+    }
   }
 
 

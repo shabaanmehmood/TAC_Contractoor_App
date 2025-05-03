@@ -1,4 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
+
     <application
         android:label="tac"
         android:name="${applicationName}"
@@ -6,7 +10,6 @@
 
         <meta-data android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyAxiJ1f2ILgcjMHQ6YzJD11CPMqRqfu2v4"/>
-
 
         <activity
             android:name=".MainActivity"
