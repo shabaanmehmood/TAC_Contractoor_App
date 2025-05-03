@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tac/data/data/constants/app_colors.dart';
+import 'package:tac/modules/account/components/HELP%20AND%20SUPPORT/faqs.dart';
+import 'package:tac/modules/account/components/HELP%20AND%20SUPPORT/report.dart';
 import 'package:tac/modules/account/components/profile/HELP%20AND%20SUPPORT/dispute.dart';
 
 class HelpSupportScreen extends StatelessWidget {
@@ -45,7 +47,7 @@ class HelpSupportScreen extends StatelessWidget {
             subtitle:
                 "Share your feedback if you have anything we can do to improve.",
             onTap: () {
-              // Navigate to Report Issue page
+              Get.to(() => ReportIssueScreen());
             },
           ),
           const SizedBox(height: 12),
@@ -54,7 +56,7 @@ class HelpSupportScreen extends StatelessWidget {
             title: "FAQ",
             subtitle: "Manage your details",
             onTap: () {
-              // Navigate to FAQ page
+              Get.to(() => FaqScreen());
             },
           ),
           const SizedBox(height: 12),

@@ -6,6 +6,8 @@ import 'package:tac/data/data/constants/app_assets.dart';
 import 'package:tac/data/data/constants/app_colors.dart';
 import 'package:tac/data/data/constants/app_spacing.dart';
 import 'package:tac/data/data/constants/app_typography.dart';
+import 'package:tac/modules/Guards/job_details/job_details_screen.dart';
+import 'package:tac/modules/account/components/Earning/earnings_screen.dart';
 
 class JobCard extends StatelessWidget {
   final String jobTitle;
@@ -41,139 +43,118 @@ class JobCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.only(right: 20, bottom: 10, top: 20, left: 20),
-      decoration: BoxDecoration(
-        color: jobStatus?.withOpacity(0.5) ?? AppColors.kJobCardColor, // Dark background color
-        border: Border.all(
-          color: jobStatus ?? AppColors.kJobCardColor
-        ),
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(15),
+      child: InkWell(
         borderRadius: BorderRadius.circular(15),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          /// **Job Title & Per Hour Rate**
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                jobTitle,
-                style: AppTypography.kBold16.copyWith(
-                  color: AppColors.kWhite,
-                )
-              ),
-              Text(
-                perHourRate,
-                style: AppTypography.kBold16.copyWith(
-                  color: AppColors.kSkyBlue
-                )
-              ),
-            ],
+        onTap: () {
+          Get.to(JobDetailsScreen());
+        },
+        child: Container(
+          padding:
+              const EdgeInsets.only(right: 20, bottom: 10, top: 20, left: 20),
+          decoration: BoxDecoration(
+            color: jobStatus?.withOpacity(0.5) ?? AppColors.kJobCardColor,
+            border: Border.all(color: jobStatus ?? AppColors.kJobCardColor),
+            borderRadius: BorderRadius.circular(15),
           ),
-          SizedBox(height: AppSpacing.fiveVertical),
-          /// **Company Name & Rating**
-          Row(
-            children: [
-              Text(
-                companyName,
-                style: AppTypography.kLight14.copyWith(
-                  color: AppColors.kWhite
-                )
-              ),
-              const SizedBox(width: 5),
-              Text(
-                rating,
-                style: AppTypography.kBold14.copyWith(
-                  color: AppColors.kSkyBlue
-                )
-              ),
-            ],
-          ),
-          SizedBox(height: AppSpacing.fiveVertical),
-          /// **Hiring Tags**
-          Row(
-            children: [
-              _buildTag(hiringTag),
-              const SizedBox(width: 8),
-              _buildTag(jobType),
-            ],
-          ),
-          SizedBox(height: AppSpacing.tenVertical),
-          /// **Location & Distance**
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  SvgPicture.asset(
-                      AppAssets.kLocation,
-                    height: 16,
-                    width: 16,
-                    color: Colors.grey,
-                  ),
+                  Text(jobTitle,
+                      style: AppTypography.kBold16.copyWith(
+                        color: AppColors.kWhite,
+                      )),
+                  Text(perHourRate,
+                      style: AppTypography.kBold16
+                          .copyWith(color: AppColors.kSkyBlue)),
+                ],
+              ),
+              SizedBox(height: AppSpacing.fiveVertical),
+              Row(
+                children: [
+                  Text(companyName,
+                      style: AppTypography.kLight14
+                          .copyWith(color: AppColors.kWhite)),
                   const SizedBox(width: 5),
+                  Text(rating,
+                      style: AppTypography.kBold14
+                          .copyWith(color: AppColors.kSkyBlue)),
+                ],
+              ),
+              SizedBox(height: AppSpacing.fiveVertical),
+              Row(
+                children: [
+                  _buildTag(hiringTag),
+                  const SizedBox(width: 8),
+                  _buildTag(jobType),
+                ],
+              ),
+              SizedBox(height: AppSpacing.tenVertical),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      SvgPicture.asset(
+                        AppAssets.kLocation,
+                        height: 16,
+                        width: 16,
+                        color: Colors.grey,
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        location,
+                        style: AppTypography.kLight14
+                            .copyWith(color: AppColors.kWhite),
+                      ),
+                    ],
+                  ),
                   Text(
-                    location,
-                    style: AppTypography.kLight14.copyWith(
-                      color: AppColors.kWhite
-                    ),
+                    distance,
+                    style: AppTypography.kLight14
+                        .copyWith(color: AppColors.kWhite),
                   ),
                 ],
               ),
-              Text(
-                distance,
-                style: AppTypography.kLight14.copyWith(
-                  color: AppColors.kWhite
-                ),
-              ),
-            ],
-          ),
-
-          SizedBox(height: AppSpacing.tenVertical),
-
-          /// **Date & Shift Timing**
-          Row(
-            children: [
+              SizedBox(height: AppSpacing.tenVertical),
               Row(
                 children: [
-                  const Icon(Icons.calendar_today, color: Colors.grey, size: 16),
+                  const Icon(Icons.calendar_today,
+                      color: Colors.grey, size: 16),
                   const SizedBox(width: 5),
                   Text(
                     day,
-                    style: AppTypography.kLight14.copyWith(
-                      color: AppColors.kWhite
-                    ),
+                    style: AppTypography.kLight14
+                        .copyWith(color: AppColors.kWhite),
                   ),
-                  const SizedBox(width: 20,),
+                  const SizedBox(width: 20),
                   const Icon(Icons.access_time, color: Colors.grey, size: 16),
                   const SizedBox(width: 5),
                   Text(
                     shiftTime,
-                    style: AppTypography.kLight14.copyWith(
-                        color: AppColors.kWhite
-                    ),
+                    style: AppTypography.kLight14
+                        .copyWith(color: AppColors.kWhite),
                   ),
                 ],
               ),
+              SizedBox(height: AppSpacing.tenVertical),
+              Text(
+                requiredPersons,
+                style:
+                    AppTypography.kBold14.copyWith(color: AppColors.kSkyBlue),
+              ),
             ],
           ),
-
-          SizedBox(height: AppSpacing.tenVertical),
-
-          /// **Required Persons**
-          Text(
-            requiredPersons,
-            style: AppTypography.kBold14.copyWith(
-                color: AppColors.kSkyBlue
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 
-  /// **Helper Method to Build Tag Widgets**
   Widget _buildTag(String text) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -188,7 +169,6 @@ class JobCard extends StatelessWidget {
     );
   }
 }
-
 
 // class JobCardController extends GetxController {
 //   var jobTitle = "VIP Protection for Music Festival".obs;

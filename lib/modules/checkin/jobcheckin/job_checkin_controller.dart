@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:tac/modules/checkin/jobcheckin/job_live_complete.dart';
 import 'job_live_screen.dart'; // 👈 Import the screen you want to navigate to
 
 class JobCheckinController extends GetxController {
@@ -9,7 +10,7 @@ class JobCheckinController extends GetxController {
     isSelfieTaken.value = true;
 
     Future.delayed(const Duration(milliseconds: 500), () {
-      Get.to(() => JobLiveScreen()); // 👈 Navigate to Live Job Screen
+      Get.to(() => JobLiveScreen_complete()); // 👈 Navigate to Live Job Screen
     });
   }
 }

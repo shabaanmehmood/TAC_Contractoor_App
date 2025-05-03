@@ -22,6 +22,10 @@ class JobCheckinScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: AppColors.kDarkestBlue,
         elevation: 0,
+        leading: IconButton(
+          icon: Image.asset(AppAssets.kBack, width: 24, height: 24),
+          onPressed: () => Navigator.of(context).pop(), // or Get.back()
+        ),
         title: const Text(
           'Job Details',
           style: TextStyle(color: AppColors.kWhite, fontSize: 18),
@@ -110,13 +114,18 @@ class JobCheckinScreen extends StatelessWidget {
                   Row(
                     children: [
                       const Text(
-                        "Job Details:",
+                        "Job Details",
                         style: TextStyle(
                           color: AppColors.kSkyBlue,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      //Icon(Icons.buttonbase),
+                      SizedBox(width: 8),
+                      Image.asset(
+                        AppAssets.kShare,
+                        width: 16,
+                        height: 16,
+                      ),
                     ],
                   ),
                   const SizedBox(height: 6),
@@ -173,11 +182,14 @@ class JobCheckinScreen extends StatelessWidget {
                   Center(
                     child: Column(
                       children: [
-                        const CircleAvatar(
+                        CircleAvatar(
                           radius: 60,
                           backgroundColor: Color(0xFF2E3142),
-                          child:
-                              Icon(Icons.lock, color: Colors.white, size: 40),
+                          child: Image.asset(
+                            AppAssets.kCam,
+                            width: 40,
+                            height: 40,
+                          ),
                         ),
                         const SizedBox(height: 12),
                         Obx(() => ElevatedButton(
