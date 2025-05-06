@@ -126,7 +126,7 @@ class SearchField extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Get.to(() => SearchView());
+        // Get.to(() => SearchView());
       },
       child: Container(
         width: double.infinity, // Ensure full width

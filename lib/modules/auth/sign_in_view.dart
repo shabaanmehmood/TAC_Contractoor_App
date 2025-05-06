@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:ffi';
 
 import 'package:flutter/services.dart';
@@ -15,6 +16,7 @@ import '../../data/data/constants/app_assets.dart';
 import '../../dataproviders/api_service.dart';
 import '../../models/onboarding.dart';
 import '../../widhets/common widgets/buttons/TextFormFieldWidget.dart';
+import '../../widhets/common widgets/buttons/adaptive_dialogue.dart';
 import '../../widhets/common widgets/buttons/password_field.dart';
 import '../../widhets/common widgets/buttons/primary_button.dart';
 import '../../widhets/common widgets/buttons/primary_container.dart';
@@ -31,7 +33,7 @@ class SignInViewController extends GetxController {
     passwordVisible.value = !passwordVisible.value;
   }
 
-  Future<void> submitSignIn() async {
+  Future<void> submitSignIn(BuildContext context) async {
     if (formKey.currentState!.validate()) {
       final apiService = MyApIService(); // create instance
       try{
@@ -45,11 +47,33 @@ class SignInViewController extends GetxController {
           Get.offAndToNamed(AppRoutes.getLandingPageRoute());
         } else {
           debugPrint("data from API ${response.body}");
+          debugPrint("data from API ${response.body}");
+          final Map<String, dynamic> responseBody = jsonDecode(response.body);
+          final String errorMessage = responseBody['message'] ?? 'Unknown error';
+
+          // Show dialog with one line call
+          await AdaptiveAlertDialogWidget.show(
+            context,
+            title: 'Login Failed',
+            content: errorMessage,
+            yesText: 'OK',
+            showNoButton: false,
+            onYes: () {
+              // Optional: do something on OK pressed
+            },
+          );
           debugPrint('Error login failed: ${response.body}');
         }
       }
       catch(e){
         debugPrint('Error Network error: ${e.toString()}');
+        await AdaptiveAlertDialogWidget.show(
+          context,
+          title: 'Network Error',
+          content: e.toString(),
+          yesText: 'OK',
+          showNoButton: false,
+        );
       }
     }
   }
@@ -191,7 +215,7 @@ class SignInView extends StatelessWidget {
                       PrimaryButton(
                         color: AppColors.kSkyBlue,
                         onTap: () async {
-                          await controller.submitSignIn();
+                          await controller.submitSignIn(context);
                         },
                         text: 'Login',
                       ),

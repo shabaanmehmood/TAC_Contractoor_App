@@ -12,6 +12,7 @@ class MapController extends GetxController {
   var markers = <Marker>{}.obs;
   var mapController = Rxn<GoogleMapController>();
   var userPath = <LatLng>[].obs;
+  var jobPath = <LatLng>[].obs;
   var isLoading = true.obs;
   final myApiService = MyApIService();
   Timer? _periodicUpdateTimer;
@@ -31,6 +32,77 @@ class MapController extends GetxController {
   void onClose() {
     _periodicUpdateTimer?.cancel();
     super.onClose();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    _periodicUpdateTimer?.cancel();
+    mapController.value?.dispose();
+    markers.clear();
+    userPath.clear();
+    jobPath.clear();
+    _currentUserLocation = null;
+
+  }
+
+  Future<double> getJobLocation(String latitude, String longitude) async {
+    Location location = Location();
+    late LatLng jobLocation;
+    double jobDistance;
+    final userLocation = await location.getLocation();
+    LatLng? _UserLocation;
+
+    // Check for permission
+    PermissionStatus permissionGranted = await location.hasPermission();
+    if (permissionGranted == PermissionStatus.denied) {
+      permissionGranted = await location.requestPermission();
+      if (permissionGranted != PermissionStatus.granted) {
+        throw Exception('Location permission denied.');
+      }
+    }
+
+    try {
+      _UserLocation = LatLng(
+        userLocation.latitude ?? 0.0,
+        userLocation.longitude ?? 0.0,
+      );
+
+      jobLocation = LatLng(
+        double.parse(latitude),
+        double.parse(longitude),
+      );
+
+      jobPath.value = [jobLocation!];
+
+      // Make sure _calculateDistance is defined and returns double
+      jobDistance = _calculateDistance(
+        _UserLocation!.latitude,
+        _UserLocation!.longitude,
+        jobLocation.latitude,
+        jobLocation.longitude,
+      );
+
+      // Animate camera if mapController is defined and initialized
+      if (mapController.value != null) {
+        Future.delayed(
+          Duration(milliseconds: 250),
+          () {
+            mapController.value!.animateCamera(
+              CameraUpdate.newLatLng(jobLocation),
+            );
+          },
+        );
+      }
+
+      return jobDistance;
+    } catch (e) {
+      print('Error fetching location: $e');
+      return -1;
+    } finally {
+      // isLoading.value = false; // Optionally reset loading state here
+    }
   }
 
   Future<void> requestAndSaveLocation() async {
@@ -119,8 +191,8 @@ class MapController extends GetxController {
       // Animate camera to the first job marker, if available
       if (jobsList.isNotEmpty && mapController.value != null) {
         final firstJob = jobsList[0];
-        final double lat = double.tryParse(firstJob.latitude) ?? 0.0;
-        final double lng = double.tryParse(firstJob.longitude) ?? 0.0;
+        final double lat = double.tryParse(firstJob.latitude!) ?? 0.0;
+        final double lng = double.tryParse(firstJob.longitude!) ?? 0.0;
         final LatLng position = LatLng(lat, lng);
 
         // Animate camera to the job location
@@ -132,8 +204,8 @@ class MapController extends GetxController {
       // Create markers for each job
       for (var i = 0; i < jobsList.length; i++) {
         final job = jobsList[i];
-        final double lat = double.tryParse(job.latitude) ?? 0.0;
-        final double lng = double.tryParse(job.longitude) ?? 0.0;
+        final double lat = double.tryParse(job.latitude!) ?? 0.0;
+        final double lng = double.tryParse(job.longitude!) ?? 0.0;
         final LatLng position = LatLng(lat, lng);
 
         // Calculate distance from user's current location
@@ -146,7 +218,7 @@ class MapController extends GetxController {
               lng
           );
         } else {
-          distanceInKm = job.distance;
+          distanceInKm = job.distance!;
         }
 
         // Create custom marker icon with sky blue color

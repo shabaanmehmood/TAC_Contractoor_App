@@ -18,7 +18,7 @@ class JobData {
   final String contractorName;
   final String categoryName;
   final String premisesTypeName;
-  final double distance;
+  final double? distance;
   final List<Shift> shifts;
 
   JobData({
@@ -39,31 +39,35 @@ class JobData {
     required this.contractorName,
     required this.categoryName,
     required this.premisesTypeName,
-    required this.distance,
+    this.distance,
     required this.shifts,
   });
 
   factory JobData.fromJson(Map<String, dynamic> json) {
     return JobData(
-      id: json['id'],
-      title: json['title'],
-      description: json['description'],
-      responsibilities: json['responsibilities'],
-      location: json['location'],
-      latitude: json['latitude'],
-      longitude: json['longitude'],
-      noOfGuardsRequired: json['noOfGuardsRequired'],
-      leaderRequired: json['leaderRequired'],
-      payPerHour: json['payPerHour'],
-      jobSOPs: json['jobSOPs'],
-      createdAt: DateTime.parse(json['createdAt']),
-      updatedAt: DateTime.parse(json['updatedAt']),
-      contractorId: json['contractorId'],
-      contractorName: json['contractorName'],
-      categoryName: json['categoryName'],
-      premisesTypeName: json['premisesTypeName'],
-      distance: (json['distance'] as num).toDouble(),
-      shifts: (json['shifts'] as List)
+      id: json['jobId'] ?? '', // API: jobId
+      title: json['jobTitle'] ?? '',
+      description: json['jobDescription'] ?? '',
+      responsibilities: json['jobResponsibilities'] ?? '', // Not present in API, nullable
+      location: json['jobLocation'] ?? '',
+      latitude: json['jobLatitude'] ?? '', // Not present in API, nullable
+      longitude: json['jobLongitude'] ?? '', // Not present in API, nullable
+      noOfGuardsRequired: json['noOfGuardsRequired'] ?? 0,
+      leaderRequired: json['leaderRequired'] ?? '', // Not present in API, nullable
+      payPerHour: json['payPerHour'] ?? '',
+      jobSOPs: json['jobSOPs'] ?? '', // Not present in API, nullable
+      createdAt: DateTime.tryParse(json['jobCreatedAt'] ?? '') ?? DateTime.now(),
+      updatedAt: DateTime.tryParse(json['jobUpdatedAt'] ?? '') ?? DateTime.now(),
+      contractorId: json['contractorId'] ?? '',
+      contractorName: json['contractorName'] ?? '',
+      categoryName: json['categoryName'] ?? '',
+      premisesTypeName: json['premisesTypeName'] ?? '',
+      distance: json['distance'] != null
+          ? (json['distance'] is num
+          ? (json['distance'] as num).toDouble()
+          : double.tryParse(json['distance'].toString()))
+          : null,
+      shifts: (json['shifts'] as List<dynamic>? ?? [])
           .map((item) => Shift.fromJson(item))
           .toList(),
     );
@@ -71,19 +75,19 @@ class JobData {
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
-      'title': title,
-      'description': description,
-      'responsibilities': responsibilities,
-      'location': location,
-      'latitude': latitude,
-      'longitude': longitude,
+      'jobId': id,
+      'jobTitle': title,
+      'jobDescription': description,
+      'jobResponsibilities': responsibilities,
+      'jobLocation': location,
+      'jobLatitude': latitude,
+      'jobLongitude': longitude,
       'noOfGuardsRequired': noOfGuardsRequired,
       'leaderRequired': leaderRequired,
       'payPerHour': payPerHour,
       'jobSOPs': jobSOPs,
-      'createdAt': createdAt.toIso8601String(),
-      'updatedAt': updatedAt.toIso8601String(),
+      'jobCreatedAt': createdAt.toIso8601String(),
+      'jobUpdatedAt': updatedAt.toIso8601String(),
       'contractorId': contractorId,
       'contractorName': contractorName,
       'categoryName': categoryName,

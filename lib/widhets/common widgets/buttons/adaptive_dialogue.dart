@@ -24,16 +24,45 @@ class AdaptiveAlertDialogWidget extends StatelessWidget {
     this.showNoButton = true,
   });
 
-  void show(BuildContext context) {
+  // Static method to show the dialog easily anywhere
+  static Future<void> show(
+      BuildContext context, {
+        String? title,
+        String? content,
+        String? yesText,
+        String? noText,
+        VoidCallback? onYes,
+        VoidCallback? onNo,
+        bool showYesButton = true,
+        bool showNoButton = true,
+      }) async {
     if (Platform.isIOS) {
-      showCupertinoDialog(
+      await showCupertinoDialog(
         context: context,
-        builder: (_) => this,
+        builder: (_) => AdaptiveAlertDialogWidget(
+          title: title,
+          content: content,
+          yesText: yesText,
+          noText: noText,
+          onYes: onYes,
+          onNo: onNo,
+          showYesButton: showYesButton,
+          showNoButton: showNoButton,
+        ),
       );
     } else {
-      showDialog(
+      await showDialog(
         context: context,
-        builder: (_) => this,
+        builder: (_) => AdaptiveAlertDialogWidget(
+          title: title,
+          content: content,
+          yesText: yesText,
+          noText: noText,
+          onYes: onYes,
+          onNo: onNo,
+          showYesButton: showYesButton,
+          showNoButton: showNoButton,
+        ),
       );
     }
   }

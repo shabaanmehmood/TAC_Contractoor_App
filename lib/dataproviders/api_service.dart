@@ -509,6 +509,26 @@ class MyApIService {
     }
   }
 
+  Future<http.Response> getJobsList() async {
+    var functionUrl = 'jobs';
+
+    final response = await http.get(Uri.parse(baseurl + functionUrl),
+      headers: {
+        "Content-Type": "application/json",
+        'ngrok-skip-browser-warning': 'true',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final json = jsonDecode(response.body);
+      final dataList = json['data'];
+
+    } else {
+      debugPrint('Error: ${response.statusCode} - ${response.body}');
+    }
+    return response;
+  }
+
 
 // Future<http.Response> getData(String url, {String? controllerName}) async {
   //   String mainUrl =
