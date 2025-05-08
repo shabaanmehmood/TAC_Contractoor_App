@@ -46,6 +46,9 @@ class AppAssets {
   static String kPath = 'assets/icon/path.png';
   static String kDanger = 'assets/icon/danger.png';
   static String kRefresh = 'assets/icon/refresh.png';
+  static String kAdd = 'assets/icon/add.png';
+
+  static String kBlock = 'assets/icon/block.png';
 
   // static String kFaceBook = 'assets/icons/facebook.svg';
   // static String kGoogle = 'assets/icons/google.svg';

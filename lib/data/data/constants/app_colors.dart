@@ -21,6 +21,7 @@ class AppColors {
   static const Color kGreenS = Color.fromRGBO(4, 199, 89, 0.15);
   static const Color kYellowS = Color.fromRGBO(255, 165, 0, 0.15);
   static const Color kRedS = Color.fromRGBO(235, 0, 0, 0.15);
+  static const Color kChat = Color.fromRGBO(47, 61, 82, 1);
 
   // static const Color kAccent1 = Color(0xFFFCCBB9);
   // static const Color kAccent2 = Color(0xFFB9C2FC);
