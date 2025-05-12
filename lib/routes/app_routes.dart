@@ -1,6 +1,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:get/get_navigation/src/routes/get_route.dart';
+import 'package:tac/modules/Guards/guards_view.dart';
 import 'package:tac/modules/account/account.dart';
 import 'package:tac/modules/account/components/profile/profile_screen.dart';
 import 'package:tac/modules/auth/sign_up_view.dart';
@@ -17,6 +18,7 @@ class AppRoutes {
   static String landing = '/landing-page';
   static String settings = '/settings';
   static String profile = '/profile';
+  static String guards = '/guards';
 
   static List<GetPage> routes = [
     GetPage<Route<dynamic>>(
@@ -43,6 +45,11 @@ class AppRoutes {
       name: profile,
       page: () => const AccountScreen(),
     ),
+    GetPage<Route<dynamic>>(
+      name: guards,
+      page: () => const GuardsView(),
+    ),
+
     // GetPage<Route<dynamic>>(
     //   name: settings,
     //   page: () => const SettingsView(),
@@ -56,4 +63,5 @@ class AppRoutes {
   static String getLandingPageRoute() => landing;
   static String getSettingPageRoute() => settings;
   static String getProfilePageRoute() => profile;
+  static String getGuardsPageRoute() => guards;
 }

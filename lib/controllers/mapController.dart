@@ -153,8 +153,8 @@ class MapController extends GetxController {
 
       // Fetch nearby jobs using current location
       await fetchUserLocations(
-        (51.5084).toString(),
-        (-0.1278).toString(),
+        (42.1155000).toString(),
+        (-72.5395000).toString(),
         // (userLocation.latitude ?? 0.0).toStringAsFixed(4),
         // (userLocation.longitude ?? 0.0).toStringAsFixed(4),
       );

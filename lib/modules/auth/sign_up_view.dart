@@ -9,6 +9,7 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tac/data/data/constants/constants.dart';
 import 'package:tac/modules/auth/set_password.dart';
 import 'package:tac/widhets/common%20widgets/buttons/TextFormFieldWidget.dart';
@@ -57,6 +58,12 @@ class SignUpViewController extends GetxController {
     }
   }
 
+  Future<void> saveLoginSession() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isLoggedIn', true);
+    await prefs.setInt('loginTime', DateTime.now().millisecondsSinceEpoch);
+  }
+
   // ✅ Call this when password form is validated
   Future<void> submitSignup() async {
     if (passwordFormKey.currentState!.validate()) {
@@ -80,6 +87,7 @@ class SignUpViewController extends GetxController {
         if (response.statusCode == 201) {
           debugPrint("data from API ${response.body}");
           Get.offAndToNamed(AppRoutes.getLandingPageRoute());
+          // await saveLoginSession();
         } else {
           debugPrint('Error Signup failed: ${response.body}');
         }

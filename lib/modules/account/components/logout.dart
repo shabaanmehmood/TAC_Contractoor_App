@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tac/data/data/constants/app_colors.dart';
 
 import '../../../controllers/user_controller.dart';
@@ -9,6 +10,12 @@ import '../../../routes/app_routes.dart';
 class LogoutController extends GetxController {
   final userController = Get.find<UserController>();
 
+  Future<void> clearLoginSession() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('isLoggedIn');
+    await prefs.remove('loginTime');
+  }
+
   Future<void> logout() async {
     final apiService = MyApIService(); // create instance
     try{
@@ -17,6 +24,7 @@ class LogoutController extends GetxController {
       );
       if (response.statusCode == 200) {
         debugPrint("data from logout API ${response.body}");
+        // await clearLoginSession();
         Get.offAndToNamed(AppRoutes.getSignInRoute());
       } else {
         debugPrint('Error logout API failed: ${response.body}');

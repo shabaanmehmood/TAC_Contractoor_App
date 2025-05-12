@@ -529,6 +529,52 @@ class MyApIService {
     return response;
   }
 
+  Future<http.Response> applyJob(String userId, String jobId, List<String> shiftId) async {
+    var functionUrl = 'jobApplication/apply';
+    final response = await http.post(
+      Uri.parse(baseurl + functionUrl),
+      headers: {
+        "Content-Type": "application/json",
+        'ngrok-skip-browser-warning': 'true',
+      },
+      body: jsonEncode({
+        "userId": userId,
+        "jobId": jobId,
+        "shiftId": shiftId,
+      }),
+    );
+    if (response.statusCode == 201) {
+      final jsonData = jsonDecode(response.body);
+      debugPrint('Job application response: $jsonData');
+    } else {
+      debugPrint('inside job Apply method call: ${response.statusCode}');
+    }
+    return response;
+  }
+
+  Future<http.Response> getJobApplicationStatus(String userId, String jobId, List<String> shiftId) async {
+    var functionUrl = 'jobApplication/apply';
+    final response = await http.post(
+      Uri.parse(baseurl + functionUrl),
+      headers: {
+        "Content-Type": "application/json",
+        'ngrok-skip-browser-warning': 'true',
+      },
+      body: jsonEncode({
+        "userId": userId,
+        "jobId": jobId,
+        "shiftId": shiftId,
+      }),
+    );
+    if (response.statusCode == 201) {
+      final jsonData = jsonDecode(response.body);
+      debugPrint('Job application response: $jsonData');
+    } else {
+      debugPrint('inside job Apply method call: ${response.statusCode}');
+    }
+    return response;
+  }
+
 
 // Future<http.Response> getData(String url, {String? controllerName}) async {
   //   String mainUrl =

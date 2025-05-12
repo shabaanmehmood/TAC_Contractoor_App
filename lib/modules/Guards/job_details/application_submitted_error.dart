@@ -4,10 +4,15 @@ import 'package:tac/data/data/constants/app_assets.dart';
 import 'package:tac/data/data/constants/app_colors.dart';
 import 'package:tac/data/data/constants/app_spacing.dart';
 import 'package:tac/data/data/constants/app_typography.dart';
+import 'package:tac/models/job_model.dart';
+
+import '../../../routes/app_routes.dart';
 
 // Application submitted screen with error state
 class ApplicationSubmittedScreenError extends StatelessWidget {
-  const ApplicationSubmittedScreenError({Key? key}) : super(key: key);
+  final JobData? jobData;
+  final String message; // New field for API message
+  ApplicationSubmittedScreenError({super.key, required this.jobData, required this.message}); // require message
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +53,7 @@ class ApplicationSubmittedScreenError extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               Text(
-                "We're sorry, but there was an error submitting your application. Please try again later or contact support.",
+                message!,
                 style: AppTypography.kLight16.copyWith(color: AppColors.kgrey),
                 textAlign: TextAlign.center,
               ),
@@ -56,7 +61,7 @@ class ApplicationSubmittedScreenError extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () => Get.back(),
+                  onPressed: () => Get.offAndToNamed(AppRoutes.getGuardsPageRoute()),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.kSkyBlue,
                     padding: const EdgeInsets.symmetric(vertical: 14),
@@ -65,7 +70,7 @@ class ApplicationSubmittedScreenError extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    "Try Again",
+                    "Back to Jobs",
                     style: AppTypography.kBold16.copyWith(color: AppColors.kDarkBlue),
                   ),
                 ),

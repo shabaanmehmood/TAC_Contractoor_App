@@ -1,16 +1,22 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:tac/controllers/mapController.dart';
+import 'package:tac/controllers/user_controller.dart';
 import 'package:tac/data/data/constants/app_assets.dart';
 import 'package:tac/data/data/constants/app_colors.dart';
 import 'package:tac/data/data/constants/app_spacing.dart';
 import 'package:tac/data/data/constants/app_typography.dart';
 import 'package:tac/modules/Guards/job_details/application_submitted.dart';
 import 'package:tac/modules/Guards/job_details/application_submitted_error.dart';
+import '../../../dataproviders/api_service.dart';
 import '../../../models/job_model.dart';
+import '../../../widhets/common widgets/buttons/adaptive_dialogue.dart';
+import 'CloseJobBottomSheet.dart';
+import 'WithdrawJobBottomSheet.dart';
 import 'job_dummy_data.dart';
 
 // class JobDetailsScreen extends StatelessWidget {
@@ -364,8 +370,58 @@ import 'job_dummy_data.dart';
 
 class JobDetailsScreen extends StatelessWidget {
   MapController mapController = Get.put(MapController());
+  UserController userController = Get.put(UserController());
   final JobData? jobData;
   final Widget? bottomAction;
+  bool hasApplied = false;
+  final apiService = MyApIService(); // create instance
+
+  Future<void> applyJob(JobData jobData) async {
+    try {
+      final response = await apiService.applyJob(
+        userController.userData!.value!.id!,
+        jobData!.id,
+        jobData!.shifts.map((shift) => shift.id).toList(),
+      );
+
+      if (response.statusCode == 201) {
+        final responseBody = jsonDecode(response.body);
+        final message = responseBody['message'] ?? 'Pending Employer Review';
+        Get.to(() => ApplicationSubmittedScreen(jobdata: jobData, message: message));
+        // await saveLoginSession();
+      } else {
+        final responseBody = jsonDecode(response.body);
+        final message = responseBody['message'] ?? 'Try Again Later';
+        debugPrint("data from API ${response.body}");
+        Get.to(() => ApplicationSubmittedScreenError(jobData: jobData, message: message));
+        // final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        // final String errorMessage = responseBody['message'] ?? 'Unknown error';
+        //
+        // // Show dialog with one line call
+        // await AdaptiveAlertDialogWidget.show(
+        //   context,
+        //   title: 'Login Failed',
+        //   content: errorMessage,
+        //   yesText: 'OK',
+        //   showNoButton: false,
+        //   onYes: () {
+        //     // Optional: do something on OK pressed
+        //   },
+        // );
+        // debugPrint('Error login failed: ${response.body}');
+      }
+    }
+    catch (e) {
+      debugPrint('Error Network error: ${e.toString()}');
+      // await AdaptiveAlertDialogWidget.show(
+      //   context,
+      //   title: 'Network Error',
+      //   content: e.toString(),
+      //   yesText: 'OK',
+      //   showNoButton: false,
+      // );
+    }
+  }
 
   JobDetailsScreen({Key? key, this.jobData, this.bottomAction}) : super(key: key);
 
@@ -431,6 +487,25 @@ class JobDetailsScreen extends StatelessWidget {
       ),
     );
   }
+  //
+  // void _showCancelOrWithdrawOverlay(String jobId) async {
+  //   final statusResponse = await apiService.getJobApplicationStatus(jobId);
+  //   if (statusResponse.statusCode == 200) {
+  //     final statusData = jsonDecode(statusResponse.body);
+  //     final isApproved = statusData['approved'] as bool? ?? false;
+  //
+  //     if (isApproved) {
+  //       // Show cancel job overlay
+  //       Get.bottomSheet(const CloseJobBottomSheet());
+  //     } else {
+  //       // Show withdraw job overlay (create this widget similarly to CloseJobBottomSheet)
+  //       Get.bottomSheet(const WithdrawJobBottomSheet());
+  //     }
+  //   } else {
+  //     Get.snackbar('Error', 'Failed to get job application status');
+  //   }
+  // }
+  //
 
   Widget _headerSection() {
     final title = jobData?.title ?? JobDummyData.jobTitle;
@@ -754,8 +829,8 @@ class JobDetailsScreen extends StatelessWidget {
             child: SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {
-                  Get.to(() => const ApplicationSubmittedScreenError());
+                onPressed: () async {
+                  await applyJob(jobData!);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.kSkyBlue,

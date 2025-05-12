@@ -3,6 +3,7 @@ import 'dart:ffi';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tac/data/data/constants/app_colors.dart';
 import 'package:tac/data/data/constants/app_spacing.dart';
 import 'package:tac/data/data/constants/app_typography.dart';
@@ -33,6 +34,12 @@ class SignInViewController extends GetxController {
     passwordVisible.value = !passwordVisible.value;
   }
 
+  Future<void> saveLoginSession() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isLoggedIn', true);
+    await prefs.setInt('loginTime', DateTime.now().millisecondsSinceEpoch);
+  }
+
   Future<void> submitSignIn(BuildContext context) async {
     if (formKey.currentState!.validate()) {
       final apiService = MyApIService(); // create instance
@@ -45,6 +52,7 @@ class SignInViewController extends GetxController {
         if (response.statusCode == 200) {
           debugPrint("data from API ${response.body}");
           Get.offAndToNamed(AppRoutes.getLandingPageRoute());
+          // await saveLoginSession();
         } else {
           debugPrint("data from API ${response.body}");
           debugPrint("data from API ${response.body}");

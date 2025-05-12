@@ -4,9 +4,14 @@ import 'package:tac/data/data/constants/app_assets.dart';
 import 'package:tac/data/data/constants/app_colors.dart';
 import 'package:tac/data/data/constants/app_spacing.dart';
 import 'package:tac/data/data/constants/app_typography.dart';
+import 'package:tac/models/job_model.dart';
+import 'package:tac/routes/app_routes.dart';
 
 class ApplicationSubmittedScreen extends StatelessWidget {
-  const ApplicationSubmittedScreen({super.key});
+  final JobData? jobdata;
+  final String message;  // New field for API message
+
+  ApplicationSubmittedScreen({super.key, required this.jobdata, required this.message});  // require message
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +35,6 @@ class ApplicationSubmittedScreen extends StatelessWidget {
         child: Column(
           children: [
             const SizedBox(height: 40),
-            // Check Icon
             Center(
               child: Container(
                 decoration: BoxDecoration(
@@ -42,14 +46,14 @@ class ApplicationSubmittedScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-            // Message
+            // Use dynamic message here instead of fixed text
             Text(
-              'Your application has been\nsuccessfully submitted!',
+              message,
               textAlign: TextAlign.center,
               style: AppTypography.kBold18.copyWith(color: AppColors.kWhite),
             ),
+            // ... rest of your UI unchanged
             const SizedBox(height: 32),
-            // Job Card
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(16),
@@ -60,35 +64,15 @@ class ApplicationSubmittedScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Job Title',
-                    style:
-                        AppTypography.kLight14.copyWith(color: AppColors.kgrey),
-                  ),
+                  Text('Job Title', style: AppTypography.kLight14.copyWith(color: AppColors.kgrey)),
                   const SizedBox(height: 4),
-                  Text(
-                    'Security Escort for Actor – Airport to Residence',
-                    style:
-                        AppTypography.kBold14.copyWith(color: AppColors.kWhite),
-                  ),
+                  Text(jobdata!.title, style: AppTypography.kBold14.copyWith(color: AppColors.kWhite)),
                   const SizedBox(height: 16),
-                  Text(
-                    'Applied On',
-                    style:
-                        AppTypography.kLight14.copyWith(color: AppColors.kgrey),
-                  ),
+                  Text('Applied On', style: AppTypography.kLight14.copyWith(color: AppColors.kgrey)),
                   const SizedBox(height: 4),
-                  Text(
-                    'Today, 9:41 AM',
-                    style:
-                        AppTypography.kBold14.copyWith(color: AppColors.kWhite),
-                  ),
+                  Text(DateTime.now().toString(), style: AppTypography.kBold14.copyWith(color: AppColors.kWhite)),
                   const SizedBox(height: 16),
-                  Text(
-                    'Status',
-                    style:
-                        AppTypography.kLight14.copyWith(color: AppColors.kgrey),
-                  ),
+                  Text('Status', style: AppTypography.kLight14.copyWith(color: AppColors.kgrey)),
                   const SizedBox(height: 8),
                   Row(
                     children: [
@@ -102,9 +86,8 @@ class ApplicationSubmittedScreen extends StatelessWidget {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        'Pending Employer Review',
-                        style: AppTypography.kBold14
-                            .copyWith(color: AppColors.kWhite),
+                        message,  // Show the message here as status too
+                        style: AppTypography.kBold14.copyWith(color: AppColors.kWhite),
                       ),
                     ],
                   ),
@@ -112,17 +95,16 @@ class ApplicationSubmittedScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 25),
-            // Back to Jobs Button
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () => Get.back(), // or Get.toNamed('/jobs')
+                onPressed: () {
+                  Get.offAndToNamed(AppRoutes.getGuardsPageRoute()); // Navigate to guards page route
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.kSkyBlue,
                   padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -130,11 +112,7 @@ class ApplicationSubmittedScreen extends StatelessWidget {
                   children: [
                     const Icon(Icons.arrow_back, color: Colors.black),
                     const SizedBox(width: 8),
-                    Text(
-                      'Back to Jobs',
-                      style: AppTypography.kBold16
-                          .copyWith(color: AppColors.kDarkBlue),
-                    ),
+                    Text('Back to Jobs', style: AppTypography.kBold16.copyWith(color: AppColors.kDarkBlue)),
                   ],
                 ),
               ),
