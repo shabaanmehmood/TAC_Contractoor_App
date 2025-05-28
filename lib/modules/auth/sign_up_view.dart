@@ -14,11 +14,13 @@ import 'package:tac/data/data/constants/constants.dart';
 import 'package:tac/modules/auth/set_password.dart';
 import 'package:tac/widhets/common%20widgets/buttons/TextFormFieldWidget.dart';
 
+import '../../controllers/user_controller.dart';
 import '../../data/data/constants/app_assets.dart';
 import '../../data/data/constants/app_colors.dart';
 import '../../data/data/constants/app_spacing.dart';
 import '../../data/data/constants/app_typography.dart';
 import '../../routes/app_routes.dart';
+import '../../widhets/common overlays/uploadFile_overlay.dart';
 import '../../widhets/common widgets/buttons/primary_button.dart';
 import 'package:tac/dataproviders/api_service.dart';
 
@@ -53,7 +55,7 @@ class SignUpViewController extends GetxController {
 
   // ✅ Call this when form 1 is validated
   void savePersonalInfoAndGoNext() {
-    if (formKey.currentState!.validate()) {
+    if (formKey.currentState!.validate() && imageBase64.isNotEmpty) {
       Get.to(() => SetPasswordView()); // Navigate to screen 2
     }
   }
@@ -86,7 +88,17 @@ class SignUpViewController extends GetxController {
 
         if (response.statusCode == 201) {
           debugPrint("data from API ${response.body}");
-          Get.offAndToNamed(AppRoutes.getLandingPageRoute());
+          final loginRespone = await apiService.login(
+            emailController.text.toString(),
+            passwordController.text.toString(),
+          );
+          if (loginRespone.statusCode == 200) {
+            // Force refresh user data to ensure we have the latest including image
+            final userController = Get.find<UserController>();
+            await userController.getUserData(); // This will update the user data including image
+
+            Get.offAllNamed(AppRoutes.getLandingPageRoute());
+          }
           // await saveLoginSession();
         } else {
           debugPrint('Error Signup failed: ${response.body}');
@@ -101,26 +113,6 @@ class SignUpViewController extends GetxController {
 
 class SignUpView extends StatelessWidget {
   final SignUpViewController controller = Get.put(SignUpViewController());
-
-  Future<String?> pickImageAndConvertToBase64() async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.camera);
-
-    if (image != null) {
-      File imageFile = File(image.path);
-      List<int> imageBytes = await imageFile.readAsBytes();
-      String base64Image = base64Encode(imageBytes);
-      if (kDebugMode) {
-        print(base64Image);
-      }
-      return base64Image;
-    } else {
-      if (kDebugMode) {
-        print('No image selected.');
-      }
-      return null;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -264,15 +256,29 @@ class SignUpView extends StatelessWidget {
                         onChanged: (value) {
                           controller.formKey.currentState!.validate();
                         },
-                        onTap: () {
-                          pickImageAndConvertToBase64().then((base64Image) {
-                            if (base64Image != null) {
-                              controller.imageBase64 = base64Image;
-                              controller.photoIdController.text = 'Photo ID uploaded';
-                            } else {
-                              controller.photoIdController.text = 'No image selected';
-                            }
-                          });
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Photo ID is required';
+                          }
+                          return null;
+                        },
+                        onTap: () async {
+                          // pickImageAndConvertToBase64().then((base64Image) {
+                          //   if (base64Image != null) {
+                          //     controller.imageBase64 = base64Image;
+                          //     controller.photoIdController.text = 'Photo ID uploaded';
+                          //   } else {
+                          //     controller.photoIdController.text = 'No image selected';
+                          //   }
+                          // });
+                          final UploadFileController uploadFileController = Get.put(UploadFileController());
+                          String? base64image = await uploadFileController.showUploadFileBottomSheet(context, returnBase64: true, showPickFileOption: false);
+                          if (base64image != null) {
+                            controller.imageBase64 = base64image;
+                            controller.photoIdController.text = 'Photo ID uploaded';
+                          } else {
+                            controller.formKey.currentState!.validate();
+                          }
                         },
                         readOnly: true,
                       ),

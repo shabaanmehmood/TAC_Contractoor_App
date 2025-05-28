@@ -225,6 +225,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -315,6 +316,52 @@ class UploadFileController extends GetxController {
     }
   }
 
+  /// Picks file and returns base64 string or file path
+  Future<String?> pickFile({bool returnBase64 = false}) async {
+    final FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['doc', 'docx', 'pdf', 'jpeg', 'jpg', 'png'],
+    );
+
+    if (returnBase64) {
+      if (result != null && result.files.isNotEmpty) {
+        final file = result.files.first;
+        final mimeType = lookupMimeType(file.path!);
+        if (!_isSupportedMimeType(mimeType)) {
+          debugPrint('Unsupported file type selected.');
+          return null;
+        }
+
+        final bytes = await File(file.path!).readAsBytes();
+        final base64Data = base64Encode(bytes);
+        final base64File = 'data:$mimeType;base64,$base64Data';
+
+        if (kDebugMode) {
+          print('File base64: $base64File');
+        }
+
+        return base64File;
+      } else {
+        debugPrint('No file selected.');
+        return null;
+      }
+    } else {
+      if (result != null && result.files.isNotEmpty) {
+        final file = result.files.first;
+        final mimeType = lookupMimeType(file.path!);
+        if (!_isSupportedMimeType(mimeType)) {
+          debugPrint('Unsupported file type selected.');
+          return null;
+        }
+
+        return file.path;
+      } else {
+        debugPrint('No file selected.');
+        return null;
+      }
+    }
+  }
+
   /// Update user profile image with base64 string
   Future<void> updateFile(String base64Image) async {
     final apiService = MyApIService();
@@ -338,7 +385,7 @@ class UploadFileController extends GetxController {
         debugPrint("Data from API: ${response.body}");
         final userdata = await apiService.getUserByID(userController.userData.value!.id!);
         debugPrint('Raw user response: ${userdata.body}');
-        Get.offAndToNamed(AppRoutes.getLandingPageRoute());
+        Get.back();
       } else {
         debugPrint("Error response: ${response.body}");
       }
@@ -348,20 +395,20 @@ class UploadFileController extends GetxController {
   }
 
   /// Upload document file by path
-  Future<void> uploadDocument(String filePath) async {
+  Future<void> uploadDocument(String filePath, {String? userId, String? fileType}) async {
     final apiService = MyApIService();
 
     try {
       final response = await apiService.uploadFile(
-        userController.userData.value!.id!,
-        addLicenseController.selectedLicenseType,
+        userId ?? userController.userData.value!.id!,
+        fileType ?? addLicenseController.selectedLicenseType,
         filePath,
       );
 
       if (response.statusCode == 201) {
         debugPrint("Document uploaded successfully");
         await apiService.getUserByID(userController.userData.value!.id!);
-        Get.offAndToNamed(AppRoutes.getProfilePageRoute());
+        Get.back();
       } else {
         final responseBody = await response.stream.bytesToString();
         debugPrint("Upload failed: $responseBody");
@@ -372,7 +419,7 @@ class UploadFileController extends GetxController {
   }
 
   /// Show bottom sheet to pick image and return base64 or path
-  Future<String?> showUploadFileBottomSheet(BuildContext context, {bool returnBase64 = false}) async {
+  Future<String?> showUploadFileBottomSheet(BuildContext context, {bool returnBase64 = false, bool showPickFileOption = true}) async {
     final UploadFileController controller = Get.put(UploadFileController());
 
     return await showModalBottomSheet<String>(
@@ -426,6 +473,14 @@ class UploadFileController extends GetxController {
                 final result = await controller.pickImageFromCamera(returnBase64: returnBase64);
                 Navigator.of(context).pop(result);
               }),
+              if(showPickFileOption == true)
+                ...[
+                  Divider(color: AppColors.kSkyBlue),
+                  _buildUploadOption("Pick a File", () async {
+                    final result = await controller.pickFile(returnBase64: returnBase64);
+                    Navigator.of(context).pop(result);
+                  }),
+                ]
             ],
           ),
         );

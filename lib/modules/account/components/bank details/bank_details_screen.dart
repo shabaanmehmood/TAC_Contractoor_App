@@ -57,7 +57,15 @@ class _BankDetailsScreenState extends State<BankDetailsScreen> {
         title: const Text('Bank Details', style: TextStyle(color: AppColors.kWhite)),
         actions: [
           TextButton(
-            onPressed: () => Get.to(() => AddBankDetailsScreen()),
+            onPressed: () {
+              Get.to(() => AddBankDetailsScreen())?.then((value) {
+                if (value == true) {
+                  setState(() {
+                    bankDetailsFuture = fetchBankDetails();
+                  });
+                }
+              });
+            },
             child: const Text('Add', style: TextStyle(color: AppColors.kSkyBlue)),
           ),
         ],

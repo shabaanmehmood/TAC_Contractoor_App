@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -12,6 +14,7 @@ import '../../../../controllers/user_controller.dart';
 import '../../../../dataproviders/api_service.dart';
 import '../../../../models/userupdate_model.dart';
 import '../../../../routes/app_routes.dart';
+import '../../../../widhets/common widgets/buttons/adaptive_dialogue.dart';
 
 class EditProfessionalInfoScreen extends StatefulWidget {
   const EditProfessionalInfoScreen({super.key});
@@ -50,8 +53,23 @@ class _EditProfessionalInfoScreenState
       if (response.statusCode == 200) {
         debugPrint("data from API ${response.body}");
         await apiService.getUserByID(userController.userData.value!.id!);
-        Get.offAndToNamed(AppRoutes.getLandingPageRoute());
+        Get.back(result: true);
       } else {
+        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        final String errorMessage = responseBody['message'] ?? 'Unknown error';
+
+        // Show dialog with one line call
+        await AdaptiveAlertDialogWidget.show(
+          context,
+          title: 'Update Failed',
+          content: errorMessage,
+          yesText: 'OK',
+          showNoButton: false,
+          onYes: () {
+            // Optional: do something on OK pressed
+          },
+        );
+        debugPrint("data from API ${response.body}");
         debugPrint("data from API ${response.body}");
         debugPrint('Error update professional info failed: ${response.body}');
       }
@@ -173,7 +191,7 @@ class _EditProfessionalInfoScreenState
                     label: 'ABN',
                     iconPath: AppAssets.kAbn,
                     controller: abnNumber,
-                    maxLength: 11,
+                    maxLength: 20,
                     keyboardType: TextInputType.number,
                   ),
                   const SizedBox(height: 14),

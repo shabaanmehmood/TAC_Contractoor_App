@@ -39,7 +39,8 @@ class SetPasswordView extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: EdgeInsets.symmetric(vertical: Get.height * 0.20),
+              padding: EdgeInsets.only(top: Get.height * 0.20),
+              // padding: EdgeInsets.symmetric(vertical: Get.height * 0.20),
               child: SingleChildScrollView(
                 child: Form(
                   key: controller.passwordFormKey,
@@ -77,6 +78,7 @@ class SetPasswordView extends StatelessWidget {
                       ),
                       SizedBox(height: AppSpacing.fifteenVertical,),
                       Obx(() => TextFormField(
+                        maxLength: 8,
                         keyboardType: TextInputType.visiblePassword,
                         controller: controller.passwordController,
                         obscureText: !controller.setPasswordVisible.value, // Fix here
@@ -98,6 +100,7 @@ class SetPasswordView extends StatelessWidget {
                           hintStyle: TextStyle(
                             color: Colors.grey
                           ),
+                          counter: const Offstage(),
                           prefixIcon: Padding(
                             padding: EdgeInsets.all(15),
                             child: SvgPicture.asset(AppAssets.kPassword, color: Colors.grey,),
@@ -117,6 +120,7 @@ class SetPasswordView extends StatelessWidget {
                       )),
                       SizedBox(height: AppSpacing.fifteenVertical),
                       Obx(() => TextFormField(
+                        maxLength: 8,
                         keyboardType: TextInputType.visiblePassword,
                         controller: controller.confirmPasswordController,
                         obscureText: !controller.setConfirmPasswordVisible.value, // Fix here
@@ -132,6 +136,7 @@ class SetPasswordView extends StatelessWidget {
                           controller.formKey.currentState!.validate();
                         },
                         decoration: InputDecoration(
+                          counter: Offstage(),
                           contentPadding: EdgeInsets.all(15),
                           isDense: true,
                           hintText: "Confirm Password",
@@ -161,7 +166,7 @@ class SetPasswordView extends StatelessWidget {
                         onTap: ()async {
                           await controller.submitSignup();
                         },
-                        text: 'Login',
+                        text: 'Sign Up',
                       ),
                       SizedBox(height: AppSpacing.twentyVertical,),
                       Center(

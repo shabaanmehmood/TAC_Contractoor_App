@@ -28,6 +28,8 @@ class _AdvancedFiltersViewState extends State<AdvancedFiltersView> {
   TextEditingController locationController = TextEditingController();
   TextEditingController dateController = TextEditingController();
   String selectedFilter = "All"; // Default filter
+  final Set<String> selectedFilters = <String>{};
+
 
 
   @override
@@ -83,6 +85,20 @@ class _AdvancedFiltersViewState extends State<AdvancedFiltersView> {
               _buildSelectableChips("Premises / Site type", ["Event Security", "Corporate Office", "Mall Security"], selectedJobType, (val) {
                 setState(() => selectedJobType = val);
               }),
+              SizedBox(height: AppSpacing.fifteenVertical,),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.kSkyBlue,
+                  minimumSize: Size(double.infinity, 50),
+                ),
+                onPressed: () {
+                  Get.back(result: selectedFilters.toList());
+                },
+                child: Text(
+                  'Apply Filters',
+                  style: AppTypography.kBold16.copyWith(color: AppColors.kWhite),
+                ),
+              ),
 
             ],
           ),
@@ -211,19 +227,24 @@ class _AdvancedFiltersViewState extends State<AdvancedFiltersView> {
   Widget _buildFilterChip(String label, bool isSelected, VoidCallback onSelected) {
     return FilterChip(
       shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-          side: BorderSide(color: AppColors.kSkyBlue)),
-      label: Text('$label Jobs'),
-      backgroundColor: isSelected ? AppColors.kSkyBlue : AppColors.kDarkBlue,
-      selectedColor: AppColors.kSkyBlue,
-      disabledColor: AppColors.kDarkBlue,
-      showCheckmark: false,
-      surfaceTintColor: Colors.transparent,
-      labelStyle: AppTypography.kBold14.copyWith(
-        color: isSelected ? AppColors.kBlack : AppColors.kWhite,
+        borderRadius: BorderRadius.circular(8),
+        side: BorderSide(color: AppColors.kSkyBlue),
       ),
-      selected: isSelected, // Important for state management
-      onSelected: (_) => onSelected(), // Fix for selection
+      label: Text(label),
+      selected: selectedFilters.contains(label),
+      onSelected: (bool selected) {
+        setState(() {
+          if (selected) {
+            selectedFilters.add(label);
+          } else {
+            selectedFilters.remove(label);
+          }
+        });
+      },
+      backgroundColor: AppColors.kDarkBlue,
+      selectedColor: AppColors.kSkyBlue,
+      labelStyle: AppTypography.kBold14.copyWith(
+        color: selectedFilters.contains(label) ? Colors.white : AppColors.kSkyBlue,
+      ),
     );
-  }
-}
+  }}

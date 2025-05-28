@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -9,6 +11,7 @@ import '../../../../controllers/user_controller.dart';
 import '../../../../dataproviders/api_service.dart';
 import '../../../../models/userupdate_model.dart';
 import '../../../../routes/app_routes.dart';
+import '../../../../widhets/common widgets/buttons/adaptive_dialogue.dart';
 
 class EditPersonalInfoScreen extends StatefulWidget {
   const EditPersonalInfoScreen({super.key});
@@ -27,7 +30,7 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
   final TextEditingController contactController = TextEditingController();
   final TextEditingController postalCodeController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
-
+  List<String> genderOptions = ['Male', 'Female', 'Other'];
   String? selectedGender;
 
   @override
@@ -38,7 +41,8 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
     nameController.text = user!.fullName ?? '';
     emailController.text = user.email ?? '';
     dobController.text = user.dob ?? '';
-    selectedGender = user.gender;
+    selectedGender = genderOptions.contains(user.gender) ? user.gender : null;
+
     contactController.text = user.phone ?? '';
     postalCodeController.text = user.postalCode ??'';
     addressController.text = user.postalAddress ?? '';
@@ -170,6 +174,7 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
                         ],
                       ),
                       buildTextField(
+                        maxLength: 6,
                         controller: postalCodeController,
                         label: "Postal Code",
                         iconPath: AppAssets.kLoc,
@@ -257,6 +262,15 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
       );
       return;
     }
+    if (postalCodeController.text.isEmpty) {
+      Get.snackbar(
+        "Missing Information",
+        "Please enter your postal code before updating.",
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+      );
+      return;
+    }
 
     final apiService = MyApIService();
     try {
@@ -268,7 +282,7 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
         masterSecurityLicense: userController.userData.value!.masterSecurityLicense!,
         dob: dobController.text,
         postalCode: postalCodeController.text,
-        gender: selectedGender!,
+        gender: selectedGender!.toLowerCase(),
       );
 
       final response = await apiService.updatePersonalInfo(
@@ -279,8 +293,22 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
       if (response.statusCode == 200) {
         debugPrint("data from API ${response.body}");
         await apiService.getUserByID(userController.userData.value!.id!);
-        Get.offAndToNamed(AppRoutes.getLandingPageRoute());
+        Get.back(result: true);
       } else {
+        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        final String errorMessage = responseBody['message'] ?? 'Unknown error';
+
+        // Show dialog with one line call
+        await AdaptiveAlertDialogWidget.show(
+          context,
+          title: 'Update Failed',
+          content: errorMessage,
+          yesText: 'OK',
+          showNoButton: false,
+          onYes: () {
+            // Optional: do something on OK pressed
+          },
+        );
         debugPrint("data from API ${response.body}");
         debugPrint('Error update personal info failed: ${response.body}');
       }
@@ -341,28 +369,28 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
     required String? value,
     required void Function(String?) onChanged,
   }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      child: DropdownButtonFormField<String>(
-        value: value,
-        dropdownColor: const Color(0xFF1F2937),
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: const TextStyle(color: AppColors.kinput),
-          prefixIcon: Icon(icon, color: AppColors.kinput),
-          enabledBorder: const UnderlineInputBorder(
-            borderSide: BorderSide(color: AppColors.kinput),
-          ),
+    final genderOptions = ['Male', 'Female', 'Other'];
+
+    return DropdownButtonFormField<String>(
+      value: value,
+      items: genderOptions.map((gender) {
+        return DropdownMenuItem<String>(
+          value: gender,
+          child: Text(gender),
+        );
+      }).toList(),
+      onChanged: onChanged,
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(color: AppColors.kinput),
+        prefixIcon: Icon(icon, color: AppColors.kinput),
+        enabledBorder: const UnderlineInputBorder(
+          borderSide: BorderSide(color: AppColors.kinput),
         ),
-        style: const TextStyle(color: AppColors.kWhite),
-        iconEnabledColor: AppColors.kinput,
-        items: const [
-          DropdownMenuItem(value: 'male', child: Text("Male")),
-          DropdownMenuItem(value: 'female', child: Text("Female")),
-          DropdownMenuItem(value: 'other', child: Text("Other")),
-        ],
-        onChanged: onChanged,
       ),
+      dropdownColor: AppColors.kDarkBlue,
+      style: const TextStyle(color: AppColors.kWhite),
+      iconEnabledColor: AppColors.kinput,
     );
   }
 }

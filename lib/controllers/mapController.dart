@@ -23,7 +23,7 @@ class MapController extends GetxController {
     super.onInit();
     requestAndSaveLocation();
     // Set up periodic updates every 30 seconds
-    _periodicUpdateTimer = Timer.periodic(Duration(seconds: 30), (timer) {
+    _periodicUpdateTimer = Timer.periodic(Duration(seconds: 60), (timer) {
       requestAndSaveLocation();
     });
   }

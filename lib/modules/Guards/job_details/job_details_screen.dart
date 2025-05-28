@@ -460,20 +460,7 @@ class JobDetailsScreen extends StatelessWidget {
                 children: [
                   _headerSection(),
                   const SizedBox(height: 16),
-                  FutureBuilder(
-                    future: _jobInfoCard(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Center(child: CircularProgressIndicator(
-                          color: AppColors.kSkyBlue,
-                        ));
-                      } else if (snapshot.hasError) {
-                        return Text('Error: ${snapshot.error}');
-                      } else {
-                        return snapshot.data!;
-                      }
-                    },
-                  ),
+                  _jobInfoCard(),
                   const SizedBox(height: 16),
                   _descriptionAndResponsibilitiesCard(),
                   const SizedBox(height: 16),
@@ -559,7 +546,7 @@ class JobDetailsScreen extends StatelessWidget {
     );
   }
 
-  Future<Widget> _jobInfoCard() async {
+  Widget _jobInfoCard() {
     final actorName = jobData?.contractorName ?? JobDummyData.actorName;
     final role = jobData?.categoryName ?? JobDummyData.role;
 
@@ -584,11 +571,6 @@ class JobDetailsScreen extends StatelessWidget {
     // Location
     final address = jobData?.location ?? JobDummyData.address;
 
-    double calculatedDistance = await mapController.getJobLocation(jobData!.latitude, jobData!.longitude);
-
-    // Distance
-    final distance = jobData != null ? '${calculatedDistance.truncate()} miles away' : 'null value';
-
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -604,18 +586,15 @@ class JobDetailsScreen extends StatelessWidget {
           Row(
             children: [
               Text(role,
-                  style:
-                  AppTypography.kLight14.copyWith(color: AppColors.kgrey)),
+                  style: AppTypography.kLight14.copyWith(color: AppColors.kgrey)),
               const SizedBox(width: 6),
               const Icon(Icons.star, color: Colors.cyan, size: 16),
               const SizedBox(width: 2),
               Text("${JobDummyData.rating}",
-                  style:
-                  AppTypography.kBold14.copyWith(color: Colors.cyanAccent)),
+                  style: AppTypography.kBold14.copyWith(color: Colors.cyanAccent)),
               const SizedBox(width: 4),
               Text("(${JobDummyData.reviews} reviews)",
-                  style:
-                  AppTypography.kLight14.copyWith(color: AppColors.kgrey)),
+                  style: AppTypography.kLight14.copyWith(color: AppColors.kgrey)),
             ],
           ),
           const SizedBox(height: 12),
@@ -625,14 +604,12 @@ class JobDetailsScreen extends StatelessWidget {
                   height: 18, width: 18, color: AppColors.kgrey),
               const SizedBox(width: 8),
               Text(dateStr,
-                  style:
-                  AppTypography.kLight14.copyWith(color: AppColors.kWhite)),
+                  style: AppTypography.kLight14.copyWith(color: AppColors.kWhite)),
               const SizedBox(width: 12),
               Image.asset(AppAssets.kTime, height: 18, color: AppColors.kinput),
               const SizedBox(width: 6),
               Text(timeStr,
-                  style:
-                  AppTypography.kLight14.copyWith(color: AppColors.kWhite)),
+                  style: AppTypography.kLight14.copyWith(color: AppColors.kWhite)),
             ],
           ),
           const SizedBox(height: 8),
@@ -642,8 +619,7 @@ class JobDetailsScreen extends StatelessWidget {
                   height: 18, width: 18, color: AppColors.kgrey),
               const SizedBox(width: 8),
               Text(required,
-                  style:
-                  AppTypography.kLight14.copyWith(color: AppColors.kWhite)),
+                  style: AppTypography.kLight14.copyWith(color: AppColors.kWhite)),
             ],
           ),
           const SizedBox(height: 8),
@@ -654,75 +630,58 @@ class JobDetailsScreen extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(address,
-                    style: AppTypography.kLight14
-                        .copyWith(color: AppColors.kWhite)),
+                    style: AppTypography.kLight14.copyWith(color: AppColors.kWhite)),
               ),
             ],
           ),
           const SizedBox(height: 8),
-          Row(
-            children: [
-              Image.asset(AppAssets.kPath,
-                  height: 18, width: 18, color: AppColors.kgrey),
-              const SizedBox(width: 8),
-              Text(distance,
-                  style:
-                  AppTypography.kLight14.copyWith(color: AppColors.kWhite)),
-            ],
+          FutureBuilder<double>(
+            future: mapController.getJobLocation(jobData!.latitude, jobData!.longitude),
+            builder: (context, snapshot) {
+              return Row(
+                children: [
+                  Image.asset(AppAssets.kPath,
+                      height: 18, width: 18, color: AppColors.kgrey),
+                  const SizedBox(width: 8),
+                  Text(
+                    snapshot.hasData
+                        ? '${snapshot.data!.truncate()} miles away'
+                        : 'Calculating distance...',
+                    style: AppTypography.kLight14.copyWith(color: AppColors.kWhite),
+                  ),
+                ],
+              );
+            },
           ),
           const SizedBox(height: 16),
-          // Stack(
-          //   children: [
-          //     ClipRRect(
-          //       borderRadius: BorderRadius.circular(10),
-          //       child: Image.asset(
-          //         AppAssets.kMap,
-          //         height: 140,
-          //         width: double.infinity,
-          //         fit: BoxFit.cover,
-          //       ),
-          //     ),
-          //     Positioned.fill(
-          //       child: Align(
-          //         alignment: Alignment.bottomCenter,
-          //         child: Container(
-          //           margin: const EdgeInsets.only(bottom: 12),
-          //           padding: const EdgeInsets.symmetric(
-          //               horizontal: 70, vertical: 12),
-          //           decoration: BoxDecoration(
-          //             color: AppColors.kDarkestBlue,
-          //             borderRadius: BorderRadius.circular(12),
-          //           ),
-          //           child: Text(
-          //             "Get Directions",
-          //             style:
-          //             AppTypography.kBold14.copyWith(color: Colors.white),
-          //           ),
-          //         ),
-          //       ),
-          //     ),
-          //   ],
-          // ),
-          Obx(() {
-            return Container(
-              height: 150,
-              child: GoogleMap(
+          Container(
+            height: 150,
+            child: Obx(() {
+              if (mapController.jobPath.isEmpty) {
+                return Center(
+                  child: SizedBox(
+                    height: 30,
+                    width: 30,
+                    child: CircularProgressIndicator(
+                      color: AppColors.kSkyBlue,
+                    ),
+                  ),
+                );
+              }
+              return GoogleMap(
                 initialCameraPosition: CameraPosition(
-                  target: mapController.jobPath.isNotEmpty
-                      ? mapController.jobPath.first
-                      : LatLng(0, 0),
+                  target: mapController.jobPath.first,
                   zoom: 15,
                 ),
                 markers: mapController.markers.value,
                 onMapCreated: mapController.setMapController,
-              ),
-            );
-          }),
+              );
+            }),
+          ),
         ],
       ),
     );
   }
-
   Widget _descriptionAndResponsibilitiesCard() {
     final description = jobData?.description ?? JobDummyData.jobDescription;
 

@@ -98,6 +98,8 @@ import 'package:tac/data/data/constants/app_colors.dart';
 import 'package:tac/data/data/constants/app_spacing.dart';
 import 'package:tac/data/data/constants/app_typography.dart';
 
+import '../../Guards/guards_view.dart';
+
 class SearchField extends StatelessWidget {
   final TextEditingController? controller;
   final void Function(String)? onChanged;
@@ -126,72 +128,94 @@ class SearchField extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // Get.to(() => SearchView());
+        if (!isEnabled) {
+          // Only navigate if the field is not enabled (in guards_view.dart)
+          Get.to(() => SearchView())?.then((value) {
+            // Refresh guards view if needed
+            final guardsController = Get.find<GuardsViewController>();
+            guardsController.update();
+          });
+        }
       },
       child: Container(
-        width: double.infinity, // Ensure full width
-        color: Colors.transparent, // Ensures tap works properly
+        width: double.infinity,
+        color: Colors.transparent,
         child: SizedBox(
-          height: 55, // Define height to prevent expansion
-          child: ListTile(
-            titleAlignment: ListTileTitleAlignment.center,
-            tileColor: AppColors.kDarkBlue, // Light grey for better visibility
-            shape: RoundedRectangleBorder(
-              side: BorderSide(
-                color: isBorderBlue ? AppColors.kSkyBlue : Colors.grey,
+          height: 55,
+          child: TextField(
+            controller: controller,
+            onChanged: onChanged,
+            enabled: isEnabled,
+            style: AppTypography.kLight14.copyWith(color: Colors.white),
+            decoration: InputDecoration(
+              hintText: text ?? 'Search',
+              hintStyle: AppTypography.kLight14.copyWith(color: Colors.grey),
+              filled: true,
+              fillColor: AppColors.kDarkBlue,
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: isBorderBlue ? AppColors.kSkyBlue : Colors.grey,
+                ),
+                borderRadius: BorderRadius.circular(10),
               ),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            leading: leadingIcon != null
-                ? Image.asset(
-              AppAssets.kSearch,
-              height: 22,
-              width: 22,
-              color: isIconColorBlue ? AppColors.kSkyBlue : Colors.grey,
-            )
-                : null,
-            title: Text(
-              text ?? 'Search',
-              style: AppTypography.kLight14.copyWith(
-                color: Colors.grey,
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: AppColors.kSkyBlue,
+                ),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              prefixIcon: leadingIcon != null
+                  ? Image.asset(
+                AppAssets.kSearch,
+                height: 22,
+                width: 22,
+                color: isIconColorBlue ? AppColors.kSkyBlue : Colors.grey,
+              )
+                  : null,
+              suffixIcon: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (icon1 != null)
+                    IconButton(
+                      icon: Image.asset(
+                        icon1!,
+                        height: 22,
+                        width: 22,
+                        color: isIconColorBlue ? AppColors.kSkyBlue : Colors.grey,
+                      ),
+                      onPressed: () {
+                        if (controller != null) controller!.clear();
+                        if (onChanged != null) onChanged!('');
+                      },
+                    ),
+                  if (icon2 != null && isEnabled)
+                    IconButton(
+                      icon: Image.asset(
+                        icon2!,
+                        height: 22,
+                        width: 22,
+                        color: isIconColorBlue ? AppColors.kSkyBlue : Colors.grey,
+                      ),
+                      onPressed: () {
+                        Get.to(() => const AdvancedFiltersView())?.then((selectedFilters) {
+                          if (selectedFilters != null && selectedFilters is List<String>) {
+                            final searchController = Get.find<SearchViewController>();
+                            // Clear previous filters
+                            searchController.appliedFilters.clear();
+                            // Add new filters
+                            for (String filter in selectedFilters) {
+                              searchController.addFilter(filter);
+                            }
+                          }
+                        });
+                      },
+                    ),
+                ],
               ),
             ),
-            trailing: icon1 != null || icon2 != null
-                ? Row(
-              mainAxisSize: MainAxisSize.min, // Prevent infinite width
-              children: [
-                if (icon1 != null)
-                  GestureDetector(
-                    onTap: (){
-
-                    },
-                    child: Image.asset(
-                      icon1!,
-                      height: 22,
-                      width: 22,
-                      color: isIconColorBlue ? AppColors.kSkyBlue : Colors.grey,
-                    ),
-                  ),
-                if (icon1 != null && icon2 != null) const SizedBox(width: 10),
-                if (icon2 != null)
-                  GestureDetector(
-                    onTap: (){
-                      Get.to(() => const AdvancedFiltersView());
-                    },
-                    child: Image.asset(
-                      icon2!,
-                      height: 22,
-                      width: 22,
-                      color: isIconColorBlue ? AppColors.kSkyBlue : Colors.grey,
-                    ),
-                  )
-              ],
-            )
-                : null,
           ),
         ),
       ),
     );
   }
 }
-

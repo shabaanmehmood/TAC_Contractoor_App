@@ -7,10 +7,13 @@ import 'package:tac/data/data/constants/app_spacing.dart';
 import 'package:tac/modules/Guards/guards_view.dart';
 import 'package:tac/modules/Jobs/jobs_page.dart';
 import 'package:tac/modules/Jobs/myJobs_view.dart';
+import 'package:tac/modules/Messages/messages.dart';
 import 'package:tac/modules/account/account.dart';
 import 'package:tac/modules/account/components/Earning/earnings_screen.dart';
 import 'package:tac/modules/home/home_view.dart';
 import 'package:tac/modules/newjob%20section/my_jobs_view.dart';
+
+import '../../controllers/user_controller.dart';
 
 class LandingPage extends StatefulWidget {
   const LandingPage({super.key});
@@ -26,7 +29,7 @@ class _LandingPageState extends State<LandingPage> {
     // const JobsView(),
     MyJobsView1(),
     // EarningsScreen(),
-    const AccountScreen(),
+    MessagesScreen(),
     const AccountScreen(),
     // const ChatsScreen(),
     // const CourseSchedule(),
@@ -96,7 +99,7 @@ class _LandingPageState extends State<LandingPage> {
                     height: 20,
                     width: 20,
                   ),
-                  label: 'Guards',
+                  label: 'Jobs',
                   activeIcon: SvgPicture.asset(
                     AppAssets.kGuards,
                     color: AppColors.kSkyBlue,
@@ -112,7 +115,7 @@ class _LandingPageState extends State<LandingPage> {
                     height: 20,
                     width: 20,
                   ),
-                  label: 'Jobs',
+                  label: 'My Jobs',
                   activeIcon: SvgPicture.asset(
                     AppAssets.kJobs,
                     color: AppColors.kSkyBlue,

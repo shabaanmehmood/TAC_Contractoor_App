@@ -12,25 +12,25 @@ import 'package:tac/routes/app_routes.dart';
 import 'controllers/user_controller.dart';
 import 'data/data/constants/app_theme.dart';
 
-Future<String> getInitialRoute() async {
-  final prefs = await SharedPreferences.getInstance();
-  final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
-  final loginTime = prefs.getInt('loginTime');
-
-  if (!isLoggedIn || loginTime == null) {
-    return AppRoutes.getOnboardingRoute(); // User not logged in
-  }
-
-  final now = DateTime.now().millisecondsSinceEpoch;
-  if (now - loginTime < 4 * 60 * 60 * 1000) {
-    return AppRoutes.getLandingPageRoute(); // User logged in and session valid
-  } else {
-    // Session expired, clear stored session
-    await prefs.remove('isLoggedIn');
-    await prefs.remove('loginTime');
-    return AppRoutes.getOnboardingRoute();
-  }
-}
+// Future<String> getInitialRoute() async {
+//   final prefs = await SharedPreferences.getInstance();
+//   final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+//   final loginTime = prefs.getInt('loginTime');
+//
+//   if (!isLoggedIn || loginTime == null) {
+//     return AppRoutes.getOnboardingRoute(); // User not logged in
+//   }
+//
+//   final now = DateTime.now().millisecondsSinceEpoch;
+//   if (now - loginTime < 4 * 60 * 60 * 1000) {
+//     return AppRoutes.getLandingPageRoute(); // User logged in and session valid
+//   } else {
+//     // Session expired, clear stored session
+//     await prefs.remove('isLoggedIn');
+//     await prefs.remove('loginTime');
+//     return AppRoutes.getOnboardingRoute();
+//   }
+// }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,9 +38,14 @@ void main() async {
   await SystemChrome.setPreferredOrientations(
     [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown],
   );
-  Get.put(UserController());
-  final initialRoute = await getInitialRoute();
-  runApp(Main(initialRoute: initialRoute,));
+  Get.put(UserController(), permanent: true);
+  // final initialRoute = await getInitialRoute();
+  // runApp(Main(initialRoute: initialRoute,));
+  runApp(
+    Main(
+      initialRoute: AppRoutes.onboarding,
+    ),
+  );
 }
 
 class Main extends StatelessWidget {
@@ -70,7 +75,7 @@ class Main extends StatelessWidget {
         // darkTheme: AppTheme.darkTheme,
         // themeMode: getThemeMode(themeController.theme),
         // initialRoute: AppRoutes.getOnboardingRoute(),
-        initialRoute: initialRoute,
+        initialRoute: AppRoutes.onboarding,
         getPages: AppRoutes.routes,
       ),
     );

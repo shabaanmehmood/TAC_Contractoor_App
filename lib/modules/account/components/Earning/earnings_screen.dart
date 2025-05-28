@@ -29,11 +29,14 @@ class EarningsScreen extends StatelessWidget {
                   ),
                   child: Row(
                     children: [
-                      Image.asset(
-                        AppAssets.kBack,
-                        color: Colors.white,
-                        height: 24,
-                        width: 24,
+                      IconButton(
+                        icon: Icon(
+                          Icons.arrow_back,
+                          color: AppColors.kWhite,
+                        ),
+                        onPressed: () {
+                          Get.back();
+                        },
                       ),
                       SizedBox(width: AppSpacing.tenHorizontal),
                       Text(

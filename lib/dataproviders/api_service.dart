@@ -12,7 +12,7 @@ import '../models/userupdate_model.dart';
 
 class MyApIService {
 
-  final userController = Get.find<UserController>();
+  UserController get userController => Get.find<UserController>();
 
   //get access token url:
   ///this 'http://192.168.5.175/flutter' part of loginTokenUrl
@@ -75,9 +75,17 @@ class MyApIService {
       if (userDataModel.data != null) {
         final userId = userDataModel.data!.id;
         debugPrint('User ID: $userId');
-        userController.setUser(userDataModel.data!);
-        final getuserbyid = await getUserByID(userId!);
-        debugPrint('get user by ID called $getuserbyid');
+        // userController.setUser(userDataModel.data!);
+        // final getuserbyid = await getUserByID(userId!);
+        // debugPrint('get user by ID called $getuserbyid');
+        // Get complete user data including image
+        final getUserResponse = await getUserByID(userId!);
+        if (getUserResponse.statusCode == 200) {
+          final userData = GetUserById.fromJson(jsonDecode(getUserResponse.body)).data;
+          if (userData != null) {
+            Get.find<UserController>().setUser(userData);
+          }
+        }
       }
     } else {
       debugPrint('inside Login method call: ${response.statusCode}');
@@ -303,6 +311,7 @@ class MyApIService {
     );
     if (response.statusCode == 201) {
       final jsonData = jsonDecode(response.body);
+      debugPrint('Dispute response: $jsonData');
     } else {
       debugPrint('inside dispute method call: ${response.statusCode}');
     }
@@ -389,6 +398,11 @@ class MyApIService {
 
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body);
+      // final userData = GetUserById.fromJson(json).data;
+      // if (userData != null) {
+      //   Get.find<UserController>().setUser(userData);
+      //   debugPrint('User loaded and stored in session');
+      // }
       debugPrint('Response in updatePersonalInfo: $json');
     } else {
       debugPrint('Error updating user: ${response.statusCode}');
@@ -571,6 +585,70 @@ class MyApIService {
       debugPrint('Job application response: $jsonData');
     } else {
       debugPrint('inside job Apply method call: ${response.statusCode}');
+    }
+    return response;
+  }
+
+  Future<http.Response> addReportAnIssue(
+      String subject,
+      String userId,
+      String issueDate,
+      String description, {
+        String? supportDocumentPath,
+      }) async {
+    var functionUrl = 'reportAnIssue/';
+
+    // Prepare the request body
+    final Map<String, dynamic> requestBody = {
+      "subject": subject,
+      "userId": userId,
+      "issueDate": issueDate,
+      "description": description,
+    };
+
+    // Add supportDocuments only if provided
+    if (supportDocumentPath != null && supportDocumentPath.isNotEmpty) {
+      requestBody["supportDocuments"] = [
+        "data:image/png;base64,$supportDocumentPath"
+      ];
+    }
+
+    final response = await http.post(
+      Uri.parse(baseurl + functionUrl),
+      headers: {
+        "Content-Type": "application/json",
+        'ngrok-skip-browser-warning': 'true',
+      },
+      body: jsonEncode(requestBody),
+    );
+
+    if (response.statusCode == 201) {
+      debugPrint('User report issue added successfully');
+      final json = jsonDecode(response.body);
+      debugPrint('Response in add report: $json');
+    } else {
+      debugPrint('Error adding user report issue: ${response.statusCode}');
+    }
+
+    return response;
+  }
+
+  Future<http.Response> getUserDocuments(String userId) async {
+    var functionUrl = 'user-documents/$userId';
+
+    final response = await http.get(Uri.parse(baseurl + functionUrl),
+      headers: {
+        "Content-Type": "application/json",
+        'ngrok-skip-browser-warning': 'true',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final json = jsonDecode(response.body);
+      final dataList = json['data'];
+      debugPrint('User documents: $dataList');
+    } else {
+      debugPrint('Error: ${response.statusCode} - ${response.body}');
     }
     return response;
   }

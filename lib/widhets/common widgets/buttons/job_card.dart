@@ -211,6 +211,7 @@ class JobCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.find<GuardsViewController>();
     return Material(
       color: Colors.transparent,
       borderRadius: BorderRadius.circular(15),
@@ -289,7 +290,24 @@ class JobCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  _DistanceWidget(jobData: jobData),
+                  // _DistanceWidget(jobData: jobData),
+                  Obx(() {
+                    final cachedDistance = controller.cachedDistances[jobData!.id];
+                    if (cachedDistance != null) {
+                      return Text(
+                        '${cachedDistance.truncate()} mi away',
+                        style: AppTypography.kLight14.copyWith(color: AppColors.kWhite),
+                      );
+                    }
+                    return SizedBox(
+                      height: 15,
+                      width: 15,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: AppColors.kSkyBlue,
+                      ),
+                    );
+                  }),
                 ],
               ),
               SizedBox(height: AppSpacing.tenVertical),

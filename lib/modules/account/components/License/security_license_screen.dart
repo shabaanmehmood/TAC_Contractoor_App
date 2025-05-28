@@ -65,7 +65,13 @@ class _SecurityLicenseScreenState extends State<SecurityLicenseScreen> {
         title: const Text('Licenses', style: TextStyle(color: AppColors.kWhite)),
         actions: [
           TextButton(
-            onPressed: () => Get.to(() => AddLicenseScreen()),
+            onPressed: () {
+              Get.to(() => AddLicenseScreen())?.then((_) {
+                setState(() {
+                  userLicensesDetailsFuture = fetchuserLicensesDetails();
+                });
+              });
+            },
             child: const Text('Add License', style: TextStyle(color: AppColors.kSkyBlue)),
           ),
         ],
@@ -116,17 +122,9 @@ class _SecurityLicenseScreenState extends State<SecurityLicenseScreen> {
                     status: 'Active',
                     statusColor: Colors.green,
                     badgeColor: AppColors.kDarkBlue,
-                    showUpdate: true,
+                    showUpdate: false,
                     imageUrl: licenseData.licenseDocumentPath,
                   );
-                  // return buildLicenseCard(
-                  //   title: licenseData.licenseType ?? 'License Type',
-                  //   // context,
-                  //   // bank.bankName ?? 'Bank Name',
-                  //   // bank.accountNumber ?? 'Account Number',
-                  //   // bank.accountTitle ?? 'Account Title',
-                  //   // bank.entityDate ?? 'Expiry Date',
-                  // );
                 },
               ),
             );
@@ -135,6 +133,7 @@ class _SecurityLicenseScreenState extends State<SecurityLicenseScreen> {
       ),
     );
   }
+
   Widget buildLicenseCard({
     required String title,
     required String number,
@@ -145,6 +144,8 @@ class _SecurityLicenseScreenState extends State<SecurityLicenseScreen> {
     bool showUpdate = false,
     String? imageUrl,
   }) {
+    final fileExtension = imageUrl != null ? _getFileExtension(imageUrl).toLowerCase() : '';
+
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -179,6 +180,25 @@ class _SecurityLicenseScreenState extends State<SecurityLicenseScreen> {
                   ),
                 ),
               ),
+              if (fileExtension.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(left: 8),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: badgeColor,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      fileExtension.toUpperCase(),
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
               const Spacer(),
               if (showUpdate)
                 TextButton(
@@ -242,43 +262,79 @@ class _SecurityLicenseScreenState extends State<SecurityLicenseScreen> {
   }
 
   Widget licenseImageWidget(String? imageUrl) {
-    final fullImageUrl = imageUrl != null ? MyApIService.fullImageUrl(imageUrl) : null;
+    if (imageUrl == null) {
+      return _buildFileTypeIcon('unknown');
+    }
+
+    final fullImageUrl = MyApIService.fullImageUrl(imageUrl);
+    final fileExtension = _getFileExtension(imageUrl).toLowerCase();
+
+    // Check if the file is an image
+    if (['jpg', 'jpeg', 'png', 'gif'].contains(fileExtension)) {
+      return Container(
+        width: 48,
+        height: 48,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          image: DecorationImage(
+            image: NetworkImage(fullImageUrl!),
+            fit: BoxFit.cover,
+          ),
+        ),
+      );
+    } else {
+      // Show icon based on file type
+      return _buildFileTypeIcon(fileExtension);
+    }
+  }
+
+  String _getFileExtension(String fileUrl) {
+    final parts = fileUrl.split('.');
+    return parts.length > 1 ? parts.last : '';
+  }
+
+  Widget _buildFileTypeIcon(String fileType) {
+    IconData iconData;
+    Color iconColor;
+
+    switch (fileType) {
+      case 'pdf':
+        iconData = Icons.picture_as_pdf;
+        iconColor = Colors.red;
+        break;
+      case 'doc':
+      case 'docx':
+        iconData = Icons.description;
+        iconColor = Colors.blue;
+        break;
+      case 'xls':
+      case 'xlsx':
+        iconData = Icons.table_chart;
+        iconColor = Colors.green;
+        break;
+      case 'txt':
+        iconData = Icons.text_snippet;
+        iconColor = Colors.amber;
+        break;
+      default:
+        iconData = Icons.credit_card;
+        iconColor = Colors.orange;
+    }
+
     return Container(
       width: 48,
       height: 48,
       decoration: BoxDecoration(
+        color: AppColors.kDarkBlue,
         borderRadius: BorderRadius.circular(8),
-        image: DecorationImage(
-          image: fullImageUrl != null
-              ? NetworkImage(fullImageUrl)
-              : AssetImage(AppAssets.kUserPicture) as ImageProvider,
-          fit: BoxFit.cover,
+      ),
+      child: Center(
+        child: Icon(
+          iconData,
+          color: iconColor,
+          size: 24,
         ),
       ),
     );
   }
-
-
-  // Widget userProfileImageWidget() {
-  //   return Obx(() {
-  //     final imagePath = userController.userData.value?.userLicenses
-  //     // final imagePath = userController.userData.value?.profileImages?.first.imageUrl;
-  //     final imageUrl = MyApIService.fullImageUrl(imagePath);
-  //
-  //     return Container(
-  //       width: 48,
-  //       height: 48,
-  //       decoration: BoxDecoration(
-  //         borderRadius: BorderRadius.circular(8),
-  //         image: DecorationImage(
-  //           image: imageUrl != null
-  //               ? NetworkImage(imageUrl)
-  //               : AssetImage(AppAssets.kUserPicture) as ImageProvider,
-  //           fit: BoxFit.cover,
-  //         ),
-  //       ),
-  //     );
-  //   });
-  // }
-
 }

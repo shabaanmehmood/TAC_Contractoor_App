@@ -6,6 +6,7 @@ import 'package:tac/data/data/constants/app_colors.dart';
 import '../../../controllers/user_controller.dart';
 import '../../../dataproviders/api_service.dart';
 import '../../../routes/app_routes.dart';
+import '../../Guards/guards_view.dart';
 
 class LogoutController extends GetxController {
   final userController = Get.find<UserController>();
@@ -25,7 +26,12 @@ class LogoutController extends GetxController {
       if (response.statusCode == 200) {
         debugPrint("data from logout API ${response.body}");
         // await clearLoginSession();
-        Get.offAndToNamed(AppRoutes.getSignInRoute());
+        Get.offAllNamed(AppRoutes.getSignInRoute());
+        // Clear the distance cache when logging out
+        if (Get.isRegistered<GuardsViewController>()) {
+          final guardsController = Get.find<GuardsViewController>();
+          guardsController.clearDistanceCache();
+        }
       } else {
         debugPrint('Error logout API failed: ${response.body}');
       }

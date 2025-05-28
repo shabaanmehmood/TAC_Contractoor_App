@@ -61,7 +61,7 @@ class ApplicationSubmittedScreenError extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () => Get.offAndToNamed(AppRoutes.getGuardsPageRoute()),
+                  onPressed: () => Get.offAndToNamed(AppRoutes.getLandingPageRoute()),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.kSkyBlue,
                     padding: const EdgeInsets.symmetric(vertical: 14),

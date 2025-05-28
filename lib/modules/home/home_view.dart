@@ -25,11 +25,13 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> {
   final MapController controller = Get.put(MapController());
+  final UserController userController = Get.find<UserController>();
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    userController.getUserData();
   }
 
   @override
@@ -49,7 +51,7 @@ class _HomeViewState extends State<HomeView> {
                     target: controller.userPath.isNotEmpty
                         ? controller.userPath.first
                         : LatLng(0, 0),
-                    zoom: 15,
+                    zoom: 20,
                   ),
                   markers: controller.markers.value,
                   onMapCreated: controller.setMapController,
@@ -111,7 +113,6 @@ Widget _appBar(BuildContext context) {
               const SizedBox(width: 10),
               Obx(() {
                 final imagePath = userController.userData.value?.profileImages?.first.imageUrl;
-                // userController.userData.value?.profileImages?.first.imageUrl
                 final imageUrl = MyApIService.fullImageUrl(imagePath);
                 return Container(
                   width: 34,
@@ -131,7 +132,8 @@ Widget _appBar(BuildContext context) {
           ),
           SizedBox(height: AppSpacing.tenVertical),
           SearchField(
-            isBorderBlue: false,
+            isBorderBlue: true,
+            isEnabled: false,
             text: 'Search for Security Guards',
             isIconColorBlue: false,
             icon2: AppAssets.kSearch,

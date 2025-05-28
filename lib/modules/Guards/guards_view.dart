@@ -28,14 +28,22 @@ class GuardsViewController extends GetxController {
   final myApiService = MyApIService();
   MapController mapController = Get.find<MapController>();
 
+  final RxString searchQuery = ''.obs;
+  final RxMap<String, double> cachedDistances = <String, double>{}.obs;
+  final RxBool isFirstLoad = true.obs;
+
+  void clearDistanceCache() {
+    cachedDistances.clear();
+    isFirstLoad.value = true;
+  }
+
   Timer? _refreshTimer;
 
   @override
   void onInit() {
     super.onInit();
     fetchJob();
-    // Set up timer to refresh jobs every 60 seconds
-    _refreshTimer = Timer.periodic(const Duration(seconds: 90), (_) => fetchJob());
+    _refreshTimer = Timer.periodic(const Duration(seconds: 90), (_) => fetchJob(forceRefresh: false));
   }
 
   @override
@@ -45,7 +53,7 @@ class GuardsViewController extends GetxController {
   }
 
   // Fetch jobs from API
-  Future<void> fetchJob() async {
+  Future<void> fetchJob({bool forceRefresh = true}) async {
     try {
       isLoading.value = true;
       errorMessage.value = '';
@@ -55,6 +63,12 @@ class GuardsViewController extends GetxController {
       if (response.statusCode == 200) {
         final nearbyJobsResponse = NearbyJobsResponse.fromJson(jsonDecode(response.body));
         jobList.value = nearbyJobsResponse.data;
+
+        // Calculate distances only on first load or forced refresh
+        if (isFirstLoad.value || forceRefresh) {
+          await _calculateDistances();
+          isFirstLoad.value = false;
+        }
       } else {
         errorMessage.value = 'Failed to load jobs. Status code: ${response.statusCode}';
       }
@@ -65,13 +79,63 @@ class GuardsViewController extends GetxController {
     }
   }
 
-  // Get filtered jobs based on selected department/category
-  List<JobData> getFilteredJobs() {
-    if (selectedFilter.value == 'All') {
-      return jobList;
-    } else {
-      return jobList.where((job) => _getCategoryType(job) == selectedFilter.value).toList();
+  Future<void> _calculateDistances() async {
+    for (var job in jobList) {
+      if (!cachedDistances.containsKey(job.id)) {
+        try {
+          final distance = await mapController.getJobLocation(job.latitude, job.longitude);
+          cachedDistances[job.id] = distance;
+        } catch (e) {
+          debugPrint('Error calculating distance for job ${job.id}: $e');
+        }
+      }
     }
+  }
+
+
+  // Future<String> getJobDistance(String jobId, String latitude, String longitude) async {
+  //   if (cachedDistances.containsKey(jobId)) {
+  //     return '${cachedDistances[jobId]!.truncate()} mi away';
+  //   }
+  //
+  //   try {
+  //     final distance = await mapController.getJobLocation(latitude, longitude);
+  //     cachedDistances[jobId] = distance;
+  //     return '${distance.truncate()} mi away';
+  //   } catch (e) {
+  //     return 'Distance unavailable';
+  //   }
+  // }
+
+  // // Get filtered jobs based on selected department/category
+  // List<JobData> getFilteredJobs() {
+  //   if (selectedFilter.value == 'All') {
+  //     return jobList;
+  //   } else {
+  //     return jobList.where((job) => _getCategoryType(job) == selectedFilter.value).toList();
+  //   }
+  // }
+
+  // Update getFilteredJobs to include search
+  List<JobData> getFilteredJobs() {
+    var jobs = jobList.where((job) {
+      // Apply search filter
+      if (searchQuery.value.isNotEmpty) {
+        final query = searchQuery.value.toLowerCase();
+        return job.title.toLowerCase().contains(query) ||
+            job.contractorName.toLowerCase().contains(query) ||
+            job.categoryName.toLowerCase().contains(query) ||
+            job.location.toLowerCase().contains(query);
+      }
+      return true;
+    }).toList();
+
+    // Apply category filter
+    if (selectedFilter.value != 'All') {
+      jobs = jobs.where((job) => _getCategoryType(job) == selectedFilter.value).toList();
+    }
+
+    return jobs;
   }
 
   // Helper method to determine job category/department type
@@ -282,30 +346,11 @@ class GuardsView extends StatelessWidget {
       return RefreshIndicator(
         color: AppColors.kSkyBlue,
         backgroundColor: AppColors.kDarkestBlue,
-        onRefresh: () => controller.fetchJob(),
+        onRefresh: () => controller.fetchJob(forceRefresh: true),
         child: ListView.separated(
           itemCount: filteredJobs.length,
           physics: const AlwaysScrollableScrollPhysics(),
           separatorBuilder: (context, index) => SizedBox(height: AppSpacing.fiveVertical),
-          // itemBuilder: (context, index) {
-          //   final jobData = filteredJobs[index];
-          //   final jobCardModel = controller.jobDataToCardModel(jobData);
-          //   return JobCard(
-          //     jobTitle: jobCardModel.jobTitle,
-          //     perHourRate: jobCardModel.perHourRate,
-          //     companyName: jobCardModel.companyName,
-          //     rating: jobCardModel.rating,
-          //     hiringTag: jobCardModel.hiringTag,
-          //     jobType: jobCardModel.jobType,
-          //     location: jobCardModel.location,
-          //     distance: jobCardModel.distance,
-          //     day: jobCardModel.day,
-          //     shiftTime: jobCardModel.shiftTime,
-          //     requiredPersons: jobCardModel.requiredPersons,
-          //     jobDept: jobCardModel.jobDept,
-          //     jobData: jobData,
-          //   );
-          // },
           itemBuilder: (context, index) {
             final jobData = filteredJobs[index];
             return FutureBuilder<JobCardModel>(
@@ -479,14 +524,6 @@ Widget _appBar(BuildContext context) {
                     onPressed: () {
                       Get.to<void>(() => NotificationScreen());                    },
                   ),
-                  // const Text(
-                  //   "Alerts",
-                  //   style: TextStyle(
-                  //     fontSize: 14,
-                  //     color: AppColors.kWhite,
-                  //     fontWeight: FontWeight.bold,
-                  //   ),
-                  // ),
                 ],
               ),
             ],
@@ -518,6 +555,12 @@ Widget _appBar(BuildContext context) {
         isIconColorBlue: false,
         icon2: AppAssets.kSearch,
         text: 'Search for Security Guards',
+        isEnabled: true,
+        controller: TextEditingController(),
+        onChanged: (value) {
+          final controller = Get.find<GuardsViewController>();
+          controller.searchQuery.value = value;
+        },
       ),
     ],
   );

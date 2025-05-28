@@ -32,7 +32,7 @@ class BankDetailsController extends GetxController {
 
         if (response.statusCode == 201) {
           await apiService.getUserByID(userController.userData.value!.id!);
-          Get.offAndToNamed(AppRoutes.getLandingPageRoute());
+          Get.back(result: true);
         } else {
 
         }
@@ -57,12 +57,6 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
   @override
   void initState() {
     super.initState();
-    controller.bankNameController.text = userController.userData.value!.bankDetails?[0].bankName ?? '';
-    controller.accountTitleController.text = userController.userData.value?.bankDetails?[0].accountTitle ?? '';
-    controller.accountNumberController.text = userController.userData.value?.bankDetails?[0].accountNumber ?? '';
-    controller.ibanController.text = userController.userData.value?.bankDetails?[0].iban ?? '';
-    controller.expiryDateController.text = userController.userData.value?.bankDetails?[0].entityDate ?? '';
-
   }
 
   @override
@@ -97,19 +91,50 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
                             color: Colors.white, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 14),
                     buildTextField("Bank Name", Icons.account_balance,
-                        controller.bankNameController),
+                        controller.bankNameController, () {}),
                     const SizedBox(height: 14),
                     buildTextField("Account Title", Icons.person_outline,
-                        controller.accountTitleController),
+                        controller.accountTitleController, () {}),
                     const SizedBox(height: 14),
                     buildTextField("Account Number", Icons.credit_card,
-                        controller.accountNumberController),
+                        controller.accountNumberController, () {}),
                     const SizedBox(height: 14),
                     buildTextField("IBAN", Icons.numbers,
-                        controller.ibanController),
+                        controller.ibanController, () {}),
                     const SizedBox(height: 14),
                     buildTextField("Expiry Date", Icons.calendar_month_outlined,
-                        controller.expiryDateController),
+                        controller.expiryDateController, () async {
+                        final picked = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime.now(),
+                          lastDate: DateTime(2101),
+                          builder: (context, child) {
+                            return Theme(
+                              data: Theme.of(context).copyWith(
+                                dialogBackgroundColor: AppColors.kDarkestBlue,
+                                colorScheme: ColorScheme.dark(
+                                  primary: AppColors.kSkyBlue,
+                                  onPrimary: Colors.black,
+                                  surface: AppColors.kDarkestBlue,
+                                  onSurface: Colors.white,
+                                ),
+                                textButtonTheme: TextButtonThemeData(
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: AppColors
+                                        .kSkyBlue, // Button text color
+                                  ),
+                                ),
+                              ),
+                              child: child!,
+                            );
+                          },
+                        );
+                        if (picked != null) {
+                          controller.expiryDateController.text =
+                              picked.toIso8601String().split('T').first;
+                        }
+                      },),
                   ],
                 ),
               ),
@@ -161,8 +186,13 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
   }
 
   Widget buildTextField(String hint, IconData icon,
-      TextEditingController fieldController) {
+      TextEditingController fieldController, Function? onTap) {
     return TextFormField(
+      onTap: () {
+        if (onTap != null) {
+          onTap();
+        }
+      },
       controller: fieldController,
       cursorColor: AppColors.kSkyBlue,
       cursorErrorColor: Colors.red,

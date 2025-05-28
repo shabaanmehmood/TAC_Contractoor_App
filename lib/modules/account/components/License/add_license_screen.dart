@@ -9,6 +9,7 @@ import 'package:tac/widhets/common%20overlays/uploadFile_overlay.dart';
 
 import '../../../../dataproviders/api_service.dart';
 import '../../../../routes/app_routes.dart';
+import '../../../../widhets/common widgets/buttons/adaptive_dialogue.dart';
 //
 // class AddLicenseController extends GetxController {
 //   String selectedLicenseType = "";
@@ -343,7 +344,7 @@ import '../../../../routes/app_routes.dart';
 class AddLicenseController extends GetxController {
   String selectedLicenseType = ""; // Stores selected license ID
   String selectedLicenseName = ""; // Stores selected license name for display
-  String? selectedImagePath; // Store image path
+  var selectedImagePath = ''.obs; // Store image path
   TextEditingController licenseNumberController = TextEditingController();
   TextEditingController expiryDateController = TextEditingController();
   MyApIService apiService = MyApIService();
@@ -378,12 +379,26 @@ class AddLicenseController extends GetxController {
           expiryDateController.text,
           selectedLicenseType,
           userController.userData.value!.id!,
-          selectedImagePath!,
+          selectedImagePath!.value,
         );
         if(response.statusCode == 201) {
           debugPrint("data from API ${response.body}");
-          Get.offAndToNamed(AppRoutes.getLandingPageRoute());
+          Get.back(result: true);
         } else {
+          final Map<String, dynamic> responseBody = jsonDecode(response.body);
+          final String errorMessage = responseBody['message'] ?? 'Unknown error';
+
+          // Show dialog with one line call
+          await AdaptiveAlertDialogWidget.show(
+            Get.context!,
+            title: 'Upload Failed',
+            content: errorMessage,
+            yesText: 'OK',
+            showNoButton: false,
+            onYes: () {
+              // Optional: do something on OK pressed
+            },
+          );
           debugPrint("data from API ${response.body}");
           debugPrint('Error Add Security License failed: ${response.body}');
         }
@@ -400,7 +415,7 @@ class AddLicenseController extends GetxController {
   }
 
   void setSelectedImagePath(String path) {
-    selectedImagePath = path;
+    selectedImagePath.value = path;
     update();
   }
 }
@@ -525,9 +540,44 @@ class AddLicenseScreen extends StatelessWidget {
                           () => showLicenseTypeBottomSheet(context),
                     ),
                     const SizedBox(height: 16),
-                    buildTextField(controller.licenseNumberController, "License Number", Icons.badge),
+                    buildTextField(controller.licenseNumberController, "License Number", Icons.badge, null),
                     const SizedBox(height: 16),
-                    buildTextField(controller.expiryDateController, "Expiry Date", Icons.calendar_today),
+                    buildTextField(
+                        controller.expiryDateController,
+                        "Expiry Date",
+                        Icons.calendar_today,
+                          () async {
+                            final picked = await showDatePicker(
+                              context: context,
+                              initialDate: DateTime.now(),
+                              firstDate: DateTime(1900),
+                              lastDate: DateTime(2200),
+                              builder: (context, child) {
+                                return Theme(
+                                  data: Theme.of(context).copyWith(
+                                    dialogBackgroundColor: AppColors.kDarkestBlue,
+                                    colorScheme: ColorScheme.dark(
+                                      primary: AppColors.kSkyBlue,
+                                      onPrimary: Colors.black,
+                                      surface: AppColors.kDarkestBlue,
+                                      onSurface: Colors.white,
+                                    ),
+                                    textButtonTheme: TextButtonThemeData(
+                                      style: TextButton.styleFrom(
+                                        foregroundColor: AppColors
+                                            .kSkyBlue, // Button text color
+                                      ),
+                                    ),
+                                  ),
+                                  child: child!,
+                                );
+                              },
+                            );
+                            if (picked != null && picked != DateTime.now()) {
+                              controller.expiryDateController.text = picked.toIso8601String().split('T').first;
+                            }
+                        }
+                    ),
                     const SizedBox(height: 24),
                     const Text(
                       "Scan Copy of License",
@@ -591,13 +641,16 @@ class AddLicenseScreen extends StatelessWidget {
                                 addLicenseController.setSelectedImagePath(path);
                               }
                             },
-                            child: const Text(
-                              "Upload",
+                            child: Obx(() => Text(
+                              controller.selectedImagePath != null && controller.selectedImagePath!.isNotEmpty
+                                  ? "File Selected"
+                                  : "Upload",
                               style: TextStyle(
                                 color: AppColors.kSkyBlue,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
                               ),
-                            ),
+                            )),
                           ),
                         ],
                       ),
@@ -674,7 +727,7 @@ class AddLicenseScreen extends StatelessWidget {
     );
   }
 
-  Widget buildTextField(TextEditingController controller, String hint, IconData icon) {
+  Widget buildTextField(TextEditingController controller, String hint, IconData icon, Function? onTap) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -684,6 +737,7 @@ class AddLicenseScreen extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: TextField(
+                onTap: onTap != null ? () => onTap() : null,
                 controller: controller,
                 style: const TextStyle(color: Colors.white),
                 cursorColor: AppColors.kinput,

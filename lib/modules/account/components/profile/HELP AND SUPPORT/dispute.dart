@@ -5,6 +5,7 @@ import 'package:tac/data/data/constants/app_colors.dart';
 import 'package:tac/widhets/common%20overlays/uploadFile_overlay.dart';
 
 import '../../../../../dataproviders/api_service.dart';
+import '../../../../../models/job_model.dart';
 import '../../../../../routes/app_routes.dart';
 
 class DisputeController extends GetxController {
@@ -13,7 +14,8 @@ class DisputeController extends GetxController {
   final agreeToTerms = false.obs;
   String? base64image;
   final RxList<String> base64Images = <String>[].obs;
-  final String jobId = '15d7b3e2-15c5-4b93-bd01-b20792d2d18b';
+  final String jobId = '33327a6f-b49f-43a8-b1e7-61e53ea256a8';
+  JobData? jobData;
 
   static const List<Map<String, String>> disputeTypes = [
     {'label': 'Job Related', 'value': 'jobRelated'},
@@ -42,7 +44,7 @@ class DisputeController extends GetxController {
         );
         if (response.statusCode == 201) {
           debugPrint("data from API ${response.body}");
-          Get.offAndToNamed(AppRoutes.getLandingPageRoute());
+          Get.back();
         } else {
           debugPrint("data from API ${response.body}");
           debugPrint('Error Add dispute failed: ${response.body}');
@@ -62,7 +64,7 @@ class DisputeController extends GetxController {
         );
         if (response.statusCode == 201) {
           debugPrint("data from API ${response.body}");
-          Get.offAndToNamed(AppRoutes.getLandingPageRoute());
+          Get.back();
         } else {
           debugPrint("data from API ${response.body}");
           debugPrint('Error Add dispute failed: ${response.body}');
@@ -117,7 +119,8 @@ class DisputeScreen extends StatelessWidget {
                       icon: Icons.warning_amber_rounded,
                       hint: controller.selectedDisputeType.value.isEmpty
                           ? 'Select Dispute Type'
-                          : controller.selectedDisputeType.value,
+                          : DisputeController.disputeTypes
+                          .firstWhere((type) => type['value'] == controller.selectedDisputeType.value)['label']!,
                       isDropdown: true,
                       onTap: () => _showDisputeTypeBottomSheet(context),
                     ),
@@ -135,6 +138,37 @@ class DisputeScreen extends StatelessWidget {
                         icon: Icons.calendar_today_outlined,
                         hint: "Date of Incident",
                         controller: controller.dateOfIncidentController,
+                      onTap: () async {
+                        final picked = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime(1900),
+                          lastDate: DateTime(2200),
+                          builder: (context, child) {
+                            return Theme(
+                              data: Theme.of(context).copyWith(
+                                dialogBackgroundColor: AppColors.kDarkestBlue,
+                                colorScheme: ColorScheme.dark(
+                                  primary: AppColors.kSkyBlue,
+                                  onPrimary: Colors.black,
+                                  surface: AppColors.kDarkestBlue,
+                                  onSurface: Colors.white,
+                                ),
+                                textButtonTheme: TextButtonThemeData(
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: AppColors
+                                        .kSkyBlue, // Button text color
+                                  ),
+                                ),
+                              ),
+                              child: child!,
+                            );
+                          },
+                        );
+                        if (picked != null && picked != DateTime.now()) {
+                          controller.dateOfIncidentController.text = picked.toIso8601String().split('T').first;
+                        }
+                      },
                     ),
                     const Divider(color: AppColors.kPrimary),
                     const SizedBox(height: 16),
@@ -145,7 +179,7 @@ class DisputeScreen extends StatelessWidget {
                         maxLines: null),
                     const Divider(color: AppColors.kPrimary),
                     if (controller.selectedDisputeType.value ==
-                        'Earning Related') ...[
+                        'earningRelated') ...[
                       const SizedBox(height: 24),
                       const Text("Transaction Information",
                           style: TextStyle(
@@ -162,7 +196,39 @@ class DisputeScreen extends StatelessWidget {
                       _buildInputField(
                           icon: Icons.calendar_month,
                           hint: "Transaction Date",
-                          controller: controller.transactionDateController),
+                          controller: controller.transactionDateController,
+                        onTap: () async {
+                          final picked = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime(1900),
+                            lastDate: DateTime(2200),
+                            builder: (context, child) {
+                              return Theme(
+                                data: Theme.of(context).copyWith(
+                                  dialogBackgroundColor: AppColors.kDarkestBlue,
+                                  colorScheme: ColorScheme.dark(
+                                    primary: AppColors.kSkyBlue,
+                                    onPrimary: Colors.black,
+                                    surface: AppColors.kDarkestBlue,
+                                    onSurface: Colors.white,
+                                  ),
+                                  textButtonTheme: TextButtonThemeData(
+                                    style: TextButton.styleFrom(
+                                      foregroundColor: AppColors
+                                          .kSkyBlue, // Button text color
+                                    ),
+                                  ),
+                                ),
+                                child: child!,
+                              );
+                            },
+                          );
+                          if (picked != null && picked != DateTime.now()) {
+                            controller.transactionDateController.text = picked.toIso8601String().split('T').first;
+                          }
+                        }
+                      ),
                       const Divider(color: AppColors.kPrimary),
                       const SizedBox(height: 16),
                       _buildInputField(
@@ -206,23 +272,22 @@ class DisputeScreen extends StatelessWidget {
                             onPressed: () async {
                               final UploadFileController uploadFileController = Get.put(UploadFileController());
                               final String? base64Image = await uploadFileController.showUploadFileBottomSheet(context, returnBase64: true);
-                              // controller.base64image = await uploadFileController.showUploadFileBottomSheet(context, returnBase64: true);
                               if (base64Image != null) {
                                 controller.base64Images.add(base64Image);
                               }
                             },
-                            child: const Text("Browse",
-                                style: TextStyle(color: AppColors.kSkyBlue)),
+                            child: Obx(
+                              () => Text(
+                                controller.base64Images.isNotEmpty
+                                    ? 'File Selected'
+                                    : 'Upload',
+                                style: const TextStyle(
+                                    color: AppColors.kSkyBlue,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
                           ),
-                          Obx(() => Column( // Display selected images
-                            children: [
-                              for (var image in controller.base64Images)
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                  child: Text("Selected File: ${image.substring(0, 20)}...", style: TextStyle(color: AppColors.kWhite)), // Show a snippet of the base64 string
-                                ),
-                            ],
-                          )),
                         ],
                       ),
                     ),
@@ -341,24 +406,26 @@ class DisputeScreen extends StatelessWidget {
                       children: [
                         ListTile(
                           leading: Radio<String>(
-                            value: typeMap['label']!,
+                            value: typeMap['value']!,  // Use internal value
                             groupValue: controller.selectedDisputeType.value,
                             onChanged: (value) {
-                              controller.selectedDisputeType.value = typeMap['value']!;
+                              controller.selectedDisputeType.value = value!;
                               Navigator.pop(context);
                             },
                             activeColor: AppColors.kSkyBlue,
                           ),
-                          title: Text(typeMap['label']!,
-                              style: const TextStyle(color: AppColors.kWhite)),
+                          title: Text(
+                            typeMap['label']!,
+                            style: const TextStyle(color: AppColors.kWhite),
+                          ),
                           onTap: () {
                             controller.selectedDisputeType.value = typeMap['value']!;
                             Navigator.pop(context);
                           },
                         ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 16.0, right: 16.0),
-                          child: const Divider(color: AppColors.kinput),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16.0),
+                          child: Divider(color: AppColors.kinput),
                         ),
                       ],
                     );
