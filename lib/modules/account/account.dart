@@ -7,30 +7,16 @@ import 'package:tac/modules/account/components/logout.dart';
 import 'package:tac/modules/account/components/profile/profile_screen.dart';
 import 'package:tac/modules/account/help_support.dart';
 import 'package:tac/modules/account/components/reviews/reviews_screen.dart';
-
 import '../../controllers/user_controller.dart';
 import '../../data/data/constants/app_assets.dart';
 import '../../dataproviders/api_service.dart';
-import 'components/License/security_license_screen.dart';
 import 'components/Settings/SettingsScreen.dart';
-
-class AccountController extends GetxController {
-  final notificationsEnabled = false.obs;
-}
 
 class AccountScreen extends StatelessWidget {
   const AccountScreen({super.key});
 
-  void navigateToPlaceholder(String screenName) {
-    Get.to(() => Scaffold(
-          appBar: AppBar(title: Text(screenName)),
-          body: Center(child: Text('$screenName Screen Coming Soon')),
-        ));
-  }
-
   @override
   Widget build(BuildContext context) {
-    final AccountController controller = Get.put(AccountController());
     final userController = Get.find<UserController>().obs;
     final screenWidth = MediaQuery.of(context).size.width;
 
@@ -38,7 +24,7 @@ class AccountScreen extends StatelessWidget {
       backgroundColor: AppColors.kDarkestBlue,
       body: Column(
         children: [
-          // Fixed Custom App Bar
+          // App Bar
           Container(
             width: double.infinity,
             padding:
@@ -50,177 +36,194 @@ class AccountScreen extends StatelessWidget {
               ),
             ),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    // Square Profile Image
-                    Obx(() {
-                      final imagePath = userController
-                          .value.userData.value?.profileImages?.first.imageUrl;
-                      final imageUrl = MyApIService.fullImageUrl(imagePath);
-                      return Container(
-                        width: 34,
-                        height: 34,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(4),
-                          image: DecorationImage(
-                            image: imageUrl != null
-                                ? NetworkImage(imageUrl)
-                                : AssetImage(AppAssets.kUserPicture)
-                                    as ImageProvider,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      );
-                    }),
-                    const SizedBox(width: 12),
-                    const Text(
-                      'Account',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
+                Image.asset(AppAssets.kTacLogo, width: 24, height: 24),
+                const SizedBox(width: 8),
+                const Text(
+                  'Account',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-                Stack(
-                  children: [
-                    const Icon(Icons.notifications_none,
-                        color: Colors.white, size: 24),
-                    Positioned(
-                      right: 0,
-                      top: 0,
-                      child: Container(
-                        width: 8,
-                        height: 8,
-                        decoration: const BoxDecoration(
-                          color: Colors.cyanAccent,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    )
-                  ],
-                )
               ],
             ),
           ),
 
-          // Scrollable content
+          // Scrollable Body
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.fromLTRB(0, 32, 0, 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // Profile Header
+                  // Profile Card
                   Container(
                     width: screenWidth * 0.92,
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: AppColors.kDarkestBlue,
-                      border: Border.all(color: AppColors.kgrey, width: 0.5),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(8),
+                      border:
+                          Border.all(color: AppColors.kgrey.withOpacity(0.5)),
                     ),
-                    child: Column(
+                    child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            Text(
-                              userController.value.userData.value?.fullName ??
-                                  '',
-                              style: const TextStyle(
-                                  color: AppColors.kWhite,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold),
+                        Obx(() {
+                          final imagePath = userController.value.userData.value
+                              ?.profileImages?.first.imageUrl;
+                          final imageUrl = MyApIService.fullImageUrl(imagePath);
+                          return Container(
+                            width: 56,
+                            height: 56,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              image: DecorationImage(
+                                image: imageUrl != null
+                                    ? NetworkImage(imageUrl)
+                                    : AssetImage(AppAssets.kUserPicture)
+                                        as ImageProvider,
+                                fit: BoxFit.cover,
+                              ),
                             ),
-                            const SizedBox(width: 6),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 6, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: AppColors.kSkyBlue,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text(
-                                userController.value.userData.value?.professionalBadge ??
-                                    'Leader',
-                                style: TextStyle(
-                                    color: AppColors.kWhite, fontSize: 12),
-                              ),
-                            )
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        Text("Security Professional · ${userController.value.userData.value?.level}",
-                            style: TextStyle(color: AppColors.ktextlight)),
-                        const SizedBox(height: 8),
-                        GestureDetector(
-                          onTap: () => Get.to(() => const ReviewsScreen()),
-                          child: Row(
+                          );
+                        }),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              for (int i = 0; i < 5; i++)
-                                const Icon(Icons.star,
-                                    size: 16, color: AppColors.kSkyBlue),
-                              const SizedBox(width: 4),
-                              const Text(
-                                "5.0 ",
-                                style: TextStyle(
-                                    color: AppColors.ktextlight,
-                                    fontWeight: FontWeight.bold),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      userController
+                                              .value.userData.value?.fullName ??
+                                          '',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  const Icon(
+                                    Icons.verified,
+                                    color: AppColors.kSkyBlue,
+                                    size: 18,
+                                  ),
+                                ],
                               ),
-                              const Text("(12 reviews)",
-                                  style: TextStyle(
-                                      color: AppColors.ktextlight,
-                                      decoration: TextDecoration.underline))
+                              const SizedBox(height: 4),
+                              Text(
+                                'Security Head',
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              GestureDetector(
+                                onTap: () =>
+                                    Get.to(() => const ReviewsScreen()),
+                                child: Row(
+                                  children: const [
+                                    Icon(Icons.star,
+                                        size: 16, color: AppColors.kSkyBlue),
+                                    SizedBox(width: 4),
+                                    Text(
+                                      "5.0",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                    SizedBox(width: 4),
+                                    Text(
+                                      "(12 reviews)",
+                                      style: TextStyle(
+                                        color: Colors.white70,
+                                        fontSize: 13,
+                                        decoration: TextDecoration.underline,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ],
                           ),
-                        )
+                        ),
                       ],
                     ),
                   ),
+
+                  const SizedBox(height: 16),
+
+                  // Summary Info Cards
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Wrap(
+                      spacing: 12,
+                      runSpacing: 12,
+                      children: [
+                        buildInfoCard('Team Members', '24'),
+                        buildInfoCard('Active Jobs', '12'),
+                        buildInfoCard('Total Guards Hired', '30'),
+                        buildInfoCard('Total Spent', '\$1.2K'),
+                      ],
+                    ),
+                  ),
+
                   const SizedBox(height: 12),
 
-                  // Cards
+                  // Menu Cards
                   buildCard(
                     screenWidth,
                     'Profile',
                     Icons.person,
                     'Manage your profile and documents',
-                    'Profile',
                     onTap: () => Get.to(() => const ProfileScreen()),
                   ),
-                  buildCard(screenWidth, 'Security Licences', Icons.badge,
-                      'Update security licences here', 'Licences',
-                      onTap: () => Get.to(() => SecurityLicenseScreen())),
-                  buildCard(screenWidth, 'Earnings', Icons.attach_money,
-                      'See all your earning here', 'Earnings',
-                      onTap: () => Get.to(() => EarningsScreen())),
                   buildCard(
-                      screenWidth,
-                      'Bank Details',
-                      Icons.account_balance,
-                      'Set payment method and withdrawal settings',
-                      'Bank Details',
-                      onTap: () => Get.to(() => BankDetailsScreen())),
-                  buildCard(screenWidth, 'Help & Support', Icons.help,
-                      'Get assistance', 'Help',
-                      onTap: () => Get.to(() => const HelpSupportScreen())),
+                    screenWidth,
+                    'Payments',
+                    Icons.payment,
+                    'Payment record for jobs and guards',
+                    onTap: () => Get.to(() => EarningsScreen()),
+                  ),
+                  buildCard(
+                    screenWidth,
+                    'Pay Guards',
+                    Icons.account_balance,
+                    'Add your card details',
+                    onTap: () => Get.to(() => BankDetailsScreen()),
+                  ),
+                  buildCard(
+                    screenWidth,
+                    'Help & Support',
+                    Icons.help,
+                    'Get assistance',
+                    onTap: () => Get.to(() => const HelpSupportScreen()),
+                  ),
                   buildCard(
                     screenWidth,
                     'Settings',
                     Icons.settings,
                     'Manage your account',
-                    'Settings',
                     onTap: () => Get.to(() => const SettingsScreen()),
                   ),
-                  buildCard(screenWidth, 'Logout', Icons.logout,
-                      'Sign Out securely', 'Logout',
-                      onTap: () => showLogoutBottomSheet(context)),
-
-                  const SizedBox(height: 5),
+                  buildCard(
+                    screenWidth,
+                    'Logout',
+                    Icons.logout,
+                    'Sign Out securely',
+                    onTap: () => showLogoutBottomSheet(context),
+                  ),
                 ],
               ),
             ),
@@ -234,12 +237,11 @@ class AccountScreen extends StatelessWidget {
     double screenWidth,
     String title,
     IconData icon,
-    String subtitle,
-    String screenName, {
+    String subtitle, {
     VoidCallback? onTap,
   }) {
     return GestureDetector(
-      onTap: onTap ?? () => navigateToPlaceholder(screenName),
+      onTap: onTap,
       child: Container(
         width: screenWidth * 0.92,
         margin: const EdgeInsets.symmetric(vertical: 8),
@@ -273,39 +275,26 @@ class AccountScreen extends StatelessWidget {
     );
   }
 
-  Widget buildNotificationCard(
-      double screenWidth, AccountController controller) {
+  Widget buildInfoCard(String title, String value) {
     return Container(
-      width: screenWidth * 0.92,
+      width: (Get.width - 16 * 2 - 12) / 2,
       padding: const EdgeInsets.all(16),
-      margin: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
         color: AppColors.kJobCardColor,
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: BorderRadius.circular(8),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.notifications, color: AppColors.kPrimary),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text('Notifications',
-                    style: TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold)),
-                SizedBox(height: 4),
-                Text('Allow or mute notifications',
-                    style: TextStyle(color: Colors.white54, fontSize: 12)),
-              ],
-            ),
-          ),
-          Obx(() => Switch(
-                value: controller.notificationsEnabled.value,
-                onChanged: (value) =>
-                    controller.notificationsEnabled.value = value,
-                activeColor: Colors.tealAccent,
-              ))
+          Text(title,
+              style:
+                  const TextStyle(color: AppColors.ktextlight, fontSize: 12)),
+          const SizedBox(height: 8),
+          Text(value,
+              style: const TextStyle(
+                  color: AppColors.kWhite,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold)),
         ],
       ),
     );
