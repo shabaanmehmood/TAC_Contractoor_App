@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:tac/data/data/constants/app_colors.dart';
-import 'package:tac/modules/account/components/Settings/DeleteAccountScreen.dart';
-import 'package:tac/modules/account/components/Settings/otp.dart';
+import 'package:taccontractor/data/data/constants/app_colors.dart';
+import 'package:taccontractor/modules/account/components/Settings/DeleteAccountScreen.dart';
+import 'package:taccontractor/modules/account/components/Settings/otp.dart';
 
 import '../../../../controllers/user_controller.dart';
 import '../../../../dataproviders/api_service.dart';

@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-import 'package:tac/modules/checkin/jobcheckin/job_live_complete.dart';
+import 'package:taccontractor/modules/checkin/jobcheckin/job_live_complete.dart';
 import 'job_live_screen.dart'; // 👈 Import the screen you want to navigate to
 
 class JobCheckinController extends GetxController {

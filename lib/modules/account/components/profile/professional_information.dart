@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:tac/data/data/constants/app_assets.dart';
-import 'package:tac/data/data/constants/app_colors.dart';
-import 'package:tac/data/data/constants/app_typography.dart';
-import 'package:tac/data/data/constants/app_colors.dart';
-import 'package:tac/data/data/constants/app_spacing.dart';
+import 'package:taccontractor/data/data/constants/app_assets.dart';
+import 'package:taccontractor/data/data/constants/app_colors.dart';
+import 'package:taccontractor/data/data/constants/app_typography.dart';
+import 'package:taccontractor/data/data/constants/app_colors.dart';
+import 'package:taccontractor/data/data/constants/app_spacing.dart';
 
 import '../../../../controllers/user_controller.dart';
 import '../../../../dataproviders/api_service.dart';
@@ -113,11 +113,11 @@ class _EditProfessionalInfoScreenState
   void initState() {
     super.initState();
     final userData = userController.userData.value;
-    selectedExperience = userData!.personalDetails?.yearsOfExperience;
+    // selectedExperience = userData!.personalDetails?.yearsOfExperience;
     licenseNumber.text = userData!.masterSecurityLicense ?? '';
-    expiryDate.text = userData!.personalDetails?.licenseExpiryDate ?? '';
-    abnNumber.text = userData!.personalDetails?.abn ?? '';
-    preferredWorkLocation.text = userData!.personalDetails?.preferredLocationAddresses.toString() ?? '';
+    // expiryDate.text = userData!.personalDetails?.licenseExpiryDate ?? '';
+    // abnNumber.text = userData!.personalDetails?.abn ?? '';
+    // preferredWorkLocation.text = userData!.personalDetails?.preferredLocationAddresses.toString() ?? '';
   }
 
   @override

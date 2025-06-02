@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:tac/data/data/constants/app_colors.dart';
-import 'package:tac/data/data/constants/app_spacing.dart';
-import 'package:tac/data/data/constants/app_typography.dart';
-import 'package:tac/modules/location/search_location_overlay.dart';
-import 'package:tac/widhets/buttons/buttons/buttons.dart';
-import 'package:tac/widhets/common%20widgets/buttons/TextFormFieldWidget.dart';
+import 'package:taccontractor/data/data/constants/app_colors.dart';
+import 'package:taccontractor/data/data/constants/app_spacing.dart';
+import 'package:taccontractor/data/data/constants/app_typography.dart';
+import 'package:taccontractor/modules/location/search_location_overlay.dart';
+import 'package:taccontractor/widhets/buttons/buttons/buttons.dart';
+import 'package:taccontractor/widhets/common%20widgets/buttons/TextFormFieldWidget.dart';
 
 class CurrentLocationOverlayController extends GetxController {
   var useCurrentLocation = true.obs;

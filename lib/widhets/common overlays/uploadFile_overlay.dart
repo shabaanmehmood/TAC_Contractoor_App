@@ -230,11 +230,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:tac/data/data/constants/app_assets.dart';
-import 'package:tac/data/data/constants/app_colors.dart';
-import 'package:tac/data/data/constants/app_spacing.dart';
-import 'package:tac/data/data/constants/app_typography.dart';
-import 'package:tac/modules/account/components/License/add_license_screen.dart';
+import 'package:taccontractor/data/data/constants/app_assets.dart';
+import 'package:taccontractor/data/data/constants/app_colors.dart';
+import 'package:taccontractor/data/data/constants/app_spacing.dart';
+import 'package:taccontractor/data/data/constants/app_typography.dart';
+import 'package:taccontractor/modules/account/components/License/add_license_screen.dart';
 
 import '../../controllers/user_controller.dart';
 import '../../dataproviders/api_service.dart';

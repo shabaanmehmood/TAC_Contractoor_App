@@ -1,7 +1,7 @@
 // earnings_controller.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:tac/modules/account/components/Earning/filter_bottom_sheet.dart';
+import 'package:taccontractor/modules/account/components/Earning/filter_bottom_sheet.dart';
 import 'earning_model.dart';
 import 'dummy_data.dart';
 

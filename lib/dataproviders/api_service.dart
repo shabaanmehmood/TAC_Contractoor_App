@@ -30,33 +30,126 @@ class MyApIService {
   // String controllerBase = 'https://truegigs.com/portal/'; //baseUrl for other calls
 
 
-  Future<http.Response> signUp(String fullName, String email, String phone, String postalAddress, String masterSecurityLicense, String password, String base64Image,) async {
-    var functionUrl = 'auth/signUp';
+  Future<http.Response> signUpForCompany({
+    required String registeringAs,
+    required String email,
+    required String Name,
+    required String phone,
+    required String postalAddress,
+    String? masterLicense,
+    required String austraLianBusinessNumber,
+    String? australianCompanyNumber,
+    String? role,
+    String? dob,
+    String? gender,
+    required String password,
+    required String confirmPassword,
+    required String passport,
+    required String securityLicense,
+    required String visaWorkingRights,
+    required String abn,
+    required String nationalCrimeCheck,
+    required String whiteCard,
+  }) async {
+    var functionUrl = 'contractorAuth/signUp';
     final response = await http.post(Uri.parse(baseurl + functionUrl),
       headers: {
         'Content-Type': 'application/json',
         'ngrok-skip-browser-warning': 'true',
       },
       body: jsonEncode({
-        "fullName": fullName,
-        "email": email,
-        "phone": phone,
-        "postalAddress": postalAddress,
-        "masterSecurityLicense": masterSecurityLicense,
-        "password": password,
-        "profileImages": [
-          {
-            "imageUrl": "data:image/png;base64,$base64Image",
-            "isMain": true,
-          }
-        ]
+        'registeringAs': registeringAs,
+        'email': email,
+        'Name': Name,
+        'phone': phone,
+        'postalAddress': postalAddress,
+        'masterSecurityLicense': masterLicense,
+        'austraLianBusinessNumber': austraLianBusinessNumber,
+        'australianCompanyNumber': australianCompanyNumber,
+        'password': password,
+        'confirmPassword': confirmPassword,
+        // 'role': role,
+        // 'dob' : dob,
+        // 'gender' : gender,
+        'passport': passport,
+        'securityLicense': securityLicense,
+        'visaWorkingRights': visaWorkingRights,
+        'abn': abn,
+        'nationalCrimeCheck': nationalCrimeCheck,
+        'whiteCard': whiteCard,
       }),
     );
+
+    if (response.statusCode == 200) {
+      final jsonData = jsonDecode(response.body);
+      debugPrint('Response in signUp: $jsonData');
+    } else {
+      debugPrint('inside signup method call for company: ${response.statusCode}');
+    }
+    return response;
+  }
+
+  Future<http.Response> signUpForContractor({
+    required String registeringAs,
+    required String email,
+    required String Name,
+    required String phone,
+    required String postalAddress,
+    String? masterLicense,
+    required String austraLianBusinessNumber,
+    String? australianCompanyNumber,
+    String? role,
+    String? dob,
+    String? gender,
+    required String password,
+    required String confirmPassword,
+    required String passport,
+    required String securityLicense,
+    required String visaWorkingRights,
+    required String abn,
+    required String nationalCrimeCheck,
+    required String whiteCard,
+  }) async {
+    var functionUrl = 'contractorAuth/signUp';
+    final response = await http.post(Uri.parse(baseurl + functionUrl),
+      headers: {
+        'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true',
+      },
+      body: jsonEncode({
+        'registeringAs': registeringAs,
+        'email': email,
+        'Name': Name,
+        'phone': phone,
+        'postalAddress': postalAddress,
+        // 'masterSecurityLicense': masterLicense,
+        'austraLianBusinessNumber': austraLianBusinessNumber,
+        // 'australianCompanyNumber': australianCompanyNumber,
+        'password': password,
+        'confirmPassword': confirmPassword,
+        // 'role': role,
+        'dob' : dob,
+        'gender' : gender,
+        'passport': passport,
+        'securityLicense': securityLicense,
+        'visaWorkingRights': visaWorkingRights,
+        'abn': abn,
+        'nationalCrimeCheck': nationalCrimeCheck,
+        'whiteCard': whiteCard,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final jsonData = jsonDecode(response.body);
+      debugPrint('Response in signUp: $jsonData');
+    } else {
+      debugPrint('inside signup method call for company: ${response.statusCode}');
+    }
     return response;
   }
 
   Future<http.Response> login(String email, String password) async {
-    var functionUrl = 'auth/login';
+    var functionUrl = 'contractorAuth/login';
     final response = await http.post(
       Uri.parse(baseurl + functionUrl),
       headers: {
@@ -70,6 +163,7 @@ class MyApIService {
     );
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body);
+      debugPrint('Response in login: $jsonData');
       final userDataModel = UserDataModel.fromJson(jsonData);
 
       if (userDataModel.data != null) {
@@ -94,7 +188,7 @@ class MyApIService {
   }
 
   Future<http.Response> sendOtp(String email) async {
-    var functionUrl = 'users/sendOtp';
+    var functionUrl = 'contractorAuth/forgot-password';
     final response = await http.post(
       Uri.parse(baseurl + functionUrl),
       headers: {
@@ -109,7 +203,7 @@ class MyApIService {
   }
 
   Future<http.Response> verifyOtp(String email, String otp) async {
-    var functionUrl = 'users/verifyOtp';
+    var functionUrl = 'contractorAuth/verify-otp';
     final response = await http.post(
       Uri.parse(baseurl + functionUrl),
       headers: {
@@ -125,7 +219,7 @@ class MyApIService {
   }
 
   Future<http.Response> resetPassword(String email, String password, String confirmPassword) async {
-    var functionUrl = 'users/resetPassword';
+    var functionUrl = 'contractorAuth/set-password-by-email';
     final response = await http.post(
       Uri.parse(baseurl + functionUrl),
       headers: {
@@ -182,7 +276,7 @@ class MyApIService {
   }
 
   Future<http.Response> getUserByID(String userId) async {
-    var functionUrl = 'users/$userId';
+    var functionUrl = 'contractors/$userId';
     final response = await http.get(Uri.parse(baseurl + functionUrl),
       headers: {
         "Content-Type": "application/json",

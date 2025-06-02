@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:tac/data/data/constants/app_typography.dart';
-import 'package:tac/data/data/constants/app_colors.dart';
-import 'package:tac/data/data/constants/app_assets.dart';
-import 'package:tac/modules/Messages/chat_controller.dart';
-import 'package:tac/modules/Messages/client%20profile/client_profile_screen.dart';
+import 'package:taccontractor/data/data/constants/app_typography.dart';
+import 'package:taccontractor/data/data/constants/app_colors.dart';
+import 'package:taccontractor/data/data/constants/app_assets.dart';
+import 'package:taccontractor/modules/Messages/chat_controller.dart';
+import 'package:taccontractor/modules/Messages/client%20profile/client_profile_screen.dart';
 import 'message_model.dart';
 import 'package:intl/intl.dart';
 

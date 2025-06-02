@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
-import 'package:tac/data/data/constants/app_colors.dart';
-import 'package:tac/data/data/constants/app_spacing.dart';
+import 'package:taccontractor/data/data/constants/app_colors.dart';
+import 'package:taccontractor/data/data/constants/app_spacing.dart';
 
 import '../../../data/data/constants/app_typography.dart';
 

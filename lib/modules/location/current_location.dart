@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:tac/data/data/constants/app_assets.dart';
-import 'package:tac/data/data/constants/constants.dart';
-import 'package:tac/modules/alerts/notification_view.dart';
-import 'package:tac/modules/home/components/search_field.dart';
-import 'package:tac/modules/location/current_location_overlay.dart';
+import 'package:taccontractor/data/data/constants/app_assets.dart';
+import 'package:taccontractor/data/data/constants/constants.dart';
+import 'package:taccontractor/modules/alerts/notification_view.dart';
+import 'package:taccontractor/modules/home/components/search_field.dart';
+import 'package:taccontractor/modules/location/current_location_overlay.dart';
 
 import '../../data/data/constants/app_colors.dart';
 

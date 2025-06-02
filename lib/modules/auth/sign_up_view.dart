@@ -10,9 +10,9 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tac/data/data/constants/constants.dart';
-import 'package:tac/modules/auth/set_password.dart';
-import 'package:tac/widhets/common%20widgets/buttons/TextFormFieldWidget.dart';
+import 'package:taccontractor/data/data/constants/constants.dart';
+import 'package:taccontractor/modules/auth/set_password.dart';
+import 'package:taccontractor/widhets/common%20widgets/buttons/TextFormFieldWidget.dart';
 
 import '../../controllers/user_controller.dart';
 import '../../data/data/constants/app_assets.dart';
@@ -22,7 +22,7 @@ import '../../data/data/constants/app_typography.dart';
 import '../../routes/app_routes.dart';
 import '../../widhets/common overlays/uploadFile_overlay.dart';
 import '../../widhets/common widgets/buttons/primary_button.dart';
-import 'package:tac/dataproviders/api_service.dart';
+import 'package:taccontractor/dataproviders/api_service.dart';
 
 class SignUpViewController extends GetxController {
   TextEditingController fullNameController = TextEditingController();
@@ -67,48 +67,48 @@ class SignUpViewController extends GetxController {
   }
 
   // ✅ Call this when password form is validated
-  Future<void> submitSignup() async {
-    if (passwordFormKey.currentState!.validate()) {
-      if (passwordController.text != confirmPasswordController.text) {
-        debugPrint("password do not match");
-        return;
-      }
-
-      final apiService = MyApIService(); // create instance
-      try{
-        final response = await apiService.signUp(
-          fullNameController.text.toString(),
-          emailController.text.toString(),
-          phoneNumberController.text.toString(),
-          postalAddressController.text.toString(),
-          masterSecurityIdController.text.toString(),
-          passwordController.text.toString(),
-          imageBase64,
-        );
-
-        if (response.statusCode == 201) {
-          debugPrint("data from API ${response.body}");
-          final loginRespone = await apiService.login(
-            emailController.text.toString(),
-            passwordController.text.toString(),
-          );
-          if (loginRespone.statusCode == 200) {
-            // Force refresh user data to ensure we have the latest including image
-            final userController = Get.find<UserController>();
-            await userController.getUserData(); // This will update the user data including image
-
-            Get.offAllNamed(AppRoutes.getLandingPageRoute());
-          }
-          // await saveLoginSession();
-        } else {
-          debugPrint('Error Signup failed: ${response.body}');
-        }
-      }
-      catch(e){
-        debugPrint('Error Network error: ${e.toString()}');
-      }
-    }
-  }
+  // Future<void> submitSignup() async {
+  //   if (passwordFormKey.currentState!.validate()) {
+  //     if (passwordController.text != confirmPasswordController.text) {
+  //       debugPrint("password do not match");
+  //       return;
+  //     }
+  //
+  //     final apiService = MyApIService(); // create instance
+  //     try{
+  //       final response = await apiService.signUp(
+  //         fullNameController.text.toString(),
+  //         emailController.text.toString(),
+  //         phoneNumberController.text.toString(),
+  //         postalAddressController.text.toString(),
+  //         masterSecurityIdController.text.toString(),
+  //         passwordController.text.toString(),
+  //         imageBase64,
+  //       );
+  //
+  //       if (response.statusCode == 201) {
+  //         debugPrint("data from API ${response.body}");
+  //         final loginRespone = await apiService.login(
+  //           emailController.text.toString(),
+  //           passwordController.text.toString(),
+  //         );
+  //         if (loginRespone.statusCode == 200) {
+  //           // Force refresh user data to ensure we have the latest including image
+  //           final userController = Get.find<UserController>();
+  //           await userController.getUserData(); // This will update the user data including image
+  //
+  //           Get.offAllNamed(AppRoutes.getLandingPageRoute());
+  //         }
+  //         // await saveLoginSession();
+  //       } else {
+  //         debugPrint('Error Signup failed: ${response.body}');
+  //       }
+  //     }
+  //     catch(e){
+  //       debugPrint('Error Network error: ${e.toString()}');
+  //     }
+  //   }
+  // }
 }
 
 class SignUpView extends StatelessWidget {

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:tac/data/data/constants/app_colors.dart';
-import 'package:tac/data/data/constants/app_typography.dart';
-import 'package:tac/data/data/constants/app_assets.dart';
-import 'package:tac/modules/Guards/job_details/WithdrawJobBottomSheet.dart';
+import 'package:taccontractor/data/data/constants/app_colors.dart';
+import 'package:taccontractor/data/data/constants/app_typography.dart';
+import 'package:taccontractor/data/data/constants/app_assets.dart';
+import 'package:taccontractor/modules/Guards/job_details/WithdrawJobBottomSheet.dart';
 import 'job_details_screen.dart';
 
 class JobDetailsWithdrawScreen extends StatelessWidget {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tac/data/data/constants/app_colors.dart';
+import 'package:taccontractor/data/data/constants/app_colors.dart';
 
 import '../../../controllers/user_controller.dart';
 import '../../../dataproviders/api_service.dart';

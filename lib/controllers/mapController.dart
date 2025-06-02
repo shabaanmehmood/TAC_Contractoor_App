@@ -4,8 +4,8 @@ import 'dart:ui' as ui;
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
-import 'package:tac/dataproviders/api_service.dart';
 
+import '../dataproviders/api_service.dart';
 import '../models/job_model.dart';
 
 class MapController extends GetxController {
@@ -23,9 +23,9 @@ class MapController extends GetxController {
     super.onInit();
     requestAndSaveLocation();
     // Set up periodic updates every 30 seconds
-    _periodicUpdateTimer = Timer.periodic(Duration(seconds: 60), (timer) {
-      requestAndSaveLocation();
-    });
+    // _periodicUpdateTimer = Timer.periodic(Duration(seconds: 60), (timer) {
+    //   requestAndSaveLocation();
+    // });
   }
 
   @override

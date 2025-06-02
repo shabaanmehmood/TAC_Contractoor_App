@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
-import 'package:tac/data/data/constants/app_colors.dart';
-import 'package:tac/widhets/common%20widgets/buttons/TextFormFieldWidget.dart';
+import 'package:taccontractor/data/data/constants/app_colors.dart';
+import 'package:taccontractor/widhets/common%20widgets/buttons/TextFormFieldWidget.dart';
 
 import '../../data/data/constants/app_assets.dart';
 import '../../data/data/constants/app_spacing.dart';

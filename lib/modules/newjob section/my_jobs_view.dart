@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:tac/data/data/constants/app_colors.dart';
-import 'package:tac/data/data/constants/app_spacing.dart';
-import 'package:tac/data/data/constants/app_typography.dart';
-import 'package:tac/data/data/constants/app_assets.dart';
-import 'package:tac/modules/checkin/checkin_overlay.dart';
-import 'package:tac/modules/checkin/jobcheckin/SubmitReviewScreen.dart';
-import 'package:tac/modules/fiilters/sort_overlay.dart';
+import 'package:taccontractor/data/data/constants/app_colors.dart';
+import 'package:taccontractor/data/data/constants/app_spacing.dart';
+import 'package:taccontractor/data/data/constants/app_typography.dart';
+import 'package:taccontractor/data/data/constants/app_assets.dart';
+import 'package:taccontractor/modules/checkin/checkin_overlay.dart';
+import 'package:taccontractor/modules/checkin/jobcheckin/SubmitReviewScreen.dart';
+import 'package:taccontractor/modules/fiilters/sort_overlay.dart';
 import 'job_controller.dart';
 import 'job_model.dart';
-import 'package:tac/modules/home/components/search_field.dart';
+import 'package:taccontractor/modules/home/components/search_field.dart';
 
 class MyJobsView1 extends StatelessWidget {
   final JobController jobController = Get.put(JobController());

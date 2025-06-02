@@ -1,5 +1,5 @@
-import 'package:tac/models/profileImages_model.dart';
-import 'package:tac/models/userdata_model.dart';
+import 'package:taccontractor/models/profileImages_model.dart';
+import 'package:taccontractor/models/userdata_model.dart';
 
 class GetUserById {
   String? message;

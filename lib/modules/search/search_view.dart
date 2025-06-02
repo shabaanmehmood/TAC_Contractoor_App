@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:tac/data/data/constants/app_assets.dart';
-import 'package:tac/data/data/constants/app_spacing.dart';
-import 'package:tac/modules/home/components/search_field.dart';
-import 'package:tac/widhets/common%20widgets/buttons/job_card.dart';
+import 'package:taccontractor/data/data/constants/app_assets.dart';
+import 'package:taccontractor/data/data/constants/app_spacing.dart';
+import 'package:taccontractor/modules/home/components/search_field.dart';
+import 'package:taccontractor/widhets/common%20widgets/buttons/job_card.dart';
 
 import '../../data/data/constants/app_colors.dart';
 import '../../data/data/constants/app_typography.dart';

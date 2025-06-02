@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:tac/data/data/constants/app_assets.dart';
-import 'package:tac/data/data/constants/app_colors.dart';
-import 'package:tac/data/data/constants/app_spacing.dart';
-import 'package:tac/modules/Guards/guards_view.dart';
-import 'package:tac/modules/Jobs/jobs_page.dart';
-import 'package:tac/modules/Jobs/myJobs_view.dart';
-import 'package:tac/modules/Messages/messages.dart';
-import 'package:tac/modules/account/account.dart';
-import 'package:tac/modules/account/components/Earning/earnings_screen.dart';
-import 'package:tac/modules/home/home_view.dart';
-import 'package:tac/modules/newjob%20section/my_jobs_view.dart';
+import 'package:taccontractor/data/data/constants/app_assets.dart';
+import 'package:taccontractor/data/data/constants/app_colors.dart';
+import 'package:taccontractor/data/data/constants/app_spacing.dart';
+import 'package:taccontractor/modules/Guards/guards_view.dart';
+import 'package:taccontractor/modules/Jobs/jobs_page.dart';
+import 'package:taccontractor/modules/Jobs/myJobs_view.dart';
+import 'package:taccontractor/modules/Messages/messages.dart';
+import 'package:taccontractor/modules/account/account.dart';
+import 'package:taccontractor/modules/account/components/Earning/earnings_screen.dart';
+import 'package:taccontractor/modules/home/home_view.dart';
+import 'package:taccontractor/modules/newjob%20section/my_jobs_view.dart';
 
 import '../../controllers/user_controller.dart';
 

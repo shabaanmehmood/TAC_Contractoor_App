@@ -1,7 +1,7 @@
 // import 'package:eden_truegigs/app/data/constants/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:tac/data/data/constants/app_spacing.dart';
+import 'package:taccontractor/data/data/constants/app_spacing.dart';
 
 import '../../../data/data/constants/app_colors.dart';
 // import 'package:flutter_screenutil/flutter_screenutil.dart';

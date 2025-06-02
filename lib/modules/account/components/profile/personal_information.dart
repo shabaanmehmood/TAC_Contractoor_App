@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:tac/data/data/constants/app_colors.dart';
-import 'package:tac/data/data/constants/app_spacing.dart';
-import 'package:tac/data/data/constants/app_assets.dart';
+import 'package:taccontractor/data/data/constants/app_colors.dart';
+import 'package:taccontractor/data/data/constants/app_spacing.dart';
+import 'package:taccontractor/data/data/constants/app_assets.dart';
 
 import '../../../../controllers/user_controller.dart';
 import '../../../../dataproviders/api_service.dart';
@@ -38,13 +38,12 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
     super.initState();
 
     final user = userController.userData.value;
-    nameController.text = user!.fullName ?? '';
+    nameController.text = user!.name ?? '';
     emailController.text = user.email ?? '';
     dobController.text = user.dob ?? '';
     selectedGender = genderOptions.contains(user.gender) ? user.gender : null;
 
     contactController.text = user.phone ?? '';
-    postalCodeController.text = user.postalCode ??'';
     addressController.text = user.postalAddress ?? '';
   }
 

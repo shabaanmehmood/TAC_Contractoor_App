@@ -2,11 +2,11 @@ import 'dart:ffi';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:tac/data/data/constants/app_colors.dart';
-import 'package:tac/data/data/constants/app_spacing.dart';
-import 'package:tac/data/data/constants/app_typography.dart';
-import 'package:tac/modules/auth/sign_up_view.dart';
-import 'package:tac/routes/app_routes.dart';
+import 'package:taccontractor/data/data/constants/app_colors.dart';
+import 'package:taccontractor/data/data/constants/app_spacing.dart';
+import 'package:taccontractor/data/data/constants/app_typography.dart';
+import 'package:taccontractor/modules/auth/sign_up_view.dart';
+import 'package:taccontractor/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -164,7 +164,7 @@ class SetPasswordView extends StatelessWidget {
                       PrimaryButton(
                         color: AppColors.kSkyBlue,
                         onTap: ()async {
-                          await controller.submitSignup();
+                          // await controller.submitSignup();
                         },
                         text: 'Sign Up',
                       ),

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:tac/data/data/constants/app_assets.dart';
-import 'package:tac/data/data/constants/app_colors.dart';
-import 'package:tac/data/data/constants/app_spacing.dart';
-import 'package:tac/data/data/constants/app_typography.dart';
-import 'package:tac/modules/checkin/jobcheckin/job_status_screen.dart';
-import 'package:tac/modules/checkin/jobcheckin/shift_close_controller.dart';
+import 'package:taccontractor/data/data/constants/app_assets.dart';
+import 'package:taccontractor/data/data/constants/app_colors.dart';
+import 'package:taccontractor/data/data/constants/app_spacing.dart';
+import 'package:taccontractor/data/data/constants/app_typography.dart';
+import 'package:taccontractor/modules/checkin/jobcheckin/job_status_screen.dart';
+import 'package:taccontractor/modules/checkin/jobcheckin/shift_close_controller.dart';
 
 // class ShiftCloseController extends GetxController {
 //   var selectedReason = ''.obs;

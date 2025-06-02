@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:tac/models/profileImages_model.dart';
+import 'package:taccontractor/models/profileImages_model.dart';
 
 class UserUpdateModel {
   String? fullName;
@@ -49,7 +49,7 @@ class UserUpdateModel {
 
   Map<String, dynamic> toJson() {
     return {
-      if (fullName != null) 'fullName': fullName,
+      if (fullName != null) 'name': fullName,
       if (email != null) 'email': email,
       if (phone != null) 'phone': phone,
       if (postalAddress != null) 'postalAddress': postalAddress,

@@ -1,19 +1,21 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:get/get_navigation/src/routes/get_route.dart';
-import 'package:tac/modules/Guards/guards_view.dart';
-import 'package:tac/modules/account/account.dart';
-import 'package:tac/modules/account/components/profile/profile_screen.dart';
-import 'package:tac/modules/auth/sign_up_view.dart';
-import 'package:tac/modules/auth/sign_in_view.dart';
-import 'package:tac/modules/landing_page/landing_page.dart';
+import 'package:taccontractor/modules/Guards/guards_view.dart';
+import 'package:taccontractor/modules/account/account.dart';
+import 'package:taccontractor/modules/account/components/profile/profile_screen.dart';
+import 'package:taccontractor/modules/auth/sign_up_view.dart';
+import 'package:taccontractor/modules/auth/sign_in_view.dart';
+import 'package:taccontractor/modules/landing_page/landing_page.dart';
 
+import '../modules/auth/signup_screens/select_account_type_screen.dart';
 import '../modules/onboarding/onboarding_view.dart';
 
 class AppRoutes {
   static String onboarding = '/';
   // static String welcome = '/auth';
   static String signIn = '/sign-in';
+  static String select = '/SelectAccountTypeScreen';
   static String signUp = '/sign-up';
   static String landing = '/landing-page';
   static String settings = '/settings';
@@ -34,8 +36,8 @@ class AppRoutes {
       page: () => SignInView(),
     ),
     GetPage<Route<dynamic>>(
-      name: signUp,
-      page: () => SignUpView(),
+      name: select,
+      page: () => const SelectAccountTypeScreen(),
     ),
     GetPage<Route<dynamic>>(
       name: landing,
@@ -59,7 +61,7 @@ class AppRoutes {
   static String getOnboardingRoute() => onboarding;
   // static String getWelcomeRoute() => welcome;
   static String getSignInRoute() => signIn;
-  static String getSignUpRoute() => signUp;
+  static String getSelectRoute() => select;
   static String getLandingPageRoute() => landing;
   static String getSettingPageRoute() => settings;
   static String getProfilePageRoute() => profile;

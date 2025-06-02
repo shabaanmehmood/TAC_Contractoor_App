@@ -1,4 +1,4 @@
-import 'package:tac/models/shift_model.dart';
+import 'package:taccontractor/models/shift_model.dart';
 
 class JobData {
   final String id;

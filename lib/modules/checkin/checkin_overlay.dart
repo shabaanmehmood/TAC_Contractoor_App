@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:tac/data/data/constants/app_assets.dart';
-import 'package:tac/data/data/constants/app_colors.dart';
-import 'package:tac/data/data/constants/app_spacing.dart';
-import 'package:tac/data/data/constants/app_typography.dart';
-import 'package:tac/modules/checkin/jobcheckin/job_checkin_screen.dart';
-import 'package:tac/widhets/common%20widgets/buttons/job_card.dart';
-import 'package:tac/widhets/common%20widgets/buttons/myJob_card.dart';
+import 'package:taccontractor/data/data/constants/app_assets.dart';
+import 'package:taccontractor/data/data/constants/app_colors.dart';
+import 'package:taccontractor/data/data/constants/app_spacing.dart';
+import 'package:taccontractor/data/data/constants/app_typography.dart';
+import 'package:taccontractor/modules/checkin/jobcheckin/job_checkin_screen.dart';
+import 'package:taccontractor/widhets/common%20widgets/buttons/job_card.dart';
+import 'package:taccontractor/widhets/common%20widgets/buttons/myJob_card.dart';
 import 'check_in_controller.dart';
 import 'dummy_data.dart'; // Import the dummy data file
 

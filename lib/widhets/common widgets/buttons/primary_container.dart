@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
-import 'package:tac/data/data/constants/app_colors.dart';
+import 'package:taccontractor/data/data/constants/app_colors.dart';
 
 class PrimaryContainer extends StatelessWidget {
   final Widget child;

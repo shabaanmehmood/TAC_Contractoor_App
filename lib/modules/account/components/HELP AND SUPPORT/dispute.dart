@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:tac/data/data/constants/app_colors.dart';
+import 'package:taccontractor/data/data/constants/app_colors.dart';
 
 class DisputeController extends GetxController {
   final selectedDisputeType = ''.obs;

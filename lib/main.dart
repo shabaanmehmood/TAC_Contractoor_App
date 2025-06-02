@@ -6,8 +6,8 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:get/get_navigation/src/routes/transitions_type.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tac/data/data/constants/app_colors.dart';
-import 'package:tac/routes/app_routes.dart';
+import 'package:taccontractor/data/data/constants/app_colors.dart';
+import 'package:taccontractor/routes/app_routes.dart';
 
 import 'controllers/user_controller.dart';
 import 'data/data/constants/app_theme.dart';

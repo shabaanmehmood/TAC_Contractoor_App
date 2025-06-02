@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:tac/data/data/constants/app_assets.dart';
+import 'package:taccontractor/data/data/constants/app_assets.dart';
 
 class MessagesController extends GetxController {
   final RxInt selectedChipIndex = 0.obs;

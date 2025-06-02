@@ -5,9 +5,9 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_rx/get_rx.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
-import 'package:tac/controllers/user_controller.dart';
-import 'package:tac/data/data/constants/app_colors.dart';
-import 'package:tac/models/user_model.dart';
+import 'package:taccontractor/controllers/user_controller.dart';
+import 'package:taccontractor/data/data/constants/app_colors.dart';
+import 'package:taccontractor/models/user_model.dart';
 
 import '../../../../dataproviders/api_service.dart';
 import '../../../../widhets/common overlays/uploadFile_overlay.dart';

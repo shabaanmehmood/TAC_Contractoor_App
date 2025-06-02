@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:tac/modules/account/components/profile/document.dart';
-import 'package:tac/modules/account/components/profile/personal_information.dart';
-import 'package:tac/modules/account/components/profile/professional_information.dart';
-import 'package:tac/widhets/common%20overlays/uploadFile_overlay.dart';
+import 'package:taccontractor/modules/account/components/profile/document.dart';
+import 'package:taccontractor/modules/account/components/profile/personal_information.dart';
+import 'package:taccontractor/modules/account/components/profile/professional_information.dart';
+import 'package:taccontractor/widhets/common%20overlays/uploadFile_overlay.dart';
 import '../../../../controllers/user_controller.dart';
 import '../../../../data/data/constants/app_assets.dart';
 import '../../../../dataproviders/api_service.dart';
 import '../../../../models/profileImages_model.dart';
 import '../../../../models/userupdate_model.dart';
 import 'profile_dummy_data.dart';
-import 'package:tac/data/data/constants/app_colors.dart';
+import 'package:taccontractor/data/data/constants/app_colors.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -65,23 +65,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   child: Row(
                     children: [
-                      Obx((){
-                        final imagePath = userController.userData.value?.profileImages?.first.imageUrl;
-                        final imageUrl = MyApIService.fullImageUrl(imagePath);
-                        return Container(
+                      Container(
                           width: 48,
                           height: 48,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(8),
                             image: DecorationImage(
-                              image:  imageUrl != null
-                                  ? NetworkImage(imageUrl)
-                                  : AssetImage(AppAssets.kUserPicture) as ImageProvider,
+                              image:
+                              // imageUrl != null
+                                  // ? NetworkImage(imageUrl) :
+                              AssetImage(AppAssets.kUserPicture),
+                            // as ImageProvider,
                               fit: BoxFit.cover,
                             ),
                           ),
-                        );
-                      }),
+                        ),
                       const SizedBox(width: 12),
                       const Expanded(
                         child: Column(
@@ -171,14 +169,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                 // Personal Info Section
                 buildDualColumnInfoSection(
-                  title: "Personal Information",
+                  title: "Company Information",
                   info: [
-                    {"label": "Full Name", "value": userController.userData.value?.fullName ?? "-"},
+                    {"label": "Full Name", "value": userController.userData.value?.name ?? "-"},
                     {"label": "Email Address", "value": userController.userData.value?.email ?? "-"},
                     {"label": "Gender", "value": userController.userData.value?.gender ?? "-"},
                     {"label": "Date of Birth", "value": userController.userData.value?.dob ?? "-"},
                     {"label": "Contact Number", "value": userController.userData.value?.phone ?? "-"},
-                    {"label": "Postal Code", "value": userController.userData.value?.postalCode ?? "-"},
+                    {"label": "Postal Code", "value": "-"},
                     {"label": "Residential Address", "value": userController.userData.value?.postalAddress ?? "-"},
                   ],
                   onEdit: () {
@@ -193,18 +191,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 buildDualColumnInfoSection(
                   title: "Professional Information",
                   info: [
-                    {"label": "Year of Experience", "value": userController.userData.value?.personalDetails?.yearsOfExperience.toString() ?? "-"},
-                    {"label": "Level", "value": userController.userData.value?.level ?? "-"},
+                    {"label": "Year of Experience", "value": "-"},
+                    {"label": "Level", "value": "-"},
                     {
                       "label": "Security Licence Number",
-                      "value": userController.userData.value?.personalDetails?.licenseNumber.toString() ?? "-"
+                      "value": "-"
                     },
-                    {"label": "Licence Expiry Date", "value": userController.userData.value?.personalDetails?.licenseExpiryDate.toString() ?? '-'},
-                    {"label": "ABN", "value": userController.userData.value?.personalDetails?.abn.toString() ?? "-"},
-                    {"label": "Professional Badge", "value": userController.userData.value?.professionalBadge ?? "-"},
+                    {"label": "Licence Expiry Date", "value":  '-'},
+                    {"label": "ABN", "value":  "-"},
+                    {"label": "Professional Badge", "value":  "-"},
                     {
                       "label": "Preferred Work Location",
-                      "value": userController.userData.value?.personalDetails?.preferredLocationAddresses.toString() ?? "-"
+                      "value":  "-"
                     },
                   ],
                   // onEdit: () => Get.to(() => const EditProfessionalInfoScreen()),

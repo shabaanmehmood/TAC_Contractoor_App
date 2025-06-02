@@ -2,15 +2,15 @@ import 'dart:ffi';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:tac/data/data/constants/app_colors.dart';
-import 'package:tac/data/data/constants/app_spacing.dart';
-import 'package:tac/data/data/constants/app_typography.dart';
-import 'package:tac/modules/auth/enter_otp.dart';
-import 'package:tac/modules/auth/reset_password.dart';
-import 'package:tac/routes/app_routes.dart';
+import 'package:taccontractor/data/data/constants/app_colors.dart';
+import 'package:taccontractor/data/data/constants/app_spacing.dart';
+import 'package:taccontractor/data/data/constants/app_typography.dart';
+import 'package:taccontractor/modules/auth/enter_otp.dart';
+import 'package:taccontractor/modules/auth/reset_password.dart';
+import 'package:taccontractor/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:tac/widhets/common%20widgets/buttons/TextFormFieldWidget.dart';
+import 'package:taccontractor/widhets/common%20widgets/buttons/TextFormFieldWidget.dart';
 
 import '../../data/data/constants/app_assets.dart';
 import '../../dataproviders/api_service.dart';

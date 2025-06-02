@@ -1,7 +1,8 @@
-import 'package:tac/models/personaldetails_model.dart';
-import 'package:tac/models/profileImages_model.dart';
-import 'package:tac/models/userLicenses_model.dart';
+import 'package:taccontractor/models/personaldetails_model.dart';
+import 'package:taccontractor/models/profileImages_model.dart';
+import 'package:taccontractor/models/userLicenses_model.dart';
 
+import 'accountInfo_model.dart';
 import 'bankDetails_model.dart';
 import 'documents_model.dart';
 
@@ -31,56 +32,56 @@ class UserDataModel {
 
 class Data {
   String? id;
-  String? fullName;
+  String? name;
   String? email;
-  String? phone;
-  String? postalAddress;
-  String? postalCode;
-  String? level;
-  String? professionalBadge;
-  String? masterSecurityLicense;
   String? password;
   String? role;
   String? dob;
   String? token;
   bool? isVerified;
-  String? fcmToken;
-  String? gender;
   bool? isActive;
-  bool? isDeleted;
-  String? createdDate;
-  String? updatedDate;
+  String? phone;
+  String? gender;
   String? appleId;
+  String? fcmToken;
+  bool? isDeleted;
+  String? postalAddress;
+  String? masterSecurityLicense;
+  String? australianBusinessNumber;
+  String? australianCompanyNumber;
+  String? createdAt;  // Changed from createdDate
+  String? updatedAt;  // Changed from updatedDate
+  AccountInfo? accountInfo;
+  List<PersonalDetails>? personalDetails;  // Changed from single object to list
   List<ProfileImages>? profileImages;
-  PersonalDetails? personalDetails;
   List<Documents>? documents;
   List<BankDetails>? bankDetails;
   List<UserLicenses>? userLicenses;
 
   Data({
     this.id,
-    this.fullName,
+    this.name,
     this.email,
-    this.phone,
-    this.postalAddress,
-    this.postalCode,
-    this.level,
-    this.professionalBadge,
-    this.masterSecurityLicense,
     this.password,
     this.role,
     this.dob,
     this.token,
     this.isVerified,
-    this.fcmToken,
+    this.phone,
     this.gender,
-    this.isActive,
-    this.isDeleted,
-    this.createdDate,
-    this.updatedDate,
     this.appleId,
-    this.profileImages,
+    this.isActive,
+    this.fcmToken,
+    this.isDeleted,
+    this.postalAddress,
+    this.masterSecurityLicense,
+    this.australianBusinessNumber,
+    this.australianCompanyNumber,
+    this.createdAt,
+    this.updatedAt,
+    this.accountInfo,
     this.personalDetails,
+    this.profileImages,
     this.documents,
     this.bankDetails,
     this.userLicenses,
@@ -88,13 +89,10 @@ class Data {
 
   Data.fromJson(Map<String, dynamic> json) {
     id = json['id'];
-    fullName = json['fullName'];
+    name = json['name'];
     email = json['email'];
     phone = json['phone'];
     postalAddress = json['postalAddress'];
-    postalCode = json['postalCode'];
-    level = json['level'];
-    professionalBadge = json['professionalBadge'];
     masterSecurityLicense = json['masterSecurityLicense'];
     password = json['password'];
     role = json['role'];
@@ -105,9 +103,14 @@ class Data {
     gender = json['gender'];
     isActive = json['isActive'];
     isDeleted = json['isDeleted'];
-    createdDate = json['createdDate'];
-    updatedDate = json['updatedDate'];
+    createdAt = json['createdAt'];  // Corrected field name
+    updatedAt = json['updatedAt'];  // Corrected field name
     appleId = json['appleId'];
+    australianBusinessNumber = json['australianBusinessNumber'];
+    australianCompanyNumber = json['australianCompanyNumber'];
+    accountInfo = json['accountInfo'] != null
+        ? AccountInfo.fromJson(json['accountInfo'])
+        : null;
 
     if (json['profileImages'] != null) {
       profileImages = <ProfileImages>[];
@@ -116,9 +119,12 @@ class Data {
       });
     }
 
-    personalDetails = json['personalDetails'] != null
-        ? PersonalDetails.fromJson(json['personalDetails'])
-        : null;
+    if (json['personalDetails'] != null) {
+      personalDetails = <PersonalDetails>[];
+      json['personalDetails'].forEach((v) {
+        personalDetails!.add(PersonalDetails.fromJson(v));
+      });
+    }
 
     if (json['documents'] != null) {
       documents = <Documents>[];
@@ -143,13 +149,10 @@ class Data {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = {};
     data['id'] = id;
-    data['fullName'] = fullName;
+    data['name'] = name;  // Changed from fullName to name
     data['email'] = email;
     data['phone'] = phone;
     data['postalAddress'] = postalAddress;
-    data['postalCode'] = postalCode;
-    data['level'] = level;
-    data['professionalBadge'] = professionalBadge;
     data['masterSecurityLicense'] = masterSecurityLicense;
     data['password'] = password;
     data['role'] = role;
@@ -160,8 +163,8 @@ class Data {
     data['gender'] = gender;
     data['isActive'] = isActive;
     data['isDeleted'] = isDeleted;
-    data['createdDate'] = createdDate;
-    data['updatedDate'] = updatedDate;
+    data['createdAt'] = createdAt;  // Corrected field name
+    data['updatedAt'] = updatedAt;  // Corrected field name
     data['appleId'] = appleId;
 
     if (profileImages != null) {
@@ -169,7 +172,7 @@ class Data {
     }
 
     if (personalDetails != null) {
-      data['personalDetails'] = personalDetails!.toJson();
+      data['personalDetails'] = personalDetails!.map((v) => v.toJson()).toList();
     }
 
     if (documents != null) {

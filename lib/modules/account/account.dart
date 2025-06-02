@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:tac/data/data/constants/app_colors.dart';
-import 'package:tac/modules/account/components/Earning/earnings_screen.dart';
-import 'package:tac/modules/account/components/bank%20details/bank_details_screen.dart';
-import 'package:tac/modules/account/components/logout.dart';
-import 'package:tac/modules/account/components/profile/profile_screen.dart';
-import 'package:tac/modules/account/help_support.dart';
-import 'package:tac/modules/account/components/reviews/reviews_screen.dart';
+import 'package:taccontractor/data/data/constants/app_colors.dart';
+import 'package:taccontractor/modules/account/components/Earning/earnings_screen.dart';
+import 'package:taccontractor/modules/account/components/bank%20details/bank_details_screen.dart';
+import 'package:taccontractor/modules/account/components/logout.dart';
+import 'package:taccontractor/modules/account/components/profile/profile_screen.dart';
+import 'package:taccontractor/modules/account/help_support.dart';
+import 'package:taccontractor/modules/account/components/reviews/reviews_screen.dart';
 import '../../controllers/user_controller.dart';
 import '../../data/data/constants/app_assets.dart';
 import '../../dataproviders/api_service.dart';
@@ -71,25 +71,40 @@ class AccountScreen extends StatelessWidget {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Obx(() {
-                          final imagePath = userController.value.userData.value
-                              ?.profileImages?.first.imageUrl;
-                          final imageUrl = MyApIService.fullImageUrl(imagePath);
-                          return Container(
-                            width: 56,
-                            height: 56,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                              image: DecorationImage(
-                                image: imageUrl != null
-                                    ? NetworkImage(imageUrl)
-                                    : AssetImage(AppAssets.kUserPicture)
-                                        as ImageProvider,
-                                fit: BoxFit.cover,
-                              ),
+                        // Obx(() {
+                        //   final imagePath = userController.value.userData.value
+                        //       ?.profileImages?.first.imageUrl;
+                        //   final imageUrl = MyApIService.fullImageUrl(imagePath);
+                        //   return Container(
+                        //     width: 56,
+                        //     height: 56,
+                        //     decoration: BoxDecoration(
+                        //       borderRadius: BorderRadius.circular(8),
+                        //       image: DecorationImage(
+                        //         image: imageUrl != null
+                        //             ? NetworkImage(imageUrl)
+                        //             : AssetImage(AppAssets.kUserPicture)
+                        //                 as ImageProvider,
+                        //         fit: BoxFit.cover,
+                        //       ),
+                        //     ),
+                        //   );
+                        // }),
+                        Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            image: DecorationImage(
+                              image:
+                              // imageUrl != null
+                              // ? NetworkImage(imageUrl) :
+                              AssetImage(AppAssets.kUserPicture),
+                              // as ImageProvider,
+                              fit: BoxFit.cover,
                             ),
-                          );
-                        }),
+                          ),
+                        ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Column(
@@ -100,9 +115,7 @@ class AccountScreen extends StatelessWidget {
                                 children: [
                                   Expanded(
                                     child: Text(
-                                      userController
-                                              .value.userData.value?.fullName ??
-                                          '',
+                                      userController.value.userData.value?.name ?? '',
                                       style: const TextStyle(
                                         color: Colors.white,
                                         fontSize: 18,

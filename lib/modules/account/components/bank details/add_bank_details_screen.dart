@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:tac/controllers/user_controller.dart';
-import 'package:tac/data/data/constants/app_colors.dart';
+import 'package:taccontractor/controllers/user_controller.dart';
+import 'package:taccontractor/data/data/constants/app_colors.dart';
 
 import '../../../../dataproviders/api_service.dart';
 import '../../../../routes/app_routes.dart';
