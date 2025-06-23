@@ -24,57 +24,94 @@ class EditProfessionalInfoScreen extends StatefulWidget {
       _EditProfessionalInfoScreenState();
 }
 
-class _EditProfessionalInfoScreenState
-    extends State<EditProfessionalInfoScreen> {
+class _EditProfessionalInfoScreenState extends State<EditProfessionalInfoScreen> {
   final UserController userController = Get.find<UserController>();
 
   int? selectedExperience;
   final TextEditingController licenseNumber = TextEditingController();
   final TextEditingController expiryDate = TextEditingController();
   final TextEditingController abnNumber = TextEditingController();
-  final TextEditingController preferredWorkLocation = TextEditingController();
+  final TextEditingController acn = TextEditingController();
 
   Future<void> updateProfessionalInfo() async {
-    final apiService = MyApIService(); // create instance
-    try {
-      final userModel = UserUpdateModel(
-        yearsOfExperience: selectedExperience,
-        licenseNumber: licenseNumber.text,
-        licenseExpiryDate: expiryDate.text,
-        abn: abnNumber.text,
-        preferredLocationAddresses: [preferredWorkLocation.text],
-      );
-
-      final response = await apiService.updatePersonalInfo(
-        userController.userData.value!.id!,
-        userModel,
-      );
-
-      if (response.statusCode == 200) {
-        debugPrint("data from API ${response.body}");
-        await apiService.getUserByID(userController.userData.value!.id!);
-        Get.back(result: true);
-      } else {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
-        final String errorMessage = responseBody['message'] ?? 'Unknown error';
-
-        // Show dialog with one line call
-        await AdaptiveAlertDialogWidget.show(
-          context,
-          title: 'Update Failed',
-          content: errorMessage,
-          yesText: 'OK',
-          showNoButton: false,
-          onYes: () {
-            // Optional: do something on OK pressed
-          },
+    final apiService = MyApIService();
+    if(userController.userData.value!.registeringAs == 'contractor') {
+      try {
+        final userModel = UserUpdateModel(
+          abn: abnNumber.text,
+          licenseExpiryDate: expiryDate.text,
         );
-        debugPrint("data from API ${response.body}");
-        debugPrint("data from API ${response.body}");
-        debugPrint('Error update professional info failed: ${response.body}');
+
+        final response = await apiService.updatePersonalInfo(
+          userController.userData.value!.id!,
+          userModel,
+        );
+
+        if (response.statusCode == 200) {
+          debugPrint("data from API ${response.body}");
+          await apiService.getUserByID(userController.userData.value!.id!);
+          Get.back(result: true);
+        } else {
+          final Map<String, dynamic> responseBody = jsonDecode(response.body);
+          final String errorMessage = responseBody['message'] ?? 'Unknown error';
+
+          // Show dialog with one line call
+          await AdaptiveAlertDialogWidget.show(
+            context,
+            title: 'Update Failed',
+            content: errorMessage,
+            yesText: 'OK',
+            showNoButton: false,
+            onYes: () {
+              // Optional: do something on OK pressed
+            },
+          );
+          debugPrint("data from API ${response.body}");
+          debugPrint('Error update personal info failed: ${response.body}');
+        }
+      } catch (e) {
+        debugPrint('Error Network error: ${e.toString()}');
       }
-    } catch (e) {
-      debugPrint('Error Network error: ${e.toString()}');
+    }
+    else if(userController.userData.value!.registeringAs == 'Company') {
+      try {
+        final userModel = UserUpdateModel(
+          masterSecurityLicense: licenseNumber.text,
+          abn: abnNumber.text,
+          acn: acn.text,
+          licenseExpiryDate: expiryDate.text,
+        );
+
+        final response = await apiService.updatePersonalInfo(
+          userController.userData.value!.id!,
+          userModel,
+        );
+
+        if (response.statusCode == 200) {
+          debugPrint("data from API ${response.body}");
+          await apiService.getUserByID(userController.userData.value!.id!);
+          Get.back(result: true);
+        } else {
+          final Map<String, dynamic> responseBody = jsonDecode(response.body);
+          final String errorMessage = responseBody['message'] ?? 'Unknown error';
+
+          // Show dialog with one line call
+          await AdaptiveAlertDialogWidget.show(
+            context,
+            title: 'Update Failed',
+            content: errorMessage,
+            yesText: 'OK',
+            showNoButton: false,
+            onYes: () {
+              // Optional: do something on OK pressed
+            },
+          );
+          debugPrint("data from API ${response.body}");
+          debugPrint('Error update personal info failed: ${response.body}');
+        }
+      } catch (e) {
+        debugPrint('Error Network error: ${e.toString()}');
+      }
     }
   }
 
@@ -112,12 +149,16 @@ class _EditProfessionalInfoScreenState
   @override
   void initState() {
     super.initState();
-    final userData = userController.userData.value;
-    // selectedExperience = userData!.personalDetails?.yearsOfExperience;
-    licenseNumber.text = userData!.masterSecurityLicense ?? '';
-    // expiryDate.text = userData!.personalDetails?.licenseExpiryDate ?? '';
-    // abnNumber.text = userData!.personalDetails?.abn ?? '';
-    // preferredWorkLocation.text = userData!.personalDetails?.preferredLocationAddresses.toString() ?? '';
+    final user = userController.userData.value;
+    final isContractor = user!.registeringAs == 'contractor';
+    if(isContractor){
+      licenseNumber.text = user!.masterSecurityLicense ?? '';
+      // expiryDate.text = user.personalDetails!.first.licenseExpiryDate ?? '';
+    }
+    else if(user!.registeringAs == 'Company') {
+      licenseNumber.text = user!.masterSecurityLicense ?? '';
+      // expiryDate.text = user.personalDetails!.first.licenseExpiryDate ?? '';
+    }
   }
 
   @override
@@ -126,7 +167,7 @@ class _EditProfessionalInfoScreenState
     licenseNumber.dispose();
     expiryDate.dispose();
     abnNumber.dispose();
-    preferredWorkLocation.dispose();
+    acn.dispose();
   }
 
   @override
@@ -163,44 +204,60 @@ class _EditProfessionalInfoScreenState
                     ),
                   ),
                   const SizedBox(height: 20),
-
-                  // Years of Experience Dropdown
-                  buildDropdownField(
-                      label: 'Years of Experience', icon: Icons.work),
-
-                  const SizedBox(height: 14),
-                  buildTextField(
-                    label: 'License Number',
-                    iconPath: AppAssets.klicense,
-                    controller: licenseNumber,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                      LengthLimitingTextInputFormatter(11),
+                  if(userController.userData.value!.registeringAs == 'Company')
+                    ...[
+                      buildTextField(
+                        label: 'Master Security License',
+                        iconPath: AppAssets.klicense,
+                        controller: licenseNumber,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                          LengthLimitingTextInputFormatter(11),
+                        ],
+                      ),
+                      const SizedBox(height: 14),
+                      buildTextField(
+                        label: 'Expiry Date',
+                        iconPath: AppAssets.kCal,
+                        controller: expiryDate,
+                        isDate: true,
+                      ),
+                      const SizedBox(height: 14),
+                      buildTextField(
+                        label: 'ABN',
+                        iconPath: AppAssets.kAbn,
+                        controller: abnNumber,
+                        maxLength: 20,
+                        keyboardType: TextInputType.number,
+                      ),
+                      const SizedBox(height: 14),
+                      buildTextField(
+                        label: 'Australian Company Number',
+                        iconPath: AppAssets.kLoc,
+                        controller: acn,
+                        maxLength: 11,
+                        keyboardType: TextInputType.number,
+                      ),
                     ],
-                  ),
-                  const SizedBox(height: 14),
-                  buildTextField(
-                    label: 'Expiry Date',
-                    iconPath: AppAssets.kCal,
-                    controller: expiryDate,
-                    isDate: true,
-                  ),
-                  const SizedBox(height: 14),
-                  buildTextField(
-                    label: 'ABN',
-                    iconPath: AppAssets.kAbn,
-                    controller: abnNumber,
-                    maxLength: 20,
-                    keyboardType: TextInputType.number,
-                  ),
-                  const SizedBox(height: 14),
-                  buildTextField(
-                    label: 'Preferred Work Location Address',
-                    iconPath: AppAssets.kLoc,
-                    controller: preferredWorkLocation,
-                    inputFormatters: [LengthLimitingTextInputFormatter(180)],
-                  ),
+
+                  if(userController.userData.value!.registeringAs == 'contractor')
+                    ...[
+                      buildTextField(
+                        label: 'ABN',
+                        iconPath: AppAssets.kAbn,
+                        controller: abnNumber,
+                        maxLength: 20,
+                        keyboardType: TextInputType.number,
+                      ),
+                      const SizedBox(height: 14),
+                      buildTextField(
+                        label: 'Expiry Date',
+                        iconPath: AppAssets.kCal,
+                        controller: expiryDate,
+                        isDate: true,
+                      ),
+                    ],
                 ],
               ),
             ),

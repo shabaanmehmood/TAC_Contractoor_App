@@ -6,9 +6,11 @@ import 'package:taccontractor/data/data/constants/app_assets.dart';
 import 'package:taccontractor/data/data/constants/app_colors.dart';
 import 'package:taccontractor/data/data/constants/app_spacing.dart';
 import 'package:taccontractor/data/data/constants/app_typography.dart';
+import 'package:taccontractor/models/signUpModelForContractor.dart';
 import 'package:taccontractor/modules/auth/signup_screens/document_upload_screen.dart';
 
 import '../../../dataproviders/api_service.dart';
+import '../../../models/signUpModelForCompany.dart';
 import '../../../routes/app_routes.dart';
 import '../../../widhets/common widgets/buttons/adaptive_dialogue.dart';
 import 'company_info_controller.dart';
@@ -74,27 +76,55 @@ class _SetPasswordScreenState extends State<SetPasswordScreen> {
 
       final apiService = MyApIService(); // create instance
       try{
-          final response = await apiService.signUpForCompany(
-            registeringAs: companyInfoController.registeringAs.value,
-            email: companyInfoController.companyEmail.text,
-            Name: companyInfoController.companyName.text,
-            phone: companyInfoController.phone.text,
-            postalAddress: companyInfoController.postalAddress.text,
-            masterLicense: companyInfoController.license.text,
-            austraLianBusinessNumber: companyInfoController.abn.text,
-            australianCompanyNumber: companyInfoController.acn.text,
-            password: passwordController.text,
-            confirmPassword: confirmPasswordController.text,
-            // dob: companyInfoController.dob.text,
-            role: companyInfoController.role.text ,
-            // gender: companyInfoController.genderController.text,
-            passport: documentInfoController.passportFile.value,
-            whiteCard: documentInfoController.whiteCardFile.value,
-            visaWorkingRights: documentInfoController.visaForWorkingRightsFile.value,
-            securityLicense: documentInfoController.securityLicenseFile.value,
-            nationalCrimeCheck: documentInfoController.nationalCrimePoliceCheckFile.value,
-            abn: documentInfoController.abnFile.value,
-          );
+        final signUpModelForCompany = SignUpModelForCompany(
+          registeringAs: companyInfoController.registeringAs.value,
+          name: companyInfoController.companyName.text,
+          email: companyInfoController.companyEmail.text,
+          phone: companyInfoController.phone.text,
+          postalAddress: companyInfoController.postalAddress.text,
+          masterSecurityLicense: companyInfoController.license.text,
+          australianBusinessNumber: companyInfoController.abn.text,
+          australianCompanyNumber: companyInfoController.acn.text,
+          password: passwordController.text,
+          confirmPassword: confirmPasswordController.text,
+          passport: documentInfoController.passportFile.value,
+          whiteCard: (documentInfoController.whiteCardFile.value?.isNotEmpty ?? false)
+              ? documentInfoController.whiteCardFile.value
+              : null,
+          visaWorkingRights: documentInfoController.visaForWorkingRightsFile.value,
+          securityLicense: documentInfoController.securityLicenseFile.value,
+          abn: (documentInfoController.abnFile.value?.isNotEmpty ?? false)
+              ? documentInfoController.abnFile.value
+              : null,
+          nationalCrimeCheck: documentInfoController.nationalCrimePoliceCheckFile.value,
+        );
+
+        final response = await apiService.signUpForCompany(
+            SignUpModelForCompany: signUpModelForCompany
+        );
+
+
+          // final response = await apiService.signUpForCompany(
+          //   registeringAs: companyInfoController.registeringAs.value,
+          //   email: companyInfoController.companyEmail.text,
+          //   Name: companyInfoController.companyName.text,
+          //   phone: companyInfoController.phone.text,
+          //   postalAddress: companyInfoController.postalAddress.text,
+          //   masterLicense: companyInfoController.license.text,
+          //   austraLianBusinessNumber: companyInfoController.abn.text,
+          //   australianCompanyNumber: companyInfoController.acn.text,
+          //   password: passwordController.text,
+          //   confirmPassword: confirmPasswordController.text,
+          //   // dob: companyInfoController.dob.text,
+          //   role: companyInfoController.role.text ,
+          //   // gender: companyInfoController.genderController.text,
+          //   passport: documentInfoController.passportFile.value,
+          //   whiteCard: documentInfoController.whiteCardFile.value,
+          //   visaWorkingRights: documentInfoController.visaForWorkingRightsFile.value,
+          //   securityLicense: documentInfoController.securityLicenseFile.value,
+          //   nationalCrimeCheck: documentInfoController.nationalCrimePoliceCheckFile.value,
+          //   abn: documentInfoController.abnFile.value,
+          // );
           if (response.statusCode == 200) {
             debugPrint("data from API ${response.body}");
             Get.offAndToNamed(AppRoutes.getLandingPageRoute());
@@ -141,29 +171,57 @@ class _SetPasswordScreenState extends State<SetPasswordScreen> {
       }
 
       final apiService = MyApIService(); // create instance
-      try{
-        companyInfoController.dob.text = '01-01-2000'; // Default date for contractor, can be changed later
-          final response = await apiService.signUpForContractor(
+      // try{
+        //   final response = await apiService.signUpForContractor(
+        //     registeringAs: companyInfoController.registeringAs.value,
+        //     email: companyInfoController.companyEmail.text,
+        //     Name: companyInfoController.companyName.text,
+        //     phone: companyInfoController.phone.text,
+        //     postalAddress: companyInfoController.postalAddress.text,
+        //     // masterLicense: companyInfoController.license.text,
+        //     austraLianBusinessNumber: companyInfoController.abn.text,
+        //     // australianCompanyNumber: companyInfoController.acn.text,
+        //     password: passwordController.text,
+        //     confirmPassword: confirmPasswordController.text,
+        //     dob: companyInfoController.dob.text,
+        //     // role: companyInfoController.role.text ,
+        //     gender: companyInfoController.genderController.text,
+        //     passport: documentInfoController.passportFile.value,
+        //     whiteCard: documentInfoController.whiteCardFile.value,
+        //     visaWorkingRights: documentInfoController.visaForWorkingRightsFile.value,
+        //     securityLicense: documentInfoController.securityLicenseFile.value,
+        //     nationalCrimeCheck: documentInfoController.nationalCrimePoliceCheckFile.value,
+        //     abn: documentInfoController.abnFile.value,
+        //   );
+        try{
+          companyInfoController.dob.text = '01-01-2000'; // Default date for contractor, can be changed later
+          final signUpModelForIndividual = SignUpModelForIndividual(
             registeringAs: companyInfoController.registeringAs.value,
+            name: companyInfoController.companyName.text,
             email: companyInfoController.companyEmail.text,
-            Name: companyInfoController.companyName.text,
             phone: companyInfoController.phone.text,
             postalAddress: companyInfoController.postalAddress.text,
-            // masterLicense: companyInfoController.license.text,
-            austraLianBusinessNumber: companyInfoController.abn.text,
-            // australianCompanyNumber: companyInfoController.acn.text,
+            australianBusinessNumber: companyInfoController.abn.text,
             password: passwordController.text,
             confirmPassword: confirmPasswordController.text,
-            dob: companyInfoController.dob.text,
-            // role: companyInfoController.role.text ,
-            gender: companyInfoController.genderController.text,
             passport: documentInfoController.passportFile.value,
-            whiteCard: documentInfoController.whiteCardFile.value,
+            whiteCard: (documentInfoController.whiteCardFile.value?.isNotEmpty ?? false)
+                ? documentInfoController.whiteCardFile.value
+                : null,
             visaWorkingRights: documentInfoController.visaForWorkingRightsFile.value,
             securityLicense: documentInfoController.securityLicenseFile.value,
             nationalCrimeCheck: documentInfoController.nationalCrimePoliceCheckFile.value,
-            abn: documentInfoController.abnFile.value,
+            abn: (documentInfoController.abnFile.value?.isNotEmpty ?? false)
+                ? documentInfoController.abnFile.value
+                : null,
+            gender: companyInfoController.genderController.text,
+            dob: companyInfoController.dob.text,
           );
+
+          final response = await apiService.signUpForContractor(
+            SignUpModelForIndividual: signUpModelForIndividual,
+          );
+
           if (response.statusCode == 200) {
             debugPrint("data from API ${response.body}");
             Get.offAndToNamed(AppRoutes.getLandingPageRoute());

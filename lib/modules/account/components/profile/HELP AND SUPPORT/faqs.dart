@@ -61,30 +61,30 @@ class FaqScreen extends StatelessWidget {
           ),
           SizedBox(height: 16),
           ...faqData.map((item) => Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: ExpansionTile(
-                  collapsedIconColor: AppColors.kSkyBlue,
-                  iconColor: AppColors.kSkyBlue,
-                  collapsedBackgroundColor: AppColors.kJobCardColor,
-                  backgroundColor: AppColors.kJobCardColor,
-                  tilePadding: EdgeInsets.symmetric(horizontal: 12),
-                  childrenPadding:
-                      EdgeInsets.symmetric(horizontal: 12.0, vertical: 8),
-                  title: Text(
-                    item['question']!,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  children: [
-                    Text(
-                      item['answer']!,
-                      style: TextStyle(color: AppColors.kinput),
-                    ),
-                  ],
+            padding: const EdgeInsets.only(bottom: 10),
+            child: ExpansionTile(
+              collapsedIconColor: AppColors.kSkyBlue,
+              iconColor: AppColors.kSkyBlue,
+              collapsedBackgroundColor: AppColors.kJobCardColor,
+              backgroundColor: AppColors.kJobCardColor,
+              tilePadding: EdgeInsets.symmetric(horizontal: 12),
+              childrenPadding:
+              EdgeInsets.symmetric(horizontal: 12.0, vertical: 8),
+              title: Text(
+                item['question']!,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
                 ),
-              ))
+              ),
+              children: [
+                Text(
+                  item['answer']!,
+                  style: TextStyle(color: AppColors.kinput),
+                ),
+              ],
+            ),
+          ))
         ],
       ),
     );

@@ -13,6 +13,11 @@ class Shift {
     required this.endTime,
   });
 
+  @override
+  String toString() {
+    return 'Shift(id: $id, date: $date, days: $days, startTime: $startTime, endTime: $endTime)';
+  }
+
   factory Shift.fromJson(Map<String, dynamic> json) {
     return Shift(
       id: json['id'],

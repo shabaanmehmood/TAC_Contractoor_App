@@ -11,6 +11,7 @@ import 'package:taccontractor/routes/app_routes.dart';
 
 import 'controllers/user_controller.dart';
 import 'data/data/constants/app_theme.dart';
+import 'modules/Jobs/Create Jobs/company_info_controller.dart';
 
 // Future<String> getInitialRoute() async {
 //   final prefs = await SharedPreferences.getInstance();
@@ -39,6 +40,7 @@ void main() async {
     [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown],
   );
   Get.put(UserController(), permanent: true);
+  Get.put(SetJobDetailsController());
   // final initialRoute = await getInitialRoute();
   // runApp(Main(initialRoute: initialRoute,));
   runApp(

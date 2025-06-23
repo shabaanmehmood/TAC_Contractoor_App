@@ -19,6 +19,7 @@ class BankDetailsScreen extends StatefulWidget {
 
 class _BankDetailsScreenState extends State<BankDetailsScreen> {
   late Future<List<BankDetails>> bankDetailsFuture;
+  final userId = Get.find<UserController>().userData.value?.id ?? '';
 
   @override
   void initState() {
@@ -28,7 +29,6 @@ class _BankDetailsScreenState extends State<BankDetailsScreen> {
 
   Future<List<BankDetails>> fetchBankDetails() async {
     final apiService = MyApIService();
-    final userId = Get.find<UserController>().userData.value?.id ?? '';
     final response = await apiService.getBankDetailsWithParams({'userId': userId});
 
     if (response.statusCode == 200) {
@@ -43,6 +43,20 @@ class _BankDetailsScreenState extends State<BankDetailsScreen> {
     } else {
       debugPrint('Failed to fetch bank details: ${response.statusCode}');
       return [];
+    }
+  }
+
+  void deleteBankDetails(String bankId) async {
+    final apiService = MyApIService();
+    final response = await apiService.deleteBankDetails(bankId);
+
+    if (response.statusCode == 200) {
+      debugPrint('Bank details deleted successfully');
+      setState(() {
+        bankDetailsFuture = fetchBankDetails();
+      });
+    } else {
+      debugPrint('Failed to delete bank details: ${response.body}');
     }
   }
 
@@ -111,6 +125,7 @@ class _BankDetailsScreenState extends State<BankDetailsScreen> {
                   final bank = bankList[index];
                   return buildBankCard(
                     context,
+                    bank.id ?? 'Bank ID',
                     bank.bankName ?? 'Bank Name',
                     bank.accountNumber ?? 'Account Number',
                     bank.accountTitle ?? 'Account Title',
@@ -127,6 +142,7 @@ class _BankDetailsScreenState extends State<BankDetailsScreen> {
 
   Widget buildBankCard(
       BuildContext context,
+      String id,
       String bankName,
       String accountNumber,
       String accountTitle,
@@ -150,6 +166,8 @@ class _BankDetailsScreenState extends State<BankDetailsScreen> {
             children: [
               Row(
                 children: [
+                  const Icon(Icons.account_balance, color: AppColors.kWhite, size: 28),
+                  const SizedBox(width: 8),
                   Text(
                     bankName,
                     style: const TextStyle(
@@ -158,8 +176,6 @@ class _BankDetailsScreenState extends State<BankDetailsScreen> {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const Spacer(),
-                  const Icon(Icons.account_balance, color: AppColors.kWhite, size: 28),
                 ],
               ),
               const SizedBox(height: 28),
@@ -249,7 +265,27 @@ class _BankDetailsScreenState extends State<BankDetailsScreen> {
                       leading: const Icon(Icons.delete_outline, color: AppColors.kRed),
                       title: const Text('Delete', style: TextStyle(color: AppColors.kRed)),
                       onTap: () {
-
+                        Get.back();
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('Delete Bank Details'),
+                            content: const Text('Are you sure you want to delete this bank details?'),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Get.back(),
+                                child: const Text('Cancel',),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  deleteBankDetails(id);
+                                  Get.back();
+                                },
+                                child: const Text('Delete', style: TextStyle(color: AppColors.kRed)),
+                              ),
+                            ],
+                          ),
+                        );
                       },
                     ),
                   ],

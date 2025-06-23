@@ -8,6 +8,7 @@ import 'package:taccontractor/data/data/constants/app_colors.dart';
 import 'package:taccontractor/data/data/constants/app_spacing.dart';
 import 'package:taccontractor/data/data/constants/app_typography.dart';
 import 'package:taccontractor/data/data/constants/constants.dart';
+import 'package:taccontractor/modules/Jobs/Create%20Jobs/setJobDetailsScreen.dart';
 import 'package:taccontractor/modules/auth/forget_password.dart';
 import 'package:taccontractor/routes/app_routes.dart';
 import 'package:flutter/material.dart';
@@ -248,10 +249,14 @@ class SignInView extends StatelessWidget {
                                 fit: BoxFit.contain,
                               ),
                               SizedBox(width: AppSpacing.twentyHorizontal,),
-                              Text(
-                                'Continue with Google',
-                                style: AppTypography.kBold18.copyWith(
-                                    color: AppColors.kWhite
+                              GestureDetector(
+                                onTap: () {
+                                },
+                                child: Text(
+                                  'Continue with Google',
+                                  style: AppTypography.kBold18.copyWith(
+                                      color: AppColors.kWhite
+                                  ),
                                 ),
                               )
                             ],

@@ -34,7 +34,7 @@ class BankDetailsController extends GetxController {
           await apiService.getUserByID(userController.userData.value!.id!);
           Get.back(result: true);
         } else {
-
+          debugPrint("Error: ${response.body}");
         }
       } catch (e) {
       }

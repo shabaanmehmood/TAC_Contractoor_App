@@ -3,8 +3,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:http/http.dart' as http;
+import 'package:taccontractor/models/ReportAnIssue.dart';
+import 'package:taccontractor/models/createDisputeModel.dart';
+import 'package:taccontractor/models/jobCategoriesModel.dart';
+import 'package:taccontractor/models/signUpModelForCompany.dart';
 
 import '../controllers/user_controller.dart';
+import '../models/createJobModel.dart';
 import '../models/getUserById_model.dart';
 import '../models/jobResponse_model.dart';
 import '../models/userdata_model.dart';
@@ -30,118 +35,107 @@ class MyApIService {
   // String controllerBase = 'https://truegigs.com/portal/'; //baseUrl for other calls
 
 
-  Future<http.Response> signUpForCompany({
-    required String registeringAs,
-    required String email,
-    required String Name,
-    required String phone,
-    required String postalAddress,
-    String? masterLicense,
-    required String austraLianBusinessNumber,
-    String? australianCompanyNumber,
-    String? role,
-    String? dob,
-    String? gender,
-    required String password,
-    required String confirmPassword,
-    required String passport,
-    required String securityLicense,
-    required String visaWorkingRights,
-    required String abn,
-    required String nationalCrimeCheck,
-    required String whiteCard,
-  }) async {
+  Future<http.Response> signUpForCompany({required SignUpModelForCompany SignUpModelForCompany,}) async {
     var functionUrl = 'contractorAuth/signUp';
     final response = await http.post(Uri.parse(baseurl + functionUrl),
       headers: {
         'Content-Type': 'application/json',
         'ngrok-skip-browser-warning': 'true',
       },
-      body: jsonEncode({
-        'registeringAs': registeringAs,
-        'email': email,
-        'Name': Name,
-        'phone': phone,
-        'postalAddress': postalAddress,
-        'masterSecurityLicense': masterLicense,
-        'austraLianBusinessNumber': austraLianBusinessNumber,
-        'australianCompanyNumber': australianCompanyNumber,
-        'password': password,
-        'confirmPassword': confirmPassword,
-        // 'role': role,
-        // 'dob' : dob,
-        // 'gender' : gender,
-        'passport': passport,
-        'securityLicense': securityLicense,
-        'visaWorkingRights': visaWorkingRights,
-        'abn': abn,
-        'nationalCrimeCheck': nationalCrimeCheck,
-        'whiteCard': whiteCard,
-      }),
+    body: jsonEncode(SignUpModelForCompany.toJson())
     );
+    //   body: jsonEncode({
+    //     'registeringAs': registeringAs,
+    //     'email': email,
+    //     'Name': Name,
+    //     'phone': phone,
+    //     'postalAddress': postalAddress,
+    //     'masterSecurityLicense': masterLicense,
+    //     'austraLianBusinessNumber': austraLianBusinessNumber,
+    //     'australianCompanyNumber': australianCompanyNumber,
+    //     'password': password,
+    //     'confirmPassword': confirmPassword,
+    //     'passport': passport,
+    //     'securityLicense': securityLicense,
+    //     'visaWorkingRights': visaWorkingRights,
+    //     'abn': abn,
+    //     'nationalCrimeCheck': nationalCrimeCheck,
+    //     'whiteCard': whiteCard,
+    //   }),
+    // );
 
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body);
       debugPrint('Response in signUp: $jsonData');
+      final userDataModel = UserDataModel.fromJson(jsonData);
+      if (userDataModel.data != null) {
+        final userId = userDataModel.data!.id;
+        debugPrint('User ID: $userId');
+        userController.setUser(userDataModel.data!);
+        final getuserbyid = await getUserByID(userId!);
+        debugPrint('get user by ID called $getuserbyid');
+        if (getuserbyid.statusCode == 200) {
+          final userData = GetUserById.fromJson(jsonDecode(getuserbyid.body)).data;
+          if (userData != null) {
+            Get.find<UserController>().setUser(userData);
+          }
+        }
+      }
     } else {
       debugPrint('inside signup method call for company: ${response.statusCode}');
     }
     return response;
   }
 
-  Future<http.Response> signUpForContractor({
-    required String registeringAs,
-    required String email,
-    required String Name,
-    required String phone,
-    required String postalAddress,
-    String? masterLicense,
-    required String austraLianBusinessNumber,
-    String? australianCompanyNumber,
-    String? role,
-    String? dob,
-    String? gender,
-    required String password,
-    required String confirmPassword,
-    required String passport,
-    required String securityLicense,
-    required String visaWorkingRights,
-    required String abn,
-    required String nationalCrimeCheck,
-    required String whiteCard,
-  }) async {
+  Future<http.Response> signUpForContractor({SignUpModelForIndividual}) async {
     var functionUrl = 'contractorAuth/signUp';
     final response = await http.post(Uri.parse(baseurl + functionUrl),
       headers: {
         'Content-Type': 'application/json',
         'ngrok-skip-browser-warning': 'true',
       },
-      body: jsonEncode({
-        'registeringAs': registeringAs,
-        'email': email,
-        'Name': Name,
-        'phone': phone,
-        'postalAddress': postalAddress,
-        // 'masterSecurityLicense': masterLicense,
-        'austraLianBusinessNumber': austraLianBusinessNumber,
-        // 'australianCompanyNumber': australianCompanyNumber,
-        'password': password,
-        'confirmPassword': confirmPassword,
-        // 'role': role,
-        'dob' : dob,
-        'gender' : gender,
-        'passport': passport,
-        'securityLicense': securityLicense,
-        'visaWorkingRights': visaWorkingRights,
-        'abn': abn,
-        'nationalCrimeCheck': nationalCrimeCheck,
-        'whiteCard': whiteCard,
-      }),
+      // body: jsonEncode({
+      //   'registeringAs': registeringAs,
+      //   'email': email,
+      //   'Name': Name,
+      //   'phone': phone,
+      //   'postalAddress': postalAddress,
+      //   // 'masterSecurityLicense': masterLicense,
+      //   'austraLianBusinessNumber': austraLianBusinessNumber,
+      //   // 'australianCompanyNumber': australianCompanyNumber,
+      //   'password': password,
+      //   'confirmPassword': confirmPassword,
+      //   // 'role': role,
+      //   'dob' : dob,
+      //   'gender' : gender,
+      //   'passport': passport,
+      //   'securityLicense': securityLicense,
+      //   'visaWorkingRights': visaWorkingRights,
+      //   'abn': abn,
+      //   'nationalCrimeCheck': nationalCrimeCheck,
+      //   'whiteCard': whiteCard,
+      // }),
+      body: jsonEncode(SignUpModelForIndividual.toJson() // Encode body as JSON string
+      ),
     );
 
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body);
       debugPrint('Response in signUp: $jsonData');
+      final userDataModel = UserDataModel.fromJson(jsonData);
+      if (userDataModel.data != null) {
+        final userId = userDataModel.data!.id;
+        debugPrint('User ID: $userId');
+        userController.setUser(userDataModel.data!);
+        final getuserbyid = await getUserByID(userId!);
+        debugPrint('get user by ID called $getuserbyid');
+        if (getuserbyid.statusCode == 200) {
+          final userData = GetUserById.fromJson(jsonDecode(getuserbyid.body)).data;
+          if (userData != null) {
+            Get.find<UserController>().setUser(userData);
+          }
+        }
+      }
     } else {
       debugPrint('inside signup method call for company: ${response.statusCode}');
     }
@@ -262,7 +256,7 @@ class MyApIService {
   }
 
   Future<http.StreamedResponse> uploadFile(String userId, String fileType, String filePath) async {
-    var functionUrl = 'user-documents/upload';
+    var functionUrl = 'contractorDocuments/upload';
     final request = http.MultipartRequest('POST',Uri.parse(baseurl + functionUrl))
       ..fields['userId'] = userId
       ..fields['type'] = fileType
@@ -306,7 +300,7 @@ class MyApIService {
   }
 
   Future<http.Response> addBankDetails(String bankName, String accountTitle, String accountNumber, String iban, String expiryDate, String userId) async {
-    var functionUrl = 'userBankDetails';
+    var functionUrl = 'contractorBankDetails';
     final response = await http.post(
       Uri.parse(baseurl + functionUrl),
       headers: {
@@ -349,7 +343,7 @@ class MyApIService {
   }
 
   Future<http.Response> getBankDetailsWithParams(Map<String, String> queryParams) async {
-    var functionUrl = 'userBankDetails/';
+    var functionUrl = 'contractorBankDetails/';
     final uri = Uri.parse(baseurl+ functionUrl).replace(queryParameters: queryParams);
 
     final response = await http.get(
@@ -370,30 +364,31 @@ class MyApIService {
     return response;
   }
 
-  Future<http.Response> addDispute(String disputeType, String jobId, String incidentDate, String userId, String description,
-      List<String> supportDocuments, String? transactionId, String? transactionDate, String? disputeAmount) async {
-    var functionUrl = 'userDisputes';
+  Future<http.Response> deleteBankDetails(String userId) async {
+    var functionUrl = 'contractorBankDetails/$userId';
+    final response = await http.delete(Uri.parse(baseurl + functionUrl),
+      headers: {
+        "Content-Type": "application/json",
+        'ngrok-skip-browser-warning': 'true',
+      },
+    );
+    if (response.statusCode == 200) {
+      final json = jsonDecode(response.body);
+      final userData = GetUserById.fromJson(json).data;
+      debugPrint('User data: $userData');
 
-    // Build the request body dynamically
-    final Map<String, dynamic> body = {
-      "type": disputeType,
-      "jobId": jobId,
-      "incidentDate": incidentDate,
-      "userId": userId,
-      "description": description,
-      "supportDocuments": supportDocuments,
-    };
+      if (userData != null) {
+        Get.find<UserController>().setUser(userData);
+        debugPrint('User bank details loaded and stored in session');
+      }
+    } else {
+      // handle error
+    }
+    return response;
+  }
 
-    // Add optional fields only if they are not null or empty
-    if (transactionId != null && transactionId.isNotEmpty) {
-      body["transactionId"] = transactionId;
-    }
-    if (transactionDate != null && transactionDate.isNotEmpty) {
-      body["transactionDate"] = transactionDate;
-    }
-    if (disputeAmount != null && disputeAmount.isNotEmpty) {
-      body["disputeAmount"] = disputeAmount;
-    }
+  Future<http.Response> addDispute(CreateDisputeModel createDisputeModel) async {
+    var functionUrl = 'contractorDispute';
 
     final response = await http.post(
       Uri.parse(baseurl + functionUrl),
@@ -401,7 +396,7 @@ class MyApIService {
         "Content-Type": "application/json",
         'ngrok-skip-browser-warning': 'true',
       },
-      body: jsonEncode(body), // Encode body as JSON string
+      body: jsonEncode(createDisputeModel.toJson()), // Encode body as JSON string
     );
     if (response.statusCode == 201) {
       final jsonData = jsonDecode(response.body);
@@ -480,8 +475,8 @@ class MyApIService {
 
   Future<http.Response> updatePersonalInfo(
       String userId, UserUpdateModel userModel) async {
-    final functionUrl = 'users/$userId';
-    final response = await http.patch(
+    final functionUrl = 'contractors/$userId';
+    final response = await http.put(
       Uri.parse(baseurl + functionUrl),
       headers: {
         "Content-Type": "application/json",
@@ -684,28 +679,24 @@ class MyApIService {
   }
 
   Future<http.Response> addReportAnIssue(
-      String subject,
-      String userId,
-      String issueDate,
-      String description, {
-        String? supportDocumentPath,
-      }) async {
-    var functionUrl = 'reportAnIssue/';
+      ReportAnIssueModel reportAnIssueModel,
+      ) async {
+    var functionUrl = 'contractorReportAnIssue/';
 
-    // Prepare the request body
-    final Map<String, dynamic> requestBody = {
-      "subject": subject,
-      "userId": userId,
-      "issueDate": issueDate,
-      "description": description,
-    };
-
-    // Add supportDocuments only if provided
-    if (supportDocumentPath != null && supportDocumentPath.isNotEmpty) {
-      requestBody["supportDocuments"] = [
-        "data:image/png;base64,$supportDocumentPath"
-      ];
-    }
+    // // Prepare the request body
+    // final Map<String, dynamic> requestBody = {
+    //   "subject": subject,
+    //   "contractorId": userId,
+    //   "issueDate": issueDate,
+    //   "description": description,
+    // };
+    //
+    // // Add supportDocuments only if provided
+    // if (supportDocumentPath != null && supportDocumentPath.isNotEmpty) {
+    //   requestBody["supportDocuments"] = [
+    //     supportDocumentPath
+    //   ];
+    // }
 
     final response = await http.post(
       Uri.parse(baseurl + functionUrl),
@@ -713,7 +704,7 @@ class MyApIService {
         "Content-Type": "application/json",
         'ngrok-skip-browser-warning': 'true',
       },
-      body: jsonEncode(requestBody),
+      body: jsonEncode(reportAnIssueModel.toJson()), // Encode body as JSON string
     );
 
     if (response.statusCode == 201) {
@@ -728,7 +719,7 @@ class MyApIService {
   }
 
   Future<http.Response> getUserDocuments(String userId) async {
-    var functionUrl = 'user-documents/$userId';
+    var functionUrl = 'contractorDocuments/contractor/$userId';
 
     final response = await http.get(Uri.parse(baseurl + functionUrl),
       headers: {
@@ -743,6 +734,82 @@ class MyApIService {
       debugPrint('User documents: $dataList');
     } else {
       debugPrint('Error: ${response.statusCode} - ${response.body}');
+    }
+    return response;
+  }
+
+  Future<http.Response> getJobCategories(String userId) async {
+    var functionUrl = 'jobCategory';
+
+    final response = await http.get(Uri.parse(baseurl + functionUrl),
+      headers: {
+        "Content-Type": "application/json",
+        'ngrok-skip-browser-warning': 'true',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final json = jsonDecode(response.body);
+    } else {
+      debugPrint('Error: ${response.statusCode} - ${response.body}');
+    }
+    return response;
+  }
+
+  Future<http.Response> getJobPremises(String userId) async {
+    var functionUrl = 'jobPremises';
+
+    final response = await http.get(Uri.parse(baseurl + functionUrl),
+      headers: {
+        "Content-Type": "application/json",
+        'ngrok-skip-browser-warning': 'true',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final json = jsonDecode(response.body);
+    } else {
+      debugPrint('Error: ${response.statusCode} - ${response.body}');
+    }
+    return response;
+  }
+
+  Future<http.Response> createJob(CreateJobModel createJobModel) async {
+    var functionUrl = 'jobs';
+    final response = await http.post(
+      Uri.parse(baseurl + functionUrl),
+      headers: {
+        "Content-Type": "application/json",
+        'ngrok-skip-browser-warning': 'true',
+      },
+      body: jsonEncode(createJobModel.toJson()), // Encode body as JSON string
+    );
+
+    if (response.statusCode == 201) {
+      debugPrint('job created successfully');
+      final json = jsonDecode(response.body);
+      debugPrint('Response in job created: $json');
+    } else {
+      debugPrint('Error job creating issue: ${response.statusCode}');
+    }
+
+    return response;
+  }
+
+  Future<http.Response> getRequiredSkills() async {
+    var functionUrl = 'requiredSkills/';
+    final response = await http.get(Uri.parse(baseurl + functionUrl),
+      headers: {
+        "Content-Type": "application/json",
+        'ngrok-skip-browser-warning': 'true',
+      },
+    );
+    if (response.statusCode == 200) {
+      final json = jsonDecode(response.body);
+      debugPrint('Response in getAllLicense: $json');
+
+    } else {
+      // handle error
     }
     return response;
   }

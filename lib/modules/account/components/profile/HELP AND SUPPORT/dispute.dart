@@ -5,6 +5,7 @@ import 'package:taccontractor/data/data/constants/app_colors.dart';
 import 'package:taccontractor/widhets/common%20overlays/uploadFile_overlay.dart';
 
 import '../../../../../dataproviders/api_service.dart';
+import '../../../../../models/createDisputeModel.dart';
 import '../../../../../models/job_model.dart';
 import '../../../../../routes/app_routes.dart';
 
@@ -13,7 +14,7 @@ class DisputeController extends GetxController {
   final selectedDisputeType = ''.obs;
   final agreeToTerms = false.obs;
   String? base64image;
-  final RxList<String> base64Images = <String>[].obs;
+  final base64Images = ''.obs;
   final String jobId = '33327a6f-b49f-43a8-b1e7-61e53ea256a8';
   JobData? jobData;
 
@@ -31,18 +32,45 @@ class DisputeController extends GetxController {
     final apiService = MyApIService(); // create instance
     try{
       if(selectedDisputeType.value == 'jobRelated'){
-        final response = await apiService.addDispute(
-          selectedDisputeType.value,
-          jobId,
-          dateOfIncidentController.text,
-          userController.userData.value!.id!,
-          descriptionController.text,
-          base64Images.toList(),
-          null,
-          null,
-          null
+        final createDisputeModel = CreateDisputeModel(
+          disputeType: 'job',
+          contractorId: userController.userData.value!.id!,
+          dateOfIncident: dateOfIncidentController.text,
+          description: descriptionController.text,
+          jobId: jobId,
+          supportingDocument: base64Images.value,
+          transactionId: (transactionIdController.text.isNotEmpty)
+              ? transactionIdController.text
+              : null,
+          transactionDate: (transactionDateController.text.isNotEmpty)
+              ? transactionDateController.text
+              : null,
+          disputeAmount: (disputeAmountController.text.isNotEmpty)
+              ? disputeAmountController.text
+              : null,
         );
-        if (response.statusCode == 201) {
+        final response = await apiService.addDispute(
+          //   jobId,
+          //   dateOfIncidentController.text,
+          //   descriptionController.text,
+          //   transactionIdController.text,
+          //   transactionDateController.text,
+          //   disputeAmountController.text,
+          //   userController.userData.value!.id!,
+          //   base64Images.value,
+          // 'job',
+          // // selectedDisputeType.value,
+          // jobId,
+          // dateOfIncidentController.text,
+          // descriptionController.text,
+          // userController.userData.value!.id!,
+          // base64Images.value,
+          // null,
+          // null,
+          // null,
+          createDisputeModel
+        );
+        if (response.statusCode == 200) {
           debugPrint("data from API ${response.body}");
           Get.back();
         } else {
@@ -51,18 +79,37 @@ class DisputeController extends GetxController {
         }
       }
       else if (selectedDisputeType.value == 'earningRelated'){
-        final response = await apiService.addDispute(
-          selectedDisputeType.value,
-          jobId,
-          dateOfIncidentController.text,
-          userController.userData.value!.id!,
-          descriptionController.text,
-          base64Images.toList(),
-          transactionIdController.text,
-          transactionDateController.text,
-          disputeAmountController.text,
+        final createDisputeModel = CreateDisputeModel(
+          disputeType: 'transaction',
+          contractorId: userController.userData.value!.id!,
+          dateOfIncident: dateOfIncidentController.text,
+          description: descriptionController.text,
+          jobId: jobId,
+          supportingDocument: base64Images.value,
+          transactionId: (transactionIdController.text.isNotEmpty)
+              ? transactionIdController.text
+              : null,
+          transactionDate: (transactionDateController.text.isNotEmpty)
+              ? transactionDateController.text
+              : null,
+          disputeAmount: (disputeAmountController.text.isNotEmpty)
+              ? disputeAmountController.text
+              : null,
         );
-        if (response.statusCode == 201) {
+        final response = await apiService.addDispute(
+          // 'transaction',
+          // // selectedDisputeType.value,
+          // jobId,
+          // dateOfIncidentController.text,
+          // descriptionController.text,
+          // transactionIdController.text,
+          // transactionDateController.text,
+          // disputeAmountController.text,
+          // userController.userData.value!.id!,
+          // base64Images.value,
+          createDisputeModel
+        );
+        if (response.statusCode == 200) {
           debugPrint("data from API ${response.body}");
           Get.back();
         } else {
@@ -273,12 +320,13 @@ class DisputeScreen extends StatelessWidget {
                               final UploadFileController uploadFileController = Get.put(UploadFileController());
                               final String? base64Image = await uploadFileController.showUploadFileBottomSheet(context, returnBase64: true);
                               if (base64Image != null) {
-                                controller.base64Images.add(base64Image);
+                                controller.base64Images.value = base64Image;
+                                controller.base64image = base64Image;
                               }
                             },
                             child: Obx(
                               () => Text(
-                                controller.base64Images.isNotEmpty
+                                controller.base64Images.value.isNotEmpty
                                     ? 'File Selected'
                                     : 'Upload',
                                 style: const TextStyle(

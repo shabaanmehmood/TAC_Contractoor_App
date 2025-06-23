@@ -167,51 +167,81 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 const SizedBox(height: 12),
 
-                // Personal Info Section
-                buildDualColumnInfoSection(
-                  title: "Company Information",
-                  info: [
-                    {"label": "Full Name", "value": userController.userData.value?.name ?? "-"},
-                    {"label": "Email Address", "value": userController.userData.value?.email ?? "-"},
-                    {"label": "Gender", "value": userController.userData.value?.gender ?? "-"},
-                    {"label": "Date of Birth", "value": userController.userData.value?.dob ?? "-"},
-                    {"label": "Contact Number", "value": userController.userData.value?.phone ?? "-"},
-                    {"label": "Postal Code", "value": "-"},
-                    {"label": "Residential Address", "value": userController.userData.value?.postalAddress ?? "-"},
-                  ],
-                  onEdit: () {
-                    Get.to(() => const EditPersonalInfoScreen())?.then((_) {
-                      userController.getUserData(); // Refresh user data
-                    });
-                  },
-                ),
-                const SizedBox(height: 20),
+                if(userController.userData.value!.registeringAs == "contractor")
+                ...[
+                  // Personal Info Section
+                  buildDualColumnInfoSection(
+                    title: "Personal Information",
+                    info: [
+                      {"label": "Full Name", "value": userController.userData.value?.name ?? "-"},
+                      {"label": "Email Address", "value": userController.userData.value?.email ?? "-"},
+                      {"label": "Gender", "value": userController.userData.value?.gender ?? "-"},
+                      {"label": "Date of Birth", "value": userController.userData.value?.dob ?? "-"},
+                      {"label": "Contact Number", "value": userController.userData.value?.phone ?? "-"},
+                      {"label": "Postal Code", "value": "-"},
+                      {"label": "Residential Address", "value": userController.userData.value?.postalAddress ?? "-"},
+                    ],
+                    onEdit: () {
+                      Get.to(() => const EditPersonalInfoScreen())?.then((_) {
+                        userController.getUserData(); // Refresh user data
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 20),
 
-                // Professional Info Section
-                buildDualColumnInfoSection(
-                  title: "Professional Information",
-                  info: [
-                    {"label": "Year of Experience", "value": "-"},
-                    {"label": "Level", "value": "-"},
-                    {
-                      "label": "Security Licence Number",
-                      "value": "-"
+                  // Professional Info Section
+                  buildDualColumnInfoSection(
+                    title: "Professional Information",
+                    info: [
+                      {"label": "ABN", "value":  userController.userData.value?.australianBusinessNumber ?? "-"},
+                      {"label": "Licence Expiry Date", "value":  "-"},
+                    ],
+                    // onEdit: () => Get.to(() => const EditProfessionalInfoScreen()),
+                    onEdit: () {
+                      Get.to(() => const EditProfessionalInfoScreen())?.then((_) {
+                        userController.getUserData(); // Refresh user data
+                      });
                     },
-                    {"label": "Licence Expiry Date", "value":  '-'},
-                    {"label": "ABN", "value":  "-"},
-                    {"label": "Professional Badge", "value":  "-"},
-                    {
-                      "label": "Preferred Work Location",
-                      "value":  "-"
-                    },
-                  ],
-                  // onEdit: () => Get.to(() => const EditProfessionalInfoScreen()),
-                  onEdit: () {
-                    Get.to(() => const EditProfessionalInfoScreen())?.then((_) {
-                      userController.getUserData(); // Refresh user data
-                    });
-                  },
-                )
+                  ),
+                ],
+
+                if(userController.userData.value!.registeringAs == "Company")
+                  ...[
+                    // Personal Info Section
+                    buildDualColumnInfoSection(
+                      title: "Company Information",
+                      info: [
+                        {"label": "Company Name", "value": userController.userData.value?.name ?? "-"},
+                        {"label": "Email Address", "value": userController.userData.value?.email ?? "-"},
+                        {"label": "Contact Number", "value": userController.userData.value?.phone ?? "-"},
+                        {"label": "Postal Code", "value": userController.userData.value?.postalAddress ?? "-"},
+                        {"label": "Residential Address", "value": userController.userData.value?.postalAddress ?? "-"},
+                      ],
+                      onEdit: () {
+                        Get.to(() => const EditPersonalInfoScreen())?.then((_) {
+                          userController.getUserData(); // Refresh user data
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Professional Info Section
+                    buildDualColumnInfoSection(
+                      title: "Professional Information",
+                      info: [
+                        {"label": "Master Security License", "value":  userController.userData.value?.australianBusinessNumber ?? "-"},
+                        {"label": "Licence Expiry Date", "value":  "-"},
+                        {"label": "ABN", "value": "-"},
+                        {"label": "Australian Company Number", "value": "-"},
+                      ],
+                      // onEdit: () => Get.to(() => const EditProfessionalInfoScreen()),
+                      onEdit: () {
+                        Get.to(() => const EditProfessionalInfoScreen())?.then((_) {
+                          userController.getUserData(); // Refresh user data
+                        });
+                      },
+                    ),
+                  ]
               ],
             ),
           ),

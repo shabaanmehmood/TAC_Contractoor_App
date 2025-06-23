@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:taccontractor/data/data/constants/app_colors.dart';
-import 'package:taccontractor/modules/account/components/HELP%20AND%20SUPPORT/faqs.dart';
-import 'package:taccontractor/modules/account/components/HELP%20AND%20SUPPORT/report.dart';
 import 'package:taccontractor/modules/account/components/profile/HELP%20AND%20SUPPORT/dispute.dart';
+import 'components/profile/HELP AND SUPPORT/report.dart';
+import 'components/profile/HELP AND SUPPORT/faqs.dart';
 
 class HelpSupportScreen extends StatelessWidget {
   const HelpSupportScreen({super.key});

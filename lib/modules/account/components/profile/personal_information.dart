@@ -36,15 +36,24 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
   @override
   void initState() {
     super.initState();
-
     final user = userController.userData.value;
-    nameController.text = user!.name ?? '';
-    emailController.text = user.email ?? '';
-    dobController.text = user.dob ?? '';
-    selectedGender = genderOptions.contains(user.gender) ? user.gender : null;
-
-    contactController.text = user.phone ?? '';
-    addressController.text = user.postalAddress ?? '';
+    final isContractor = user!.registeringAs == 'contractor';
+    if(isContractor){
+      nameController.text = user.name ?? '';
+      emailController.text = user.email ?? '';
+      selectedGender = genderOptions.contains(user.gender) ? user.gender : null;
+      dobController.text = user.dob ?? '';
+      contactController.text = user.phone ?? '';
+      postalCodeController.text = user.postalCode ?? '';
+      addressController.text = user.postalAddress ?? '';
+    }
+    else if(user!.registeringAs == 'Company') {
+      nameController.text = user.name ?? '';
+      emailController.text = user.email ?? '';
+      contactController.text = user.phone ?? '';
+      postalCodeController.text = user.postalCode ?? '';
+      addressController.text = user.postalAddress ?? '';
+    }
   }
 
   @override
@@ -99,91 +108,133 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
                         ),
                       ),
                       const SizedBox(height: 10),
-                      buildTextField(
-                        controller: nameController,
-                        label: "Full Name",
-                        iconPath: AppAssets.kPer,
-                        maxLength: 180,
-                      ),
-                      buildTextField(
-                        controller: emailController,
-                        label: "Email",
-                        iconPath: AppAssets.kMail,
-                        keyboardType: TextInputType.emailAddress,
-                        maxLength: 180,
-                      ),
-                      buildDropdownField(
-                        label: "Gender",
-                        icon: Icons.person_outline,
-                        value: selectedGender,
-                        onChanged: (val) {
-                          setState(() {
-                            selectedGender = val!;
-                          });
-                        },
-                      ),
-                      buildTextField(
-                        controller: dobController,
-                        label: "Date of Birth",
-                        iconPath: AppAssets.kCal,
-                        readOnly: true,
-                        onTap: () async {
-                          final picked = await showDatePicker(
-                            context: context,
-                            initialDate: DateTime.now(),
-                            firstDate: DateTime(1900),
-                            lastDate: DateTime.now(),
-                            builder: (context, child) {
-                              return Theme(
-                                data: Theme.of(context).copyWith(
-                                  dialogBackgroundColor: AppColors.kDarkestBlue,
-                                  colorScheme: ColorScheme.dark(
-                                    primary: AppColors.kSkyBlue,
-                                    onPrimary: Colors.black,
-                                    surface: AppColors.kDarkestBlue,
-                                    onSurface: Colors.white,
-                                  ),
-                                  textButtonTheme: TextButtonThemeData(
-                                    style: TextButton.styleFrom(
-                                      foregroundColor: AppColors
-                                          .kSkyBlue, // Button text color
-                                    ),
-                                  ),
-                                ),
-                                child: child!,
-                              );
+                      if(userController.userData.value!.registeringAs == 'contractor')
+                        ...[
+                          buildTextField(
+                          controller: nameController,
+                          label: "Full Name",
+                          iconPath: AppAssets.kPer,
+                          maxLength: 180,
+                        ),
+                          buildTextField(
+                            controller: emailController,
+                            label: "Email",
+                            iconPath: AppAssets.kMail,
+                            keyboardType: TextInputType.emailAddress,
+                            maxLength: 180,
+                          ),
+                          buildDropdownField(
+                            label: "Gender",
+                            icon: Icons.person_outline,
+                            value: selectedGender,
+                            onChanged: (val) {
+                              setState(() {
+                                selectedGender = val!;
+                              });
                             },
-                          );
-                          if (picked != null) {
-                            setState(() {
-                              dobController.text =
-                                  picked.toIso8601String().split('T').first;
-                            });
-                          }
-                        },
-                      ),
-                      buildTextField(
-                        controller: contactController,
-                        label: "Contact Number",
-                        iconPath: AppAssets.kNum,
-                        keyboardType: TextInputType.phone,
-                        maxLength: 11,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly
+                          ),
+                          buildTextField(
+                            controller: dobController,
+                            label: "Date of Birth",
+                            iconPath: AppAssets.kCal,
+                            readOnly: true,
+                            onTap: () async {
+                              final picked = await showDatePicker(
+                                context: context,
+                                initialDate: DateTime.now(),
+                                firstDate: DateTime(1900),
+                                lastDate: DateTime.now(),
+                                builder: (context, child) {
+                                  return Theme(
+                                    data: Theme.of(context).copyWith(
+                                      dialogBackgroundColor: AppColors.kDarkestBlue,
+                                      colorScheme: ColorScheme.dark(
+                                        primary: AppColors.kSkyBlue,
+                                        onPrimary: Colors.black,
+                                        surface: AppColors.kDarkestBlue,
+                                        onSurface: Colors.white,
+                                      ),
+                                      textButtonTheme: TextButtonThemeData(
+                                        style: TextButton.styleFrom(
+                                          foregroundColor: AppColors
+                                              .kSkyBlue, // Button text color
+                                        ),
+                                      ),
+                                    ),
+                                    child: child!,
+                                  );
+                                },
+                              );
+                              if (picked != null) {
+                                setState(() {
+                                  dobController.text =
+                                      picked.toIso8601String().split('T').first;
+                                });
+                              }
+                            },
+                          ),
+                          buildTextField(
+                            controller: contactController,
+                            label: "Contact Number",
+                            iconPath: AppAssets.kNum,
+                            keyboardType: TextInputType.phone,
+                            maxLength: 11,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly
+                            ],
+                          ),
+                          buildTextField(
+                            maxLength: 6,
+                            controller: postalCodeController,
+                            label: "Postal Code",
+                            iconPath: AppAssets.kLoc,
+                            keyboardType: TextInputType.number,
+                          ),
+                          buildTextField(
+                            controller: addressController,
+                            label: "Address",
+                            iconPath: AppAssets.kLoc,
+                          ),
                         ],
-                      ),
-                      buildTextField(
-                        maxLength: 6,
-                        controller: postalCodeController,
-                        label: "Postal Code",
-                        iconPath: AppAssets.kLoc,
-                        keyboardType: TextInputType.number,
-                      ),
-                      buildTextField(
-                        controller: addressController,
-                        label: "Address",
-                        iconPath: AppAssets.kLoc,
-                      ),
+
+                      if(userController.userData.value!.registeringAs == 'Company')
+                        ...[
+                          buildTextField(
+                            controller: nameController,
+                            label: "Company Name",
+                            iconPath: AppAssets.kPer,
+                            maxLength: 180,
+                          ),
+                          buildTextField(
+                            controller: emailController,
+                            label: "Email Address",
+                            iconPath: AppAssets.kMail,
+                            keyboardType: TextInputType.emailAddress,
+                            maxLength: 180,
+                          ),
+                          buildTextField(
+                            controller: contactController,
+                            label: "Contact Number",
+                            iconPath: AppAssets.kNum,
+                            keyboardType: TextInputType.phone,
+                            maxLength: 11,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly
+                            ],
+                          ),
+                          buildTextField(
+                            maxLength: 6,
+                            controller: postalCodeController,
+                            label: "Postal Code",
+                            iconPath: AppAssets.kLoc,
+                            keyboardType: TextInputType.number,
+                          ),
+                          buildTextField(
+                            controller: addressController,
+                            label: "Residential Address",
+                            iconPath: AppAssets.kLoc,
+                          ),
+                        ]
                     ],
                   ),
                 ),
@@ -252,67 +303,110 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
   }
 
   Future<void> updatePersonalInfo() async {
-    if (selectedGender == null) {
-      Get.snackbar(
-        "Missing Information",
-        "Please select your gender before updating.",
-        backgroundColor: Colors.redAccent,
-        colorText: Colors.white,
-      );
-      return;
-    }
-    if (postalCodeController.text.isEmpty) {
-      Get.snackbar(
-        "Missing Information",
-        "Please enter your postal code before updating.",
-        backgroundColor: Colors.redAccent,
-        colorText: Colors.white,
-      );
-      return;
-    }
-
     final apiService = MyApIService();
-    try {
-      final userModel = UserUpdateModel(
-        fullName: nameController.text,
-        email: emailController.text,
-        phone: contactController.text,
-        postalAddress: addressController.text,
-        masterSecurityLicense: userController.userData.value!.masterSecurityLicense!,
-        dob: dobController.text,
-        postalCode: postalCodeController.text,
-        gender: selectedGender!.toLowerCase(),
-      );
-
-      final response = await apiService.updatePersonalInfo(
-        userController.userData.value!.id!,
-        userModel,
-      );
-
-      if (response.statusCode == 200) {
-        debugPrint("data from API ${response.body}");
-        await apiService.getUserByID(userController.userData.value!.id!);
-        Get.back(result: true);
-      } else {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
-        final String errorMessage = responseBody['message'] ?? 'Unknown error';
-
-        // Show dialog with one line call
-        await AdaptiveAlertDialogWidget.show(
-          context,
-          title: 'Update Failed',
-          content: errorMessage,
-          yesText: 'OK',
-          showNoButton: false,
-          onYes: () {
-            // Optional: do something on OK pressed
-          },
+    if(userController.userData.value!.registeringAs == 'contractor') {
+      if (selectedGender == null) {
+        Get.snackbar(
+          "Missing Information",
+          "Please select your gender before updating.",
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white,
         );
-        debugPrint("data from API ${response.body}");
-        debugPrint('Error update personal info failed: ${response.body}');
+        return;
       }
-    } catch (e) {
-      debugPrint('Error Network error: ${e.toString()}');
+
+      if (postalCodeController.text.isEmpty) {
+        Get.snackbar(
+          "Missing Information",
+          "Please enter your postal code before updating.",
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white,
+        );
+        return;
+      }
+
+      try {
+        final userModel = UserUpdateModel(
+          fullName: nameController.text,
+          email: emailController.text,
+          gender: selectedGender,
+          dob: dobController.text,
+          phone: contactController.text,
+          postalCode: postalCodeController.text,
+          postalAddress: addressController.text,
+        );
+
+        final response = await apiService.updatePersonalInfo(
+          userController.userData.value!.id!,
+          userModel,
+        );
+
+        if (response.statusCode == 200) {
+          debugPrint("data from API ${response.body}");
+          await apiService.getUserByID(userController.userData.value!.id!);
+          Get.back(result: true);
+        } else {
+          final Map<String, dynamic> responseBody = jsonDecode(response.body);
+          final String errorMessage = responseBody['message'] ?? 'Unknown error';
+
+          // Show dialog with one line call
+          await AdaptiveAlertDialogWidget.show(
+            context,
+            title: 'Update Failed',
+            content: errorMessage,
+            yesText: 'OK',
+            showNoButton: false,
+            onYes: () {
+              // Optional: do something on OK pressed
+            },
+          );
+          debugPrint("data from API ${response.body}");
+          debugPrint('Error update personal info failed: ${response.body}');
+        }
+      } catch (e) {
+        debugPrint('Error Network error: ${e.toString()}');
+      }
+    }
+    else if(userController.userData.value!.registeringAs == 'Company') {
+      try {
+        final userModel = UserUpdateModel(
+          fullName: nameController.text,
+          email: emailController.text,
+          phone: contactController.text,
+          postalCode: postalCodeController.text,
+          postalAddress: addressController.text,
+        );
+
+        final response = await apiService.updatePersonalInfo(
+          userController.userData.value!.id!,
+          userModel,
+        );
+
+        if (response.statusCode == 200) {
+          debugPrint("data from API ${response.body}");
+          await apiService.getUserByID(userController.userData.value!.id!);
+          Get.back(result: true);
+        } else {
+          final Map<String, dynamic> responseBody = jsonDecode(response.body);
+          final String errorMessage = responseBody['message'] ?? 'Unknown error';
+
+          // Show dialog with one line call
+          await AdaptiveAlertDialogWidget.show(
+            context,
+            title: 'Update Failed',
+            content: errorMessage,
+            yesText: 'OK',
+            showNoButton: false,
+            onYes: () {
+              // Optional: do something on OK pressed
+            },
+          );
+          debugPrint("data from API ${response.body}");
+          debugPrint('Error update personal info failed: ${response.body}');
+        }
+      } catch (e) {
+        debugPrint('Error Network error: ${e.toString()}');
+      }
     }
   }
 

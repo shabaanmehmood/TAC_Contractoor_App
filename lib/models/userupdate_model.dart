@@ -21,6 +21,7 @@ class UserUpdateModel {
   String? licenseNumber;
   String? licenseExpiryDate;
   String? abn;
+  String? acn;
   List<String>? preferredLocationAddresses;
   List<ProfileImages>? profileImages; // 👈 Add this line
 
@@ -43,6 +44,7 @@ class UserUpdateModel {
     this.licenseNumber,
     this.licenseExpiryDate,
     this.abn,
+    this.acn,
     this.preferredLocationAddresses,
     this.profileImages, // 👈 Add this too
   });
@@ -63,6 +65,7 @@ class UserUpdateModel {
       if (gender != null) 'gender': gender,
       if (fcmToken != null) 'fcmToken': fcmToken,
       if (appleId != null) 'appleId': appleId,
+      if (acn != null) 'acn': acn,
       if (yearsOfExperience != null)
         'personalDetails': {
           'yearsOfExperience': yearsOfExperience,

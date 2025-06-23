@@ -5,6 +5,7 @@ import 'package:taccontractor/data/data/constants/app_assets.dart';
 import 'package:taccontractor/data/data/constants/app_colors.dart';
 import 'package:taccontractor/data/data/constants/app_spacing.dart';
 import 'package:taccontractor/modules/Guards/guards_view.dart';
+import 'package:taccontractor/modules/Jobs/Create%20Jobs/setJobDetailsScreen.dart';
 import 'package:taccontractor/modules/Jobs/jobs_page.dart';
 import 'package:taccontractor/modules/Jobs/myJobs_view.dart';
 import 'package:taccontractor/modules/Messages/messages.dart';
@@ -27,7 +28,8 @@ class _LandingPageState extends State<LandingPage> {
     const HomeView(),
     const GuardsView(),
     // const JobsView(),
-    MyJobsView1(),
+    // MyJobsView1(),
+    SetJobDetailsScreen(),
     // EarningsScreen(),
     MessagesScreen(),
     const AccountScreen(),

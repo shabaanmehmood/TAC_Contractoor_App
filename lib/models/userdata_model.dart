@@ -45,7 +45,9 @@ class Data {
   String? appleId;
   String? fcmToken;
   bool? isDeleted;
+  String? registeringAs;
   String? postalAddress;
+  String? postalCode;
   String? masterSecurityLicense;
   String? australianBusinessNumber;
   String? australianCompanyNumber;
@@ -74,6 +76,8 @@ class Data {
     this.fcmToken,
     this.isDeleted,
     this.postalAddress,
+    this.postalCode,
+    this.registeringAs,
     this.masterSecurityLicense,
     this.australianBusinessNumber,
     this.australianCompanyNumber,
@@ -93,6 +97,7 @@ class Data {
     email = json['email'];
     phone = json['phone'];
     postalAddress = json['postalAddress'];
+    postalCode = json['postalCode'];
     masterSecurityLicense = json['masterSecurityLicense'];
     password = json['password'];
     role = json['role'];
@@ -101,6 +106,7 @@ class Data {
     isVerified = json['isVerified'];
     fcmToken = json['fcmToken'];
     gender = json['gender'];
+    registeringAs = json['registeringAs'];
     isActive = json['isActive'];
     isDeleted = json['isDeleted'];
     createdAt = json['createdAt'];  // Corrected field name
@@ -153,6 +159,7 @@ class Data {
     data['email'] = email;
     data['phone'] = phone;
     data['postalAddress'] = postalAddress;
+    data['postalCode'] = postalCode;
     data['masterSecurityLicense'] = masterSecurityLicense;
     data['password'] = password;
     data['role'] = role;
@@ -160,6 +167,7 @@ class Data {
     data['token'] = token;
     data['isVerified'] = isVerified;
     data['fcmToken'] = fcmToken;
+    data['registeringAs'] = registeringAs;
     data['gender'] = gender;
     data['isActive'] = isActive;
     data['isDeleted'] = isDeleted;
