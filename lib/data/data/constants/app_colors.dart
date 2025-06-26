@@ -22,6 +22,12 @@ class AppColors {
   static const Color kYellowS = Color.fromRGBO(255, 165, 0, 0.15);
   static const Color kRedS = Color.fromRGBO(235, 0, 0, 0.15);
   static const Color kChat = Color.fromRGBO(47, 61, 82, 1);
+  static const Color kCard = Color(0xff2F3D52);
+  static const Color kRCard = Color(0xff9CA8C0);
+  static const Color kACardSurface = Color(0xff2F3D52);
+  static const Color kACardAlert = Color(0xff3677FF); 
+  static const Color kACardCancelled = Color(0xffDA4E46); 
+  static const Color kInProgressCard = Color(0xffCC8400); 
 
   // static const Color kAccent1 = Color(0xFFFCCBB9);
   // static const Color kAccent2 = Color(0xFFB9C2FC);
