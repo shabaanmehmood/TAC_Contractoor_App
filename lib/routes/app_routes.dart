@@ -2,11 +2,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get_navigation/src/routes/get_route.dart';
 import 'package:taccontractor/modules/Guards/guards_view.dart';
+import 'package:taccontractor/modules/Guards/job_details/job_details_screen.dart';
 import 'package:taccontractor/modules/account/account.dart';
 import 'package:taccontractor/modules/account/components/profile/profile_screen.dart';
 import 'package:taccontractor/modules/auth/sign_up_view.dart';
 import 'package:taccontractor/modules/auth/sign_in_view.dart';
+import 'package:taccontractor/modules/jobDetailsScreen/jobDetailsScreen.dart';
 import 'package:taccontractor/modules/landing_page/landing_page.dart';
+import 'package:taccontractor/modules/myJobs/myJobsScreen.dart';
 
 import '../modules/auth/signup_screens/select_account_type_screen.dart';
 import '../modules/onboarding/onboarding_view.dart';

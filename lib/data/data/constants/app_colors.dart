@@ -28,6 +28,7 @@ class AppColors {
   static const Color kACardAlert = Color(0xff3677FF); 
   static const Color kACardCancelled = Color(0xffDA4E46); 
   static const Color kInProgressCard = Color(0xffCC8400); 
+  static const Color kGuardsCard = Color(0xff2F3D52); 
 
   // static const Color kAccent1 = Color(0xFFFCCBB9);
   // static const Color kAccent2 = Color(0xFFB9C2FC);

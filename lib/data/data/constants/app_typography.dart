@@ -1,6 +1,18 @@
 import 'package:flutter/material.dart';
 
 class AppTypography {
+  static TextStyle kLight11 = TextStyle(
+    fontWeight: FontWeight.w400,
+    fontSize: 11.5,
+  );
+   static TextStyle kLight12 = TextStyle(
+    fontWeight: FontWeight.w400,
+    fontSize: 12,
+  );
+  static TextStyle kLight13 = TextStyle(
+    fontWeight: FontWeight.w400,
+    fontSize: 13,
+  );
   // Light.
   static TextStyle kLight14 = TextStyle(
     fontWeight: FontWeight.w400,
@@ -15,6 +27,14 @@ class AppTypography {
     fontSize: 30 ,
   );
   // Bold.
+  static TextStyle kBold10 = TextStyle(
+    fontWeight: FontWeight.w700,
+    fontSize: 10 ,
+  );
+  static TextStyle kBold12 = TextStyle(
+    fontWeight: FontWeight.w700,
+    fontSize: 12 ,
+  );
   static TextStyle kBold14 = TextStyle(
     fontWeight: FontWeight.w700,
     fontSize: 14 ,
