@@ -11,7 +11,7 @@ class AppColors {
   static const Color kgshade = Color.fromRGBO(4, 199, 89, 0.15);
 
   static const Color ktextlight = Color.fromRGBO(218, 217, 217, 1);
-  static const Color kalert = Color.fromRGBO(204, 132, 0, 1);
+  static const Color kalert = Color.fromRGBO(86, 67, 32, 1);
   static const Color klightalert = Color.fromRGBO(255, 165, 0, 0.15);
   static const Color kinput = Color.fromRGBO(122, 134, 158, 1);
   static const Color kgrey = Color.fromRGBO(156, 168, 192, 1);
@@ -29,6 +29,9 @@ class AppColors {
   static const Color kACardCancelled = Color(0xffDA4E46); 
   static const Color kInProgressCard = Color(0xffCC8400); 
   static const Color kGuardsCard = Color(0xff2F3D52); 
+  static const Color kblueCard = Colors.blueAccent; 
+  static const Color kgreenCard = Color(0xff0A9E47); 
+
 
   // static const Color kAccent1 = Color(0xFFFCCBB9);
   // static const Color kAccent2 = Color(0xFFB9C2FC);
