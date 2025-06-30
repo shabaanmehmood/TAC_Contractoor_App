@@ -1,8 +1,8 @@
 class SkillModel {
   final String id;
-  final String name;
+  final String? name;
 
-  SkillModel({required this.id, required this.name});
+  SkillModel({required this.id,  this.name});
 
   factory SkillModel.fromJson(Map<String, dynamic> json) {
     return SkillModel(
@@ -13,7 +13,6 @@ class SkillModel {
 
   Map<String, dynamic> toJson() => {
     'id': id,
-    'name': name,
   };
 
   @override

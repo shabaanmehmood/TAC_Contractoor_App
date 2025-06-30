@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
@@ -5,11 +7,15 @@ import 'package:taccontractor/data/data/constants/app_assets.dart';
 import 'package:taccontractor/data/data/constants/app_colors.dart';
 import 'package:taccontractor/data/data/constants/app_spacing.dart';
 import 'package:taccontractor/data/data/constants/app_typography.dart';
+import 'package:taccontractor/dataproviders/api_service.dart';
 import 'package:taccontractor/modules/myJobs/myJobsComponent.dart/active.dart';
 import 'package:taccontractor/modules/myJobs/myJobsComponent.dart/cancelled.dart';
 import 'package:taccontractor/modules/myJobs/myJobsComponent.dart/completed.dart';
 import 'package:taccontractor/modules/myJobs/myJobsComponent.dart/inProgress.dart';
 import 'package:taccontractor/modules/myJobs/myJobsComponent.dart/open.dart';
+import 'package:taccontractor/models/myJobs_model.dart';
+
+import 'myJobsController.dart';
 
 
 class MyJobsScreen extends StatefulWidget {
@@ -18,8 +24,32 @@ class MyJobsScreen extends StatefulWidget {
 }
 
 class _MyJobsScreenState extends State<MyJobsScreen> {
+  MyApIService myApiService = MyApIService();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    // fetchMyJobs();
+  }
+
+  // Future<void> fetchMyJobs() async {
+  //   try {
+  //     final response = await myApiService.getMyJobs();
+  //     if (response.statusCode == 200) {
+  //       final Map<String, dynamic> jsonMap = jsonDecode(response.body);
+  //       final List<dynamic> jsonList = jsonMap['data'];
+  //       List<MyjobsModel> myJobs = jsonList.map((json) => MyjobsModel.fromJson(json)).toList();
+  //     }
+  //   } catch (e) {
+  //     Get.snackbar("Error", "Failed to fetch licenses");
+  //   }
+  // }
+
   final List<String> tabs = ["Open", "Active", "In Progress", "Completed", "Cancelled"];
   int selectedIndex = 0;
+  final MyJobsController controller = Get.put(MyJobsController());
+
 
   @override
   Widget build(BuildContext context) {
@@ -94,7 +124,43 @@ class _MyJobsScreenState extends State<MyJobsScreen> {
               ),
             ),
 
-            /// Tab Buttons
+            // /// Tab Buttons
+            // SingleChildScrollView(
+            //   scrollDirection: Axis.horizontal,
+            //   child: Padding(
+            //     padding: EdgeInsets.only(left: Get.width * 0.03),
+            //     child: Row(
+            //       children: List.generate(tabs.length, (index) {
+            //         final isSelected = selectedIndex == index;
+            //         return Padding(
+            //           padding: EdgeInsets.symmetric(horizontal: Get.width * 0.015),
+            //           child: OutlinedButton(
+            //             onPressed: () {
+            //               setState(() {
+            //                 selectedIndex = index;
+            //               });
+            //             },
+            //             style: OutlinedButton.styleFrom(
+            //               backgroundColor: isSelected ? AppColors.kSkyBlue : Colors.transparent,
+            //               side: BorderSide(color: AppColors.kSkyBlue),
+            //               shape: RoundedRectangleBorder(
+            //                 borderRadius: BorderRadius.circular(Get.width * 0.02),
+            //               ),
+            //               padding: EdgeInsets.symmetric(horizontal: Get.width * 0.03, vertical: Get.width * 0.01),
+            //             ),
+            //             child: Text(
+            //               tabs[index],
+            //               style: AppTypography.kBold16.copyWith(
+            //                 color: isSelected ? AppColors.kBlack : AppColors.kWhite,
+            //               ),
+            //             ),
+            //           ),
+            //         );
+            //       }),
+            //     ),
+            //   ),
+            // ),
+
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Padding(
@@ -130,46 +196,94 @@ class _MyJobsScreenState extends State<MyJobsScreen> {
                 ),
               ),
             ),
+            SizedBox(height: Get.height * 0.02),
+            Expanded(
+              child: Obx(() {
+                if (controller.isLoading.value) {
+                  return Center(child: CircularProgressIndicator());
+                }
+                List<MyjobsModel> filteredJobs = [];
+                switch (selectedIndex) {
+                  case 0:
+                    filteredJobs = controller.getJobsByStatus("Open");
+                    break;
+                  case 1:
+                    filteredJobs = controller.getJobsByStatus("Active");
+                    break;
+                  case 2:
+                    filteredJobs = controller.getJobsByStatus("In Progress");
+                    break;
+                  case 3:
+                    filteredJobs = controller.getJobsByStatus("Completed");
+                    break;
+                  case 4:
+                    filteredJobs = controller.getJobsByStatus("Cancelled");
+                    break;
+                  default:
+                    filteredJobs = controller.getJobsByStatus("Open");
+                }
+                return ListView.builder(
+                  itemCount: filteredJobs.length,
+                  itemBuilder: (context, index) {
+                    final job = filteredJobs[index];
+                    switch (selectedIndex) {
+                      case 0:
+                        return jobOpenCardWidget(job: job);
+                      case 1:
+                        return jobActiveCardWidget(job: job);
+                      case 2:
+                        return jobInProgressCardWidget(job: job);
+                      case 3:
+                        return jobCompletedCardWidget(job: job);
+                      case 4:
+                        return jobCancelledCardWidget(job: job);
+                      default:
+                        return jobOpenCardWidget(job: job);
+                    }
+                  },
+                );
+              }),
+            ),
 
             SizedBox(height: Get.height * 0.02),
 
-            /// Job Card Widget
-           Expanded(
-  child: ListView.builder(
-    padding: EdgeInsets.zero,
-    itemCount: 2,
-    itemBuilder: (context, index) {
-      Widget selectedCard;
-
-      switch (selectedIndex) {
-        case 0:
-          selectedCard = jobOpenCardWidget();
-          break;
-        case 1:
-          selectedCard = jobActiveCardWidget();
-          break;
-        case 2:
-          selectedCard = jobInProgressCardWidget();
-          break;
-        case 3:
-          selectedCard = jobCompletedCardWidget();
-          break;
-        case 4:
-          selectedCard = jobCancelledCardWidget();
-          break;
-        default:
-          selectedCard = jobOpenCardWidget();
-      }
-
-      return Column(
-        children: [
-          selectedCard,
-          SizedBox(height: Get.height * 0.02),
-        ],
-      );
-    },
-  ),
-),
+//             /// Job Card Widget
+//            Expanded(
+//   child: ListView.builder(
+//     padding: EdgeInsets.zero,
+//     itemCount: 2,
+//     itemBuilder: (context, index) {
+//       Widget selectedCard;
+//
+//       switch (selectedIndex) {
+//         case 0:
+//           selectedCard = jobOpenCardWidget();
+//           break;
+//         case 1:
+//           selectedCard = jobActiveCardWidget();
+//           break;
+//         case 2:
+//           selectedCard = jobInProgressCardWidget();
+//           break;
+//         case 3:
+//           selectedCard = jobCompletedCardWidget();
+//           break;
+//         case 4:
+//           selectedCard = jobCancelledCardWidget();
+//           break;
+//         default:
+//           selectedCard = jobOpenCardWidget();
+//       }
+//
+//       return Column(
+//         children: [
+//           selectedCard,
+//           SizedBox(height: Get.height * 0.02),
+//         ],
+//       );
+//     },
+//   ),
+// ),
 
 
           ],

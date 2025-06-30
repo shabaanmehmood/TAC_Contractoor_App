@@ -275,6 +275,28 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
     ));
   }
 
+  Widget _buildLevelsLimitSlider() {
+    return Obx(() => RangeSlider(
+      activeColor: AppColors.kSkyBlue,
+      inactiveColor: Colors.grey,
+      values: RangeValues(
+          controller.minimumLevel.value.toDouble(),
+          controller.maximumLevel.value.toDouble()
+      ),
+      min: 0,
+      max: 100,
+      divisions: 100,
+      labels: RangeLabels(
+        "${controller.minimumLevel.value} level",
+        "${controller.maximumLevel.value} level",
+      ),
+      onChanged: (RangeValues values) {
+        controller.minimumLevel.value = values.start.toInt();
+        controller.maximumLevel.value = values.end.toInt();
+      },
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -340,11 +362,12 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                           },
                         ),
                         SizedBox(height: AppSpacing.fifteenVertical),
-                        TappableInputTile(
-                          controller: controller.level,
-                          title: "Levels",
-                          onTap: (){},
+                        Text(
+                          "Levels",
+                          style: AppTypography.kBold16.copyWith(
+                              color: AppColors.kWhite),
                         ),
+                        _buildLevelsLimitSlider(),
                         SizedBox(height: AppSpacing.fifteenVertical),
                         Text(
                           "Age Limit",

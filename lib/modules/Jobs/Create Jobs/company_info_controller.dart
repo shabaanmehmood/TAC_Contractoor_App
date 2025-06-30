@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:taccontractor/controllers/user_controller.dart';
 import 'package:taccontractor/data/data/constants/app_colors.dart';
+import 'package:taccontractor/models/jobCategoriesModel.dart';
+import 'package:taccontractor/models/jobPremisesModel.dart';
 
 import '../../../dataproviders/api_service.dart';
 import '../../../models/requiredLicenseModel.dart';
@@ -23,7 +25,7 @@ class SetJobDetailsController extends GetxController {
   final payPerHour = TextEditingController();
   final jobCategory = TextEditingController();
   var selectedJobCategoryOption = "".obs;      // For storing the ID
-  final jobDescription = TextEditingController();
+  final jobDescription = 'description'.obs;
   final jobResponsiblities = TextEditingController();
   final jobSOPs = TextEditingController();
   final noOfGuardsRequired = TextEditingController();
@@ -35,8 +37,7 @@ class SetJobDetailsController extends GetxController {
   final endTime = TextEditingController();
   final reportingManager = TextEditingController();
   final reportingManagerNumber = TextEditingController();
-  var leaderRequired = ''.obs;
-
+  var leaderRequired = false.obs; // Observable bool
   // ================= Preference controllers ==================
 
   final formKeyforpreference = GlobalKey<FormState>();
@@ -73,6 +74,8 @@ class SetJobDetailsController extends GetxController {
   var maxExperience = 0.obs;
   var minAge = 0.obs;
   var maxAge = 0.obs;
+  var minimumLevel = 0.obs;
+  var maximumLevel = 0.obs;
   var selectedSkills = <SkillModel>[].obs;
   var availableSkills = <SkillModel>[].obs;
 
@@ -91,6 +94,12 @@ class SetJobDetailsController extends GetxController {
 
   var availableLicenses = <RequiredLicense>[].obs;
   var selectedLicenses = <RequiredLicense>[].obs;
+
+  var availableCategories = <JobCategoryModel>[].obs;
+  var selectedCategory = ''.obs;
+
+  var availablePremises = <JobPremisesModel>[].obs;
+  var selectedPremises = ''.obs;
 
   Future<void> fetchLicenses() async {
     try {
@@ -125,16 +134,54 @@ class SetJobDetailsController extends GetxController {
     }
   }
 
+  Future<void> fetchJobCategories(String userId) async {
+    try {
+      final response = await myApiService.getJobCategories(userId);
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> jsonMap = jsonDecode(response.body);
+        final List<dynamic> jsonList = jsonMap['data'];
+        availableCategories.value = jsonList.map((json) => JobCategoryModel.fromJson(json)).toList();
+        debugPrint('Available Categories Ids: ${availableCategories.map((e) => e.id).toList()}');
+      } else {
+        availableCategories.clear();
+        debugPrint('Error: ${response.statusCode} - ${response.body}');
+      }
+    } catch (e) {
+      availableCategories.clear();
+      debugPrint('Exception: $e');
+    }
+  }
+
+  Future<void> fetchJobPremises(String userId) async {
+    try {
+      final response = await myApiService.getJobPremises(userId);
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> jsonMap = jsonDecode(response.body);
+        final List<dynamic> jsonList = jsonMap['data'];
+        availablePremises.value = jsonList
+            .map((json) => JobPremisesModel.fromJson(json))
+            .toList();
+      } else {
+        availablePremises.clear();
+        debugPrint('Error: ${response.statusCode} - ${response.body}');
+      }
+    } catch (e) {
+      availablePremises.clear();
+      debugPrint('Exception: $e');
+    }
+  }
+
+
   // In your controller
-  RxString jobType = 'Recurring'.obs; // or 'One Time'
+  RxString jobType = 'recurring'.obs; // or 'One Time'
   RxList<Shift> shifts = <Shift>[].obs;
 
-  bool get canAddShift => jobType.value == 'Recurring' || shifts.isEmpty;
+  bool get canAddShift => jobType.value == 'recurring' || shifts.isEmpty;
 
   final _uuid = Uuid();
 
   void addShifts(List<Shift> newShifts) {
-    if (jobType.value == 'One Time') {
+    if (jobType.value == 'onetime') {
       shifts.value = newShifts.take(1).toList();
     } else {
       shifts.addAll(newShifts);

@@ -12,6 +12,7 @@ import '../controllers/user_controller.dart';
 import '../models/createJobModel.dart';
 import '../models/getUserById_model.dart';
 import '../models/jobResponse_model.dart';
+import '../models/myJobs_model.dart';
 import '../models/userdata_model.dart';
 import '../models/userupdate_model.dart';
 
@@ -632,7 +633,7 @@ class MyApIService {
     return response;
   }
 
-  Future<http.Response> applyJob(String userId, String jobId, List<String> shiftId) async {
+  Future<http.Response> applyJob(String userId, String jobId, List<String?> shiftId) async {
     var functionUrl = 'jobApplication/apply';
     final response = await http.post(
       Uri.parse(baseurl + functionUrl),
@@ -785,11 +786,12 @@ class MyApIService {
       body: jsonEncode(createJobModel.toJson()), // Encode body as JSON string
     );
 
-    if (response.statusCode == 201) {
+    if (response.statusCode == 200 || response.statusCode == 201) {
       debugPrint('job created successfully');
       final json = jsonDecode(response.body);
       debugPrint('Response in job created: $json');
     } else {
+      debugPrint('inside job creating issue method call: ${response.body}');
       debugPrint('Error job creating issue: ${response.statusCode}');
     }
 
@@ -812,6 +814,41 @@ class MyApIService {
       // handle error
     }
     return response;
+  }
+
+  // Future<http.Response> getMyJobs() async {
+  //   var functionUrl = 'jobs/';
+  //   final response = await http.get(Uri.parse(baseurl + functionUrl),
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //       'ngrok-skip-browser-warning': 'true',
+  //     },
+  //   );
+  //   if (response.statusCode == 200) {
+  //     final json = jsonDecode(response.body);
+  //     debugPrint('Response in getAllLicense: $json');
+  //   } else {
+  //     // handle error
+  //   }
+  //   return response;
+  // }
+
+  Future<List<MyjobsModel>> getMyJobs() async {
+    var functionUrl = 'jobs/';
+    final response = await http.get(
+      Uri.parse(baseurl + functionUrl),
+      headers: {
+        "Content-Type": "application/json",
+        'ngrok-skip-browser-warning': 'true',
+      },
+    );
+    if (response.statusCode == 200) {
+      final json = jsonDecode(response.body);
+      final List data = json is List ? json : json['data'];
+      return data.map((e) => MyjobsModel.fromJson(e)).toList();
+    } else {
+      throw Exception('Failed to load jobs');
+    }
   }
 
 

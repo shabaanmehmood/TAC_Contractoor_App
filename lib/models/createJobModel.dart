@@ -1,4 +1,6 @@
 import 'package:taccontractor/models/preferenceModel.dart';
+import 'package:taccontractor/models/requiredLicenseModel.dart';
+import 'package:taccontractor/models/required_skills.dart';
 import 'package:taccontractor/models/shift_model.dart';
 
 class CreateJobModel {
@@ -9,12 +11,21 @@ class CreateJobModel {
   final String description;
   final String responsibilities;
   final String location;
-  final double latitude;
-  final double longitude;
+  final String latitude;
+  final String longitude;
+  final String reportingManagerNumber;
+  final String reportingManagerName;
+  final String minAge;
+  final String maxAge;
+  final String minimumLevel;
+  final String maximumLevel;
   final int noOfGuardsRequired;
+  final String jobType;
   final bool leaderRequired;
   final String jobSOPs;
   final String contractorId;
+  final List<RequiredLicense> requiredLicense;
+  final List<SkillModel> SkillIds;
   final List<Shift> shifts;
   final Preferences preferences;
 
@@ -28,10 +39,19 @@ class CreateJobModel {
     required this.location,
     required this.latitude,
     required this.longitude,
+    required this.reportingManagerNumber,
+    required this.reportingManagerName,
+    required this.minAge,
+    required this.maxAge,
+    required this.minimumLevel,
+    required this.maximumLevel,
     required this.noOfGuardsRequired,
+    required this.jobType,
     required this.leaderRequired,
     required this.jobSOPs,
     required this.contractorId,
+    required this.requiredLicense,
+    required this.SkillIds,
     required this.shifts,
     required this.preferences,
   });
@@ -47,10 +67,19 @@ class CreateJobModel {
       'location': location,
       'latitude': latitude,
       'longitude': longitude,
+      'reportingManagerNumber': reportingManagerNumber,
+      'reportingManagerName': reportingManagerName,
+      'minAge': minAge,
+      'maxAge': maxAge,
+      'minumumLevel': minimumLevel,
+      'maximumLevel': maximumLevel,
       'noOfGuardsRequired': noOfGuardsRequired,
+      'jobType': jobType,
       'leaderRequired': leaderRequired,
       'jobSOPs': jobSOPs,
       'contractorId': contractorId,
+      'requiredLicenses': requiredLicense.map((l) => l.toJson()).toList(),
+      'skillIds': SkillIds.map((s) => s.id).toList(),
       'shifts': shifts.map((shift) => shift.toJson()).toList(),
       'preferences': preferences.toJson(),
     };

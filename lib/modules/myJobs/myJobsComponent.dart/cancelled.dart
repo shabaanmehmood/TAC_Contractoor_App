@@ -4,9 +4,11 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:taccontractor/data/data/constants/app_assets.dart';
 import 'package:taccontractor/data/data/constants/app_colors.dart';
 import 'package:taccontractor/data/data/constants/app_spacing.dart';
-import 'package:taccontractor/data/data/constants/app_typography.dart'; 
+import 'package:taccontractor/data/data/constants/app_typography.dart';
+
+import '../../../models/myJobs_model.dart';
  
- Widget jobCancelledCardWidget() {
+ Widget jobCancelledCardWidget({required MyjobsModel job}) {
     return Container(
       margin: EdgeInsets.only(left: Get.width * 0.04),
       padding: EdgeInsets.all(Get.width * 0.04),
@@ -27,7 +29,7 @@ import 'package:taccontractor/data/data/constants/app_typography.dart';
             children: [
               Expanded(
                 child: Text(
-                  'Security Escort for Actor – Airport to Residence',
+                  job.jobTitle,
                   style: AppTypography.kBold16.copyWith(color: AppColors.kWhite),
                 ),
               ),
@@ -45,12 +47,12 @@ import 'package:taccontractor/data/data/constants/app_typography.dart';
               Icon(Icons.location_on, color: AppColors.kgrey, size: 18),
               SizedBox(width: 5),
               Text(
-                'Downtown Manhattan, NY',
+                job.jobLocation,
                 style: AppTypography.kLight14.copyWith(color: AppColors.kgrey),
               ),
               Spacer(),
               Text(
-                '20 Yard Radius',
+                job.premisesTypeName,
                 style: AppTypography.kLight14.copyWith(color: AppColors.kgrey),
               ),
             ],
@@ -64,14 +66,14 @@ import 'package:taccontractor/data/data/constants/app_typography.dart';
             
               SizedBox(width: 5),
               Text(
-                '29 Mar 2025',
+                job.shifts[0].date,
                 style: AppTypography.kLight14.copyWith(color: AppColors.kgrey),
               ),
               Spacer(),
               Image.asset("assets/icon/time.png",scale: Get.width * 0.0025,color: AppColors.kgrey),
                  SizedBox(width: 5),
               Text(
-                '9:00 AM - 5:00 PM',
+                '${job.shifts[0].startTime} - ${job.shifts[0].endTime}',
                 style: AppTypography.kLight14.copyWith(color: AppColors.kgrey),
               ),
             ],
@@ -183,7 +185,7 @@ import 'package:taccontractor/data/data/constants/app_typography.dart';
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                        "Morning",
+            job.shifts[0].timePeriod! == "AM" ? "Morning" : "Evening",
                         style: AppTypography.kBold14.copyWith(color: AppColors.kgrey),
                       ),
                    
@@ -193,7 +195,7 @@ import 'package:taccontractor/data/data/constants/app_typography.dart';
                  Image.asset("assets/icon/time.png",scale: Get.width * 0.0025,color: AppColors.kgrey),
                SizedBox(width: 3),
               Text(
-                '9:00 AM - 5:00 PM',
+                '${job.shifts[0].startTime} - ${job.shifts[0].endTime}',
                 style: AppTypography.kLight14.copyWith(color: AppColors.kgrey),
               ),
 

@@ -10,6 +10,7 @@ import 'package:taccontractor/modules/account/components/reviews/reviews_screen.
 import '../../controllers/user_controller.dart';
 import '../../data/data/constants/app_assets.dart';
 import '../../dataproviders/api_service.dart';
+import '../Jobs/Create Jobs/setJobDetailsScreen.dart';
 import 'components/Settings/SettingsScreen.dart';
 
 class AccountScreen extends StatelessWidget {
@@ -200,7 +201,8 @@ class AccountScreen extends StatelessWidget {
                     'Profile',
                     Icons.person,
                     'Manage your profile and documents',
-                    onTap: () => Get.to(() => const ProfileScreen()),
+                    onTap: () => Get.to(() => SetJobDetailsScreen(),
+                    ),
                   ),
                   buildCard(
                     screenWidth,

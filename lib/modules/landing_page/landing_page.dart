@@ -12,6 +12,7 @@ import 'package:taccontractor/modules/Messages/messages.dart';
 import 'package:taccontractor/modules/account/account.dart';
 import 'package:taccontractor/modules/account/components/Earning/earnings_screen.dart';
 import 'package:taccontractor/modules/home/home_view.dart';
+import 'package:taccontractor/modules/myJobs/myJobsScreen.dart';
 import 'package:taccontractor/modules/newjob%20section/my_jobs_view.dart';
 
 import '../../controllers/user_controller.dart';
@@ -29,7 +30,7 @@ class _LandingPageState extends State<LandingPage> {
     const GuardsView(),
     // const JobsView(),
     // MyJobsView1(),
-    SetJobDetailsScreen(),
+    MyJobsScreen(),
     // EarningsScreen(),
     MessagesScreen(),
     const AccountScreen(),

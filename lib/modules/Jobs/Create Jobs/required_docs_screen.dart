@@ -16,6 +16,8 @@ import 'package:taccontractor/modules/auth/signup_screens/document_upload_screen
 import '../../../dataproviders/api_service.dart';
 import '../../../models/createJobModel.dart';
 import '../../../models/preferenceModel.dart';
+import '../../../models/requiredLicenseModel.dart';
+import '../../../models/required_skills.dart';
 import '../../../models/signUpModelForCompany.dart';
 import '../../../routes/app_routes.dart';
 import '../../../widhets/common widgets/buttons/adaptive_dialogue.dart';
@@ -42,21 +44,32 @@ class _RequiredDocsScreenState extends State<RequiredDocsScreen> {
     final job = CreateJobModel(
       title: controller.jobTitle.text,
       payPerHour: controller.payPerHour.text,
-      categoryId: controller.jobCategory.text,
-      premisesTypeId: controller.jobPremisesType.text,
-      description: controller.jobDescription.text,
+      categoryId: controller.selectedCategory.value.toString(),
+      premisesTypeId: controller.selectedPremises.value,
+      description: controller.jobDescription.value,
       responsibilities: controller.jobResponsiblities.text,
       location: controller.siteLocation.text,
-      latitude: double.parse(controller.startDate.text),
-      longitude: double.parse(controller.endDate.text),
+      latitude: '37.4634',
+      longitude: '-122.1654',
+      reportingManagerNumber: controller.reportingManagerNumber.text,
+      reportingManagerName: controller.reportingManager.text,
+      minAge: controller.minAge.value.toString(),
+      maxAge: controller.maxAge.value.toString(),
+      minimumLevel: controller.minimumLevel.value.toString(),
+      maximumLevel: controller.maximumLevel.value.toString(),
       noOfGuardsRequired: int.parse(controller.noOfGuardsRequired.text),
-      leaderRequired: controller.leaderRequired.value == 'Yes',
+      jobType: controller.jobType.value,
+      leaderRequired: controller.leaderRequired.value,
       jobSOPs: controller.jobSOPs.text,
       contractorId: controller.userController.userData.value!.id!,
+      requiredLicense: controller.selectedLicenses
+          .map((license) => RequiredLicense(id: license.id, name: license.name))
+          .toList(),
+      SkillIds: controller.selectedSkills
+          .map((skill) => SkillModel(id: skill.id))
+          .toList(),
       shifts: controller.shifts.toList(),
       preferences: Preferences(
-        requiredLicenses: controller.selectedLicenses.toList(),
-        requiredSkills: controller.selectedSkills.toList(),
         minYearsExperience: controller.minExperience.value,
         maxYearsExperience: controller.maxExperience.value,
         appearanceRequirements: controller.jobAppearance.text,

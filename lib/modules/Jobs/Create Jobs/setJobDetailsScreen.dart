@@ -5,7 +5,9 @@ import 'package:taccontractor/data/data/constants/app_assets.dart';
 import 'package:taccontractor/data/data/constants/app_colors.dart';
 import 'package:taccontractor/data/data/constants/app_spacing.dart';
 import 'package:taccontractor/data/data/constants/app_typography.dart';
+import 'package:taccontractor/models/jobCategoriesModel.dart';
 import 'package:taccontractor/widhets/common%20widgets/buttons/tappableInputTile.dart';
+import '../../../models/jobPremisesModel.dart';
 import '../../../models/shift_model.dart';
 import '../../../widhets/common overlays/jobCategory_overlay.dart';
 import '../../../widhets/common overlays/jobPremises_overlay.dart';
@@ -13,7 +15,13 @@ import 'company_info_controller.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
-class SetJobDetailsScreen extends StatelessWidget {
+class SetJobDetailsScreen extends StatefulWidget {
+
+  @override
+  State<SetJobDetailsScreen> createState() => _SetJobDetailsScreenState();
+}
+
+class _SetJobDetailsScreenState extends State<SetJobDetailsScreen> {
 
   InputDecoration _inputDecoration(String hintText, String iconPath) {
     return InputDecoration(
@@ -38,7 +46,16 @@ class SetJobDetailsScreen extends StatelessWidget {
 
   final SetJobDetailsController controller = Get.find();
 
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    controller.fetchJobCategories(controller.userController.userData.value!.id!);
+    controller.fetchJobPremises(controller.userController.userData.value!.id!);
+  }
+
   final List<String> allDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
   final Map<String, String> dayAbbreviationToFull = {
     'Mon': 'Monday',
     'Tue': 'Tuesday',
@@ -60,6 +77,15 @@ class SetJobDetailsScreen extends StatelessWidget {
     }
     return days;
   }
+
+  String getTimePeriod(String time) {
+    // Assumes time is in HH:MM format (e.g., "10:00", "13:00")
+    final parts = time.split(':');
+    if (parts.length != 2) return "AM"; // fallback
+    final hour = int.tryParse(parts[0]) ?? 0;
+    return hour < 12 ? "AM" : "PM";
+  }
+
 
   void _showAddShiftDialog(BuildContext context) {
     final formKey = GlobalKey<FormState>();
@@ -83,7 +109,7 @@ class SetJobDetailsScreen extends StatelessWidget {
             child: Obx(() => Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (controller.jobType.value == 'Recurring') ...[
+                if (controller.jobType.value == 'recurring') ...[
                   TextFormField(
                     style: const TextStyle(color: AppColors.kWhite),
                     controller: startDateController,
@@ -158,7 +184,7 @@ class SetJobDetailsScreen extends StatelessWidget {
                     },
                   ),
                 ],
-                if (controller.jobType.value == 'One Time') ...[
+                if (controller.jobType.value == 'onetime') ...[
                   TextFormField(
                     style: const TextStyle(color: AppColors.kWhite),
                     controller: startDateController,
@@ -207,26 +233,30 @@ class SetJobDetailsScreen extends StatelessWidget {
                     final picked = await showTimePicker(
                       context: context,
                       initialTime: TimeOfDay.now(),
-                      builder: (context, child) => Theme(
-                        data: Theme.of(context).copyWith(
-                          dialogBackgroundColor: AppColors.kDarkestBlue,
-                          colorScheme: ColorScheme.dark(
-                            primary: AppColors.kSkyBlue,
-                            onPrimary: Colors.black,
-                            surface: AppColors.kDarkestBlue,
-                            onSurface: Colors.white,
-                          ),
-                          textButtonTheme: TextButtonThemeData(
-                            style: TextButton.styleFrom(
-                              foregroundColor: AppColors.kSkyBlue,
+                      builder: (context, child) => MediaQuery(
+                        data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+                        child: Theme(
+                          data: Theme.of(context).copyWith(
+                            dialogBackgroundColor: AppColors.kDarkestBlue,
+                            colorScheme: ColorScheme.dark(
+                              primary: AppColors.kSkyBlue,
+                              onPrimary: Colors.black,
+                              surface: AppColors.kDarkestBlue,
+                              onSurface: Colors.white,
+                            ),
+                            textButtonTheme: TextButtonThemeData(
+                              style: TextButton.styleFrom(
+                                foregroundColor: AppColors.kSkyBlue,
+                              ),
                             ),
                           ),
+                          child: child!,
                         ),
-                        child: child!,
                       ),
                     );
                     if (picked != null) {
-                      startTimeController.text = picked.format(context);
+                      startTimeController.text =
+                      '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
                     }
                   },
                 ),
@@ -241,26 +271,30 @@ class SetJobDetailsScreen extends StatelessWidget {
                     final picked = await showTimePicker(
                       context: context,
                       initialTime: TimeOfDay.now(),
-                      builder: (context, child) => Theme(
-                        data: Theme.of(context).copyWith(
-                          dialogBackgroundColor: AppColors.kDarkestBlue,
-                          colorScheme: ColorScheme.dark(
-                            primary: AppColors.kSkyBlue,
-                            onPrimary: Colors.black,
-                            surface: AppColors.kDarkestBlue,
-                            onSurface: Colors.white,
-                          ),
-                          textButtonTheme: TextButtonThemeData(
-                            style: TextButton.styleFrom(
-                              foregroundColor: AppColors.kSkyBlue,
+                      builder: (context, child) => MediaQuery(
+                        data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+                        child: Theme(
+                          data: Theme.of(context).copyWith(
+                            dialogBackgroundColor: AppColors.kDarkestBlue,
+                            colorScheme: ColorScheme.dark(
+                              primary: AppColors.kSkyBlue,
+                              onPrimary: Colors.black,
+                              surface: AppColors.kDarkestBlue,
+                              onSurface: Colors.white,
+                            ),
+                            textButtonTheme: TextButtonThemeData(
+                              style: TextButton.styleFrom(
+                                foregroundColor: AppColors.kSkyBlue,
+                              ),
                             ),
                           ),
+                          child: child!,
                         ),
-                        child: child!,
                       ),
                     );
                     if (picked != null) {
-                      endTimeController.text = picked.format(context);
+                      endTimeController.text =
+                      '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
                     }
                   },
                 ),
@@ -281,7 +315,7 @@ class SetJobDetailsScreen extends StatelessWidget {
 
                 try {
                   startDate = pickedStartDate ?? DateTime.parse(startDateController.text);
-                  if (controller.jobType.value == 'Recurring') {
+                  if (controller.jobType.value == 'recurring') {
                     endDate = pickedEndDate ?? DateTime.parse(endDateController.text);
                   }
                 } catch (e) {
@@ -289,10 +323,16 @@ class SetJobDetailsScreen extends StatelessWidget {
                   return;
                 }
 
-                // Add date validation before generation
-                if (startDate.isAfter(endDate!)) {
-                  Get.snackbar('Error', 'Start date cannot be after end date');
-                  return;
+                // FIX 2: Only validate endDate for recurring jobs
+                if (controller.jobType.value == 'recurring') {
+                  if (endDate == null) {
+                    Get.snackbar('Error', 'End date required for recurring jobs');
+                    return;
+                  }
+                  if (startDate.isAfter(endDate)) {
+                    Get.snackbar('Error', 'Start date cannot be after end date');
+                    return;
+                  }
                 }
 
 
@@ -300,10 +340,10 @@ class SetJobDetailsScreen extends StatelessWidget {
                 // Generate days between
                 List<Shift> shiftsList = [];
 
-                if (controller.jobType.value == 'One Time') {
+                if (controller.jobType.value == 'onetime') {
                   shiftsList = generateShiftsPerDay(
                     startDate: startDate,
-                    endDate: startDate,
+                    endDate: startDate.add(Duration(days: 1)),
                     startTime: startTimeController.text,
                     endTime: endTimeController.text,
                   );
@@ -373,8 +413,9 @@ class SetJobDetailsScreen extends StatelessWidget {
   List<Shift> generateShiftsPerDay({
     required DateTime startDate,
     required DateTime endDate,
-    required String startTime,
-    required String endTime,
+    required String startTime, // In HH:MM 24-hour
+    required String endTime,   // In HH:MM 24-hour
+    bool? isOvernight,
   }) {
     List<Shift> shifts = [];
     DateTime current = startDate;
@@ -382,14 +423,21 @@ class SetJobDetailsScreen extends StatelessWidget {
     while (!current.isAfter(endDate)) {
       String dayName = DateFormat('EEEE').format(current);
       String dateIso = current.toIso8601String().split('T').first + "T00:00:00.000Z";
+      String timePeriod = getTimePeriod(startTime); // "AM" or "PM" based on startTime
+
+      // Convert to 12-hour without AM/PM
+      String startTime12 = convertTo12HourNoAmPm(startTime);
+      String endTime12 = convertTo12HourNoAmPm(endTime);
 
       shifts.add(
         Shift(
           id: _uuid.v4(),
           date: dateIso,
           days: [dayName],
-          startTime: startTime,
-          endTime: endTime,
+          timePeriod: timePeriod,
+          startTime: startTime12, // Now in 12-hour without AM/PM
+          endTime: endTime12,     // Now in 12-hour without AM/PM
+          isOvernight: isOvernight,
         ),
       );
       current = current.add(Duration(days: 1));
@@ -397,6 +445,146 @@ class SetJobDetailsScreen extends StatelessWidget {
     return shifts;
   }
 
+  String convertTo12HourNoAmPm(String time24) {
+    int hour = int.tryParse(time24.split(':')[0]) ?? 0;
+    int minute = int.tryParse(time24.split(':')[1]) ?? 0;
+    hour = hour % 12;
+    hour = hour == 0 ? 12 : hour; // 0 becomes 12 in 12-hour
+    return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
+  }
+
+
+
+  void showJobCategoryBottomSheet(BuildContext context, controller) {
+    showModalBottomSheet(
+      context: context,
+      enableDrag: true,
+      isDismissible: true,
+      useSafeArea: true,
+      backgroundColor: AppColors.kDarkBlue,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(20),
+          child: Obx(() {
+            if (controller.availableCategories.isEmpty) {
+              return Center(child: CircularProgressIndicator());
+            }
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Divider(
+                  color: Colors.grey,
+                  thickness: 5,
+                  indent: 140,
+                  endIndent: 140,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Job Category",
+                      style: AppTypography.kBold18.copyWith(color: AppColors.kWhite),
+                    ),
+                    GestureDetector(
+                      onTap: () => Get.back(),
+                      child: Text("Done", style: AppTypography.kBold16.copyWith(color: AppColors.kSkyBlue)),
+                    ),
+                  ],
+                ),
+                SizedBox(height: AppSpacing.tenVertical),
+                ...controller.availableCategories.map((category) =>
+                    _buildJobCategoryOption(controller, category)
+                ).toList(),
+              ],
+            );
+          }),
+        );
+      },
+    );
+  }
+
+  Widget _buildJobCategoryOption(controller, JobCategoryModel category) {
+    return RadioListTile<String>(
+      value: category.id.toString(),
+      groupValue: controller.selectedCategory.value,
+      onChanged: (String? value) {
+        debugPrint('Selected value: $value');
+        controller.selectedCategory.value = value;
+        debugPrint('Selected category: ${controller.selectedCategory.value}');
+      },
+      title: Text(category.name, style: TextStyle(color: Colors.white)),
+      activeColor: AppColors.kSkyBlue,
+    );
+  }
+
+  void showJobPremisesBottomSheet(BuildContext context, controller) {
+    showModalBottomSheet(
+      context: context,
+      enableDrag: true,
+      isDismissible: true,
+      useSafeArea: true,
+      backgroundColor: AppColors.kDarkBlue,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(20),
+          child: Obx(() {
+            if (controller.availablePremises.isEmpty) {
+              return Center(child: CircularProgressIndicator());
+            }
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Divider(
+                  color: Colors.grey,
+                  thickness: 5,
+                  indent: 140,
+                  endIndent: 140,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Job Premises",
+                      style: AppTypography.kBold18.copyWith(color: AppColors.kWhite),
+                    ),
+                    GestureDetector(
+                      onTap: () => Get.back(),
+                      child: Text(
+                        "Done",
+                        style: AppTypography.kBold16.copyWith(color: AppColors.kSkyBlue),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: AppSpacing.tenVertical),
+                ...controller.availablePremises.map((premise) =>
+                    _buildJobPremisesOption(controller, premise)
+                ).toList(),
+              ],
+            );
+          }),
+        );
+      },
+    );
+  }
+
+  Widget _buildJobPremisesOption(controller, JobPremisesModel premise) {
+    return RadioListTile<String>(
+      value: premise.id,
+      groupValue: controller.selectedPremises.value,
+      onChanged: (String? value) {
+        controller.selectedPremises.value = value;
+      },
+      title: Text(premise.name, style: TextStyle(color: Colors.white)),
+      activeColor: AppColors.kSkyBlue,
+    );
+  }
 
 
   @override
@@ -450,7 +638,10 @@ class SetJobDetailsScreen extends StatelessWidget {
                         SizedBox(height: AppSpacing.fifteenVertical),
                         TextFormField(
                           controller: controller.payPerHour,
-                          keyboardType: TextInputType.emailAddress,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
                           style: const TextStyle(color: AppColors.kWhite),
                           decoration: _inputDecoration(
                               "Set Pay Per Hour", AppAssets.kMail),
@@ -460,14 +651,23 @@ class SetJobDetailsScreen extends StatelessWidget {
                           },
                         ),
                         SizedBox(height: AppSpacing.fifteenVertical),
-                        TappableInputTile(
-                          controller: controller.jobCategory,
-                          title: "Job Category",
-                          onTap: () {
-                            showJobCategoryBottomSheet(context, controller.userController.userData.value!.id!);
-                            controller.formKey.currentState?.validate();
-                          },
-                        ),
+                        Obx(() {
+                          final selectedName = controller.selectedCategory.value.isEmpty
+                              ? "Job Category"
+                              : controller.availableCategories
+                              .firstWhere(
+                                (cat) => cat.id == controller.selectedCategory.value,
+                            orElse: () => JobCategoryModel(id: '', name: 'Unknown'),
+                          ).name;
+
+                          return TappableInputTile(
+                            title: "Job Category",
+                            controller: TextEditingController(text: selectedName),
+                            onTap: () {
+                              showJobCategoryBottomSheet(context, controller);
+                            },
+                          );
+                        }),
                         SizedBox(height: AppSpacing.fifteenVertical),
                         TextFormField(
                           style: const TextStyle(color: AppColors.kWhite),
@@ -489,12 +689,12 @@ class SetJobDetailsScreen extends StatelessWidget {
                           onChanged: (value){
                             controller.formKey.currentState?.validate();
                           },
-                          maxLength: 11,
                         ),
                         SizedBox(height: AppSpacing.fifteenVertical),
                         TextFormField(
                           style: const TextStyle(color: AppColors.kWhite),
                           controller: controller.noOfGuardsRequired,
+                          keyboardType: TextInputType.number,
                           decoration: _inputDecoration(
                               "No. Required Guards", AppAssets.kCal),
                           validator: controller.validateRequired,
@@ -514,25 +714,25 @@ class SetJobDetailsScreen extends StatelessWidget {
                           children: [
                             Row(
                               children: [
-                                Radio<String>(
+                                Radio<bool>(
                                   activeColor: AppColors.kSkyBlue,
-                                  value: 'Yes',
+                                  value: true,
                                   groupValue: controller.leaderRequired.value,
                                   onChanged: (value) => controller.leaderRequired.value = value!,
                                 ),
-                                Text('Yes',style: AppTypography.kBold16.copyWith(color: AppColors.kWhite),),
+                                Text('Yes', style: AppTypography.kBold16.copyWith(color: AppColors.kWhite)),
                               ],
                             ),
                             SizedBox(width: 20),
                             Row(
                               children: [
-                                Radio<String>(
+                                Radio<bool>(
                                   activeColor: AppColors.kSkyBlue,
-                                  value: 'No',
+                                  value: false,
                                   groupValue: controller.leaderRequired.value,
                                   onChanged: (value) => controller.leaderRequired.value = value!,
                                 ),
-                                Text('No', style: AppTypography.kBold16.copyWith(color: AppColors.kWhite),),
+                                Text('No', style: AppTypography.kBold16.copyWith(color: AppColors.kWhite)),
                               ],
                             ),
                           ],
@@ -548,14 +748,23 @@ class SetJobDetailsScreen extends StatelessWidget {
                           },
                         ),
                         SizedBox(height: AppSpacing.fifteenVertical),
-                        TappableInputTile(
-                          controller: controller.jobPremisesType,
-                          title: "Job Premise Type",
-                          onTap: (){
-                            showJobPremisesBottomSheet(context, controller.userController.userData.value!.id!);
-                            controller.formKey.currentState?.validate();
-                          },
-                        ),
+                        Obx(() {
+                          final selectedName = controller.selectedPremises.value.isEmpty
+                              ? "Job Premises"
+                              : controller.availablePremises
+                              .firstWhere(
+                                (cat) => cat.id == controller.selectedPremises.value,
+                            orElse: () => JobPremisesModel(id: '', name: 'Unknown'),
+                          ).name;
+
+                          return TappableInputTile(
+                            title: "Job Premises",
+                            controller: TextEditingController(text: selectedName),
+                            onTap: () {
+                              showJobPremisesBottomSheet(context, controller);
+                            },
+                          );
+                        }),
                         SizedBox(height: AppSpacing.fifteenVertical),
                         TextFormField(
                           style: const TextStyle(color: AppColors.kWhite),
@@ -592,7 +801,7 @@ class SetJobDetailsScreen extends StatelessWidget {
                               children: [
                                 Radio<String>(
                                   activeColor: AppColors.kSkyBlue,
-                                  value: 'Recurring',
+                                  value: 'recurring',
                                   groupValue: controller.jobType.value,
                                   onChanged: (value) => controller.jobType.value = value!,
                                 ),
@@ -604,7 +813,7 @@ class SetJobDetailsScreen extends StatelessWidget {
                               children: [
                                 Radio<String>(
                                   activeColor: AppColors.kSkyBlue,
-                                  value: 'One Time',
+                                  value: 'onetime',
                                   groupValue: controller.jobType.value,
                                   onChanged: (value) => controller.jobType.value = value!,
                                 ),
