@@ -28,7 +28,7 @@ class AppRoutes {
   static List<GetPage> routes = [
     GetPage<Route<dynamic>>(
       name: onboarding,
-      page: () =>ContractorJobDetailsScreen(),
+      page: () =>OnboardingView(),
     ),
     // GetPage<Route<dynamic>>(
     //   name: welcome,

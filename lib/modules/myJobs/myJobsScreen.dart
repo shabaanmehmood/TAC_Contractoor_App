@@ -208,7 +208,7 @@ class _MyJobsScreenState extends State<MyJobsScreen> {
                     filteredJobs = controller.getJobsByStatus("Open");
                     break;
                   case 1:
-                    filteredJobs = controller.getJobsByStatus("Active");
+                    filteredJobs = controller.getJobsByStatus("active");
                     break;
                   case 2:
                     filteredJobs = controller.getJobsByStatus("In Progress");
@@ -222,7 +222,8 @@ class _MyJobsScreenState extends State<MyJobsScreen> {
                   default:
                     filteredJobs = controller.getJobsByStatus("Open");
                 }
-                return ListView.builder(
+                return ListView.separated(
+                  separatorBuilder: (context, index) => SizedBox(height: Get.height * 0.02),
                   itemCount: filteredJobs.length,
                   itemBuilder: (context, index) {
                     final job = filteredJobs[index];

@@ -9,8 +9,14 @@ import 'package:taccontractor/data/data/constants/app_spacing.dart';
 import 'package:taccontractor/data/data/constants/app_typography.dart';
 
 import '../../../models/myJobs_model.dart';
+import '../shift_countdown.dart';
  
  Widget jobActiveCardWidget({required MyjobsModel job}) {
+
+   final startDateTime = DateTime.parse('${job.shifts[0].date}T${job.shifts[0].startTime}');
+   final now = DateTime.now();
+   final difference = now.difference(startDateTime);
+
     return Container(
       margin: EdgeInsets.only(left: Get.width * 0.04),
       padding: EdgeInsets.all(Get.width * 0.04),
@@ -35,10 +41,10 @@ import '../../../models/myJobs_model.dart';
                   style: AppTypography.kBold16.copyWith(color: AppColors.kWhite),
                 ),
               ),
-              Text(
-                DateTime.now().difference(DateTime.parse(job.shifts[0].startTime)).toString(),
+              ShiftCountdown(
+                shiftStart: startDateTime,
                 style: AppTypography.kBold16.copyWith(color: AppColors.kACardAlert),
-              ),
+              )
             ],
           ),
           SizedBox(height: Get.height * 0.01),
