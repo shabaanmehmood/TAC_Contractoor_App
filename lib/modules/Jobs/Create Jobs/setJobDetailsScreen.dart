@@ -611,7 +611,6 @@ class _SetJobDetailsScreenState extends State<SetJobDetailsScreen> {
                 children: const [
                   StepTab(title: "Job Details", isCurrent: true),
                   StepTab(title: "Preferences"),
-                  StepTab(title: "Required Docs"),
                 ],
               ),
               const SizedBox(height: 20),

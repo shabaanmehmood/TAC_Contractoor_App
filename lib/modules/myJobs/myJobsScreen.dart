@@ -8,6 +8,7 @@ import 'package:taccontractor/data/data/constants/app_colors.dart';
 import 'package:taccontractor/data/data/constants/app_spacing.dart';
 import 'package:taccontractor/data/data/constants/app_typography.dart';
 import 'package:taccontractor/dataproviders/api_service.dart';
+import 'package:taccontractor/modules/Jobs/Create%20Jobs/setJobDetailsScreen.dart';
 import 'package:taccontractor/modules/myJobs/myJobsComponent.dart/active.dart';
 import 'package:taccontractor/modules/myJobs/myJobsComponent.dart/cancelled.dart';
 import 'package:taccontractor/modules/myJobs/myJobsComponent.dart/completed.dart';
@@ -82,7 +83,9 @@ class _MyJobsScreenState extends State<MyJobsScreen> {
                     ),
                   ],
                 ),
-               Image.asset("assets/icon/plus.png",scale: Get.width * 0.003,color: AppColors.kSkyBlue),
+               GestureDetector(
+                 onTap: () => Get.to(() => SetJobDetailsScreen()),
+                   child: Image.asset("assets/icon/plus.png",scale: Get.width * 0.003,color: AppColors.kSkyBlue)),
             
                 // Icon(
                 //   Icons.add,
@@ -205,22 +208,22 @@ class _MyJobsScreenState extends State<MyJobsScreen> {
                 List<MyjobsModel> filteredJobs = [];
                 switch (selectedIndex) {
                   case 0:
-                    filteredJobs = controller.getJobsByStatus("Open");
+                    filteredJobs = controller.getJobsByStatus("open");
                     break;
                   case 1:
                     filteredJobs = controller.getJobsByStatus("active");
                     break;
                   case 2:
-                    filteredJobs = controller.getJobsByStatus("In Progress");
+                    filteredJobs = controller.getJobsByStatus("in_progress");
                     break;
                   case 3:
-                    filteredJobs = controller.getJobsByStatus("Completed");
+                    filteredJobs = controller.getJobsByStatus("completed");
                     break;
                   case 4:
-                    filteredJobs = controller.getJobsByStatus("Cancelled");
+                    filteredJobs = controller.getJobsByStatus("cancelled");
                     break;
                   default:
-                    filteredJobs = controller.getJobsByStatus("Open");
+                    filteredJobs = controller.getJobsByStatus("open");
                 }
                 return ListView.separated(
                   separatorBuilder: (context, index) => SizedBox(height: Get.height * 0.02),

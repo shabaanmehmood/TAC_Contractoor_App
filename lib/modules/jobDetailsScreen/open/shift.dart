@@ -3,47 +3,49 @@ import 'package:get/get.dart';
 import 'package:taccontractor/data/data/constants/app_colors.dart';
 import 'package:taccontractor/data/data/constants/app_typography.dart';
 
-Widget openShiftCard() {
+import '../../../models/myJobs_model.dart';
+
+Widget openShiftCard(MyjobsModel job) {
   return ListView.builder(
-    itemCount: 10,
+    itemCount: job.shifts.length,
     padding: EdgeInsets.symmetric(vertical: Get.height * 0.02),
     itemBuilder: (context, index) {
+      final shift = job.shifts[index];
       return Container(
-        margin: EdgeInsets.symmetric(
-            horizontal: Get.width * 0.04, vertical: Get.height * 0.01),
+        margin: EdgeInsets.symmetric(horizontal: Get.width * 0.04, vertical: Get.height * 0.01),
         padding: EdgeInsets.all(Get.width * 0.035),
         decoration: BoxDecoration(
-          border: Border.all(
-            width: Get.width * 0.002,
-            color: AppColors.kWhite.withOpacity(0.5),
-          ),
+          border: Border.all(width: Get.width * 0.002, color: AppColors.kWhite.withOpacity(0.5)),
           color: AppColors.kinput.withOpacity(0.5),
           borderRadius: BorderRadius.circular(Get.width * 0.02),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// Header Row: Shift Name + Status
+            // Header Row: Shift Days + Status
             Row(
-              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text("Morning",
-                    style:
-                        AppTypography.kBold16.copyWith(color: AppColors.kWhite)),
-               
+                Text(
+                  shift.days.join(', '),
+                  style: AppTypography.kBold16.copyWith(color: AppColors.kWhite),
+                ),
+                Text(
+                  job.jobStatus?.toUpperCase() ?? '',
+                  style: AppTypography.kBold12.copyWith(color: AppColors.kblueCard),
+                ),
               ],
             ),
             SizedBox(height: Get.height * 0.01),
-
-            /// Time Row
+            // Time Row
             Row(
               children: [
-                Image.asset("assets/icon/time.png",
-                    scale: Get.width * 0.0025, color: AppColors.kgrey),
+                Image.asset("assets/icon/time.png", scale: Get.width * 0.0025, color: AppColors.kgrey),
                 SizedBox(width: Get.width * 0.02),
-                Text("6:00 AM - 2:00 PM",
-                    style: AppTypography.kLight14
-                        .copyWith(color: AppColors.kgrey)),
+                Text(
+                  "${shift.startTime} - ${shift.endTime}",
+                  style: AppTypography.kLight14.copyWith(color: AppColors.kgrey),
+                ),
               ],
             ),
             SizedBox(height: Get.height * 0.015),
@@ -52,7 +54,7 @@ Widget openShiftCard() {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text("Hugh Jackman",
+                Text(job.contractorName,
                     style: AppTypography.kBold14
                         .copyWith(color: AppColors.kWhite)),
                 Row(

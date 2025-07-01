@@ -3,7 +3,9 @@ import 'package:get/get.dart';
 import 'package:taccontractor/data/data/constants/app_colors.dart';
 import 'package:taccontractor/data/data/constants/app_typography.dart';
 
-Widget openDetailsWidget() {
+import '../../../models/myJobs_model.dart';
+
+Widget openDetailsWidget(MyjobsModel job) {
   return SingleChildScrollView(
     child: Column(
       children: [
@@ -32,18 +34,11 @@ Widget openDetailsWidget() {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '2',
-                style: AppTypography.kBold24.copyWith(
-                  color: AppColors.kSkyBlue,
-                ),
+                (job.noOfGuardsRequired ?? 0).toString(),
+                style: AppTypography.kBold24.copyWith(color: AppColors.kSkyBlue),
               ),
               SizedBox(height: 4),
-              Text(
-                'Guards Hired',
-                style: AppTypography.kBold14.copyWith(
-                  color: AppColors.kWhite,
-                ),
-              ),
+              Text('Guards Required', style: AppTypography.kBold14.copyWith(color: AppColors.kWhite)),
             ],
           ),
     
@@ -87,7 +82,7 @@ Widget openDetailsWidget() {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '1',
+                (job.noOfGuardsRequired ?? 0).toString(),
                 style: AppTypography.kBold24.copyWith(
                   color: AppColors.kalert,
                 ),
@@ -137,35 +132,14 @@ Widget openDetailsWidget() {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                         SizedBox(height: Get.height * 0.01),
-                        Text(
-                          "Job Description",
-                          style: AppTypography.kBold14.copyWith(color: AppColors.kWhite),
-                        ),
-                          SizedBox(height: Get.height * 0.005),
-                         Text(
-                          
-                          "I am arriving at Islamabad, International Airport, and requires a professional security team for safe escort to his residence. The team must ensure smooth transportation, crowd control, and personal security throughout the journey.",
-                          style: AppTypography.kBold14.copyWith(color: AppColors.kgrey),
-                        ),
-                      SizedBox(height: Get.height * 0.01),
-                         Text(
-                          "Responsibilities",
-                          style: AppTypography.kBold14.copyWith(color: AppColors.kWhite),
-                        ),
-                          SizedBox(height: Get.height * 0.005),
-                         Text(
-    """
-  • Meet & secure the actor upon arrival
-  • Escort from airport exit to designated vehicle
-  • Manage crowd control & media interference
-  • Provide convoy security throughout the route
-  • Ensure safe arrival at the destination
-  • Maintain discretion & professionalism
-    """,
-    style: AppTypography.kBold14.copyWith(color: AppColors.kgrey),
-    ),
-    
+                        SizedBox(height: Get.height * 0.01),
+                        Text("Job Description", style: AppTypography.kBold14.copyWith(color: AppColors.kWhite)),
+                        SizedBox(height: Get.height * 0.005),
+                        Text(job.jobDescription ?? '', style: AppTypography.kBold14.copyWith(color: AppColors.kgrey)),
+                        SizedBox(height: Get.height * 0.01),
+                        Text("Responsibilities", style: AppTypography.kBold14.copyWith(color: AppColors.kWhite)),
+                        SizedBox(height: Get.height * 0.005),
+                        Text(job.jobResponsibilities ?? '', style: AppTypography.kBold14.copyWith(color: AppColors.kgrey)),
                       ],
                     ),
                   ),

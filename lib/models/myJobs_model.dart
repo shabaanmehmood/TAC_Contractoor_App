@@ -5,6 +5,7 @@ class MyjobsModel {
   final String jobId;
   final String jobTitle;
   final String jobDescription;
+  final String jobResponsibilities;
   final String jobLocation;
   final int noOfGuardsRequired;
   final String payPerHour;
@@ -21,6 +22,7 @@ class MyjobsModel {
     required this.jobId,
     required this.jobTitle,
     required this.jobDescription,
+    required this.jobResponsibilities ,
     required this.jobLocation,
     required this.noOfGuardsRequired,
     required this.payPerHour,
@@ -39,6 +41,7 @@ class MyjobsModel {
       jobId: json['jobId'],
       jobTitle: json['jobTitle'],
       jobDescription: json['jobDescription'],
+      jobResponsibilities: json['jobResponsibilities'],
       jobLocation: json['jobLocation'],
       noOfGuardsRequired: json['noOfGuardsRequired'],
       payPerHour: json['payPerHour'],

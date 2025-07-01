@@ -9,9 +9,14 @@ import 'package:taccontractor/data/data/constants/app_typography.dart';
 import 'package:taccontractor/modules/Jobs/Create%20Jobs/required_docs_screen.dart';
 import 'package:taccontractor/modules/auth/signup_screens/set_pass.dart';
 
+import '../../../dataproviders/api_service.dart';
+import '../../../models/createJobModel.dart';
+import '../../../models/preferenceModel.dart';
 import '../../../models/requiredLicenseModel.dart';
+import '../../../models/required_skills.dart';
 import '../../../widhets/common overlays/uploadFile_overlay.dart';
 import '../../../widhets/common widgets/buttons/tappableInputTile.dart';
+import '../../account/account.dart';
 import 'company_info_controller.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 
@@ -49,6 +54,58 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
     super.initState();
     controller.fetchLicenses();
     controller.fetchRequiredSkills();
+  }
+
+  Future<void> createJob() async {
+    if (controller.shifts.isEmpty ||
+        controller.selectedLicenses.isEmpty ||
+        controller.selectedSkills.isEmpty) {
+      Get.snackbar("Error", "Please complete all sections");
+      return;
+    }
+
+    final job = CreateJobModel(
+      title: controller.jobTitle.text,
+      payPerHour: controller.payPerHour.text,
+      categoryId: controller.selectedCategory.value.toString(),
+      premisesTypeId: controller.selectedPremises.value,
+      description: controller.jobDescription.value,
+      responsibilities: controller.jobResponsiblities.text,
+      location: controller.siteLocation.text,
+      latitude: '37.4634',
+      longitude: '-122.1654',
+      reportingManagerNumber: controller.reportingManagerNumber.text,
+      reportingManagerName: controller.reportingManager.text,
+      minAge: controller.minAge.value.toString(),
+      maxAge: controller.maxAge.value.toString(),
+      minimumLevel: controller.minimumLevel.value.toString(),
+      maximumLevel: controller.maximumLevel.value.toString(),
+      noOfGuardsRequired: int.parse(controller.noOfGuardsRequired.text),
+      jobType: controller.jobType.value,
+      leaderRequired: controller.leaderRequired.value,
+      jobSOPs: controller.jobSOPs.text,
+      contractorId: controller.userController.userData.value!.id!,
+      requiredLicense: controller.selectedLicenses
+          .map((license) => RequiredLicense(id: license.id, name: license.name))
+          .toList(),
+      SkillIds: controller.selectedSkills
+          .map((skill) => SkillModel(id: skill.id))
+          .toList(),
+      shifts: controller.shifts.toList(),
+      preferences: Preferences(
+        minYearsExperience: controller.minExperience.value,
+        maxYearsExperience: controller.maxExperience.value,
+        appearanceRequirements: controller.jobAppearance.text,
+      ),
+      // Other fields...
+    );
+
+    final response = await MyApIService().createJob(job);
+    if (response.statusCode == 201) {
+      Get.offAll(() => AccountScreen());
+    } else {
+      Get.snackbar("Error", "Job creation failed");
+    }
   }
 
   void showLicensesBottomSheet(BuildContext context, controller) {
@@ -321,7 +378,6 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                 children: const [
                   StepTab(title: "Job Details", isCompleted: true),
                   StepTab(title: "Preferences", isCurrent: true,),
-                  StepTab(title: "Required Docs"),
                 ],
               ),
               const SizedBox(height: 20),
@@ -433,8 +489,13 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: (){
-                        if(controller.formKeyforpreference.currentState!.validate()) {
-                          Get.to(() => RequiredDocsScreen());
+                        if(controller.formKeyforpreference.currentState!.validate() &&
+                           controller.selectedLicenses.isNotEmpty &&
+                           controller.selectedSkills.isNotEmpty &&
+                           controller.shifts.isNotEmpty &&
+                           controller.formKey.currentState!.validate()
+                        ) {
+                          createJob();
                         } else {
                           Get.snackbar(
                             "Error",
@@ -451,7 +512,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                             borderRadius: BorderRadius.circular(8)),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
-                      child: Text("Next & Set Required Docs",
+                      child: Text("Post Job",
                           style: AppTypography.kBold16
                               .copyWith(color: Colors.black)),
                     ),

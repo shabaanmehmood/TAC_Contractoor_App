@@ -201,7 +201,7 @@ class AccountScreen extends StatelessWidget {
                     'Profile',
                     Icons.person,
                     'Manage your profile and documents',
-                    onTap: () => Get.to(() => SetJobDetailsScreen(),
+                    onTap: () => Get.to(() => ProfileScreen(),
                     ),
                   ),
                   buildCard(
