@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:taccontractor/data/data/constants/app_colors.dart';
 import 'package:taccontractor/data/data/constants/app_typography.dart';
 
-Widget progressShiftCard() {
+Widget inProgressShiftCard() {
   return ListView.builder(
     itemCount: 10,
     padding: EdgeInsets.symmetric(vertical: Get.height * 0.02),

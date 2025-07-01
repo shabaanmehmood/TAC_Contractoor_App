@@ -3,40 +3,36 @@ import 'package:get/get.dart';
 import 'package:taccontractor/data/data/constants/app_assets.dart';
 import 'package:taccontractor/data/data/constants/app_colors.dart';
 import 'package:taccontractor/data/data/constants/app_typography.dart';
-import 'package:taccontractor/modules/jobDetailsScreen/jobDetailsComponent.dart/details.dart';
-import 'package:taccontractor/modules/jobDetailsScreen/jobDetailsComponent.dart/guards.dart';
-import 'package:taccontractor/modules/jobDetailsScreen/jobDetailsComponent.dart/shift/active.dart';
-import 'package:taccontractor/modules/jobDetailsScreen/jobDetailsComponent.dart/shift/cancelled.dart';
-import 'package:taccontractor/modules/jobDetailsScreen/jobDetailsComponent.dart/shift/completed.dart';
-import 'package:taccontractor/modules/jobDetailsScreen/jobDetailsComponent.dart/shift/inProgress.dart';
-import 'package:taccontractor/modules/jobDetailsScreen/jobDetailsComponent.dart/shift/open.dart';
-import 'package:taccontractor/modules/jobDetailsScreen/jobDetailsComponent.dart/timelines.dart';
+import 'package:taccontractor/modules/jobDetailsScreen/inProgress/details.dart';
+import 'package:taccontractor/modules/jobDetailsScreen/inProgress/guards.dart';
+import 'package:taccontractor/modules/jobDetailsScreen/inProgress/shift.dart';
+import 'package:taccontractor/modules/jobDetailsScreen/inProgress/timelines.dart';
 
-class ContractorJobDetailsScreen extends StatefulWidget {
-  const ContractorJobDetailsScreen({super.key});
+class ContractorInprogressJobDetailsScreen extends StatefulWidget {
+  const ContractorInprogressJobDetailsScreen({super.key});
 
   @override
-  State<ContractorJobDetailsScreen> createState() =>
-      _ContractorJobDetailsScreenState();
+  State<ContractorInprogressJobDetailsScreen> createState() =>
+      _ContractorInprogressJobDetailsScreenState();
 }
 
-class _ContractorJobDetailsScreenState
-    extends State<ContractorJobDetailsScreen> {
+class _ContractorInprogressJobDetailsScreenState
+    extends State<ContractorInprogressJobDetailsScreen> {
   final List<String> tabs = ["Details", "Shifts", "Guards", "Timeline"];
   int selectedIndex = 0;
 
   Widget getSelectedWidget() {
     switch (selectedIndex) {
       case 0:
-        return detailsWidget();   
+        return inProgressDetailsWidget();   
       case 1:
-        return openShiftCard();   
+        return inProgressShiftCard();   
       case 2:
-        return guards();    
+        return inProgressGuards();    
       case 3:
-        return timeline();  
+        return inProgressTimeline();  
       default:
-        return detailsWidget();
+        return inProgressDetailsWidget();
     }
   }
 
@@ -83,8 +79,9 @@ Widget build(BuildContext context) {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _buildStatusChip("#JOB-2024-021B"),
-                _buildStatusChip("OPEN"),
+                 _buildStatusChip("#JOB-2024-021B",AppColors.kgrey,AppColors.kWhite),
+                _buildStatusChip("IN PROGRESS",AppColors.kgreenCard.withOpacity(0.5),AppColors.kgreenCard),
+            
               ],
             ),
           ),
@@ -205,12 +202,13 @@ Widget build(BuildContext context) {
   );
 }
 
-Widget _buildStatusChip(String label) {
+
+Widget _buildStatusChip(String label,Color color1,Color color2) {
   return OutlinedButton(
     onPressed: () {},
     style: OutlinedButton.styleFrom(
-      backgroundColor: AppColors.kgrey,
-      side: BorderSide(color: AppColors.kgrey),
+      backgroundColor: color1,
+      side: BorderSide(color: color1),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(Get.width * 0.02),
       ),
@@ -218,8 +216,9 @@ Widget _buildStatusChip(String label) {
           EdgeInsets.symmetric(horizontal: Get.width * 0.03, vertical: Get.width * 0.01),
     ),
     child: Text(label,
-        style: AppTypography.kLight14.copyWith(color: AppColors.kWhite)),
+        style: AppTypography.kLight14.copyWith(color: color2)),
   );
 }
 
 }
+

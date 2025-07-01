@@ -7,7 +7,7 @@ import 'package:taccontractor/modules/account/account.dart';
 import 'package:taccontractor/modules/account/components/profile/profile_screen.dart';
 import 'package:taccontractor/modules/auth/sign_up_view.dart';
 import 'package:taccontractor/modules/auth/sign_in_view.dart';
-import 'package:taccontractor/modules/jobDetailsScreen/jobDetailsScreen.dart';
+import 'package:taccontractor/modules/jobDetailsScreen/open/jobDetailsScreen.dart';
 import 'package:taccontractor/modules/landing_page/landing_page.dart';
 import 'package:taccontractor/modules/myJobs/myJobsScreen.dart';
 

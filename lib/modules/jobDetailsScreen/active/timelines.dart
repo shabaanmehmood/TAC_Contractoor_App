@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:taccontractor/data/data/constants/app_colors.dart';
 import 'package:taccontractor/data/data/constants/app_typography.dart';
 
-Widget timeline() {
+Widget activeTimeline() {
   return Column(
     children: [
       SizedBox(height: Get.height * 0.015),

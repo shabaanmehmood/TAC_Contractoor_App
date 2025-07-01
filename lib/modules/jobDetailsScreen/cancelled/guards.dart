@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:taccontractor/data/data/constants/app_colors.dart';
 import 'package:taccontractor/data/data/constants/app_typography.dart';
-import 'package:taccontractor/modules/jobDetailsScreen/jobDetailsComponent.dart/guardProfile.dart';
+import 'package:taccontractor/modules/jobDetailsScreen/cancelled/guardProfile.dart';
 
-Widget guards() {
+Widget CancelledGuards() {
   return SizedBox(
     height: Get.height * 0.8,
     child: ListView.builder(
@@ -13,7 +13,7 @@ Widget guards() {
       itemBuilder: (context, index) {
         return GestureDetector(
           onTap: () {
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>GuardProfileScreen()));
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>CancelledGuardProfileScreen()));
           },
           child: Padding(
             padding: EdgeInsets.only(

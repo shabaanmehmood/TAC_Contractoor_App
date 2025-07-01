@@ -3,8 +3,8 @@ import 'package:get/get.dart';
 import 'package:taccontractor/data/data/constants/app_colors.dart';
 import 'package:taccontractor/data/data/constants/app_typography.dart';
 
-class GuardProfileScreen extends StatelessWidget {
-  const GuardProfileScreen({super.key});
+class CompletedGuardProfileScreen extends StatelessWidget {
+  const CompletedGuardProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
