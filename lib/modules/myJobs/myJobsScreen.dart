@@ -86,12 +86,6 @@ class _MyJobsScreenState extends State<MyJobsScreen> {
                GestureDetector(
                  onTap: () => Get.to(() => SetJobDetailsScreen()),
                    child: Image.asset("assets/icon/plus.png",scale: Get.width * 0.003,color: AppColors.kSkyBlue)),
-            
-                // Icon(
-                //   Icons.add,
-                //   color: AppColors.kSkyBlue,
-                //   size: Get.width * 0.08,
-                // )
               ],
             ),
 
@@ -199,7 +193,7 @@ class _MyJobsScreenState extends State<MyJobsScreen> {
                 ),
               ),
             ),
-            SizedBox(height: Get.height * 0.02),
+            // SizedBox(height: Get.height * 0.02),
             Expanded(
               child: Obx(() {
                 if (controller.isLoading.value) {
@@ -249,7 +243,6 @@ class _MyJobsScreenState extends State<MyJobsScreen> {
               }),
             ),
 
-            SizedBox(height: Get.height * 0.02),
 
 //             /// Job Card Widget
 //            Expanded(

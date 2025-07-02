@@ -83,7 +83,7 @@ import '../../jobDetailsScreen/open/jobDetailsScreen.dart';
                 // Icon(Icons.access_time, color: AppColors.kgrey, size: 18),
                 SizedBox(width: 5),
                 Text(
-                  '${job.shifts[0].startTime} - ${job.shifts[0].endTime}',
+                  '${job.shifts[0].startTime.substring(0, 5)} - ${job.shifts[0].endTime.substring(0, 5)}',
                   style: AppTypography.kLight14.copyWith(color: AppColors.kgrey),
                 ),
               ],
@@ -201,7 +201,7 @@ import '../../jobDetailsScreen/open/jobDetailsScreen.dart';
                    Image.asset("assets/icon/time.png",scale: Get.width * 0.0025,color: AppColors.kgrey),
                  SizedBox(width: 3),
                 Text(
-                  '${job.shifts[0].startTime} - ${job.shifts[0].endTime}',
+                  '${job.shifts[0].startTime.substring(0, 5)} - ${job.shifts[0].endTime.substring(0, 5)}',
                   style: AppTypography.kLight14.copyWith(color: AppColors.kgrey),
                 ),
 

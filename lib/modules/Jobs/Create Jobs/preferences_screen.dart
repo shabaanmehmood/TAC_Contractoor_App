@@ -8,6 +8,7 @@ import 'package:taccontractor/data/data/constants/app_spacing.dart';
 import 'package:taccontractor/data/data/constants/app_typography.dart';
 import 'package:taccontractor/modules/Jobs/Create%20Jobs/required_docs_screen.dart';
 import 'package:taccontractor/modules/auth/signup_screens/set_pass.dart';
+import 'package:taccontractor/modules/myJobs/myJobsScreen.dart';
 
 import '../../../dataproviders/api_service.dart';
 import '../../../models/createJobModel.dart';
@@ -102,7 +103,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
 
     final response = await MyApIService().createJob(job);
     if (response.statusCode == 201) {
-      Get.offAll(() => AccountScreen());
+      Get.offAll(() => MyJobsScreen());
     } else {
       Get.snackbar("Error", "Job creation failed");
     }

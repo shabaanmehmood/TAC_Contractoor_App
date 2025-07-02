@@ -43,7 +43,7 @@ Widget openShiftCard(MyjobsModel job) {
                 Image.asset("assets/icon/time.png", scale: Get.width * 0.0025, color: AppColors.kgrey),
                 SizedBox(width: Get.width * 0.02),
                 Text(
-                  "${shift.startTime} - ${shift.endTime}",
+                  "${shift.startTime.substring(0, 5)} - ${shift.endTime.substring(0, 5)}",
                   style: AppTypography.kLight14.copyWith(color: AppColors.kgrey),
                 ),
               ],

@@ -8,8 +8,11 @@ import 'package:taccontractor/modules/jobDetailsScreen/cancelled/guards.dart';
 import 'package:taccontractor/modules/jobDetailsScreen/cancelled/shift.dart';
 import 'package:taccontractor/modules/jobDetailsScreen/cancelled/timelines.dart';
 
+import '../../../models/myJobs_model.dart';
+
 class ContractorCancelledJobDetailsScreen extends StatefulWidget {
-  const ContractorCancelledJobDetailsScreen({super.key});
+  final MyjobsModel job;
+  const ContractorCancelledJobDetailsScreen({super.key, required this.job});
 
   @override
   State<ContractorCancelledJobDetailsScreen> createState() =>
@@ -24,15 +27,15 @@ class _ContractorCancelledJobDetailsScreenState
   Widget getSelectedWidget() {
     switch (selectedIndex) {
       case 0:
-        return CancelledDetailsWidget();   
+        return CancelledDetailsWidget(widget.job);
       case 1:
-        return cancelledShiftCard();   
+        return cancelledShiftCard(widget.job);
       case 2:
         return CancelledGuards();    
       case 3:
         return CancelledTimeline();  
       default:
-        return CancelledDetailsWidget();
+        return CancelledDetailsWidget(widget.job);
     }
   }
 
@@ -49,12 +52,15 @@ Widget build(BuildContext context) {
             padding: EdgeInsets.only(top: Get.height * 0.02, left: Get.height * 0.02),
             child: Row(
               children: [
-                Image.asset(
-                  AppAssets.kBack,
-                  height: Get.height * 0.07,
-                  width: Get.width * 0.07,
-                  fit: BoxFit.contain,
-                  color: AppColors.kgrey,
+                GestureDetector(
+                  onTap: () => Get.back(),
+                  child: Image.asset(
+                    AppAssets.kBack,
+                    height: Get.height * 0.07,
+                    width: Get.width * 0.07,
+                    fit: BoxFit.contain,
+                    color: AppColors.kgrey,
+                  ),
                 ),
                 SizedBox(width: Get.width * 0.04),
                 Text(
@@ -79,9 +85,11 @@ Widget build(BuildContext context) {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                  _buildStatusChip("#JOB-2024-021B",AppColors.kgrey,AppColors.kWhite),
-                _buildStatusChip("CANCELLED",AppColors.kACardCancelled.withOpacity(0.5),AppColors.kACardCancelled),
-         
+                _buildStatusChip(
+                  widget.job.jobStatus?.toUpperCase() ?? "",
+                  AppColors.kblueCard.withOpacity(0.5),
+                  AppColors.kblueCard,
+                ),
               ],
             ),
           ),
@@ -94,12 +102,12 @@ Widget build(BuildContext context) {
               children: [
                 Expanded(
                   child: Text(
-                    'Security Escort for Actor – Airport to Residence',
+                    widget.job.jobTitle ,
                     style: AppTypography.kBold20.copyWith(color: AppColors.kWhite),
                   ),
                 ),
                 Text(
-                  '\$ 28/hr',
+                  '\$ ${widget.job.payPerHour}/hr',
                   style: AppTypography.kBold20.copyWith(color: Colors.cyanAccent),
                 ),
               ],
@@ -127,9 +135,9 @@ Widget build(BuildContext context) {
                           scale: Get.width * 0.0025, color: AppColors.kgrey),
                       SizedBox(width: 5),
                       Text(
-                        '29 Mar 2025',
-                        style: AppTypography.kLight14.copyWith(
-                            color: Color.fromARGB(255, 180, 189, 209)),
+                          widget.job.shifts.first.date,
+                          style: AppTypography.kLight14.copyWith(
+                              color: Color.fromARGB(255, 180, 189, 209)),
                       ),
                     ],
                   ),
@@ -140,9 +148,9 @@ Widget build(BuildContext context) {
                       SizedBox(width: 5),
                       Expanded(
                         child: Text(
-                          'Downtown Manhattan, NY, KENTUCKY 3459',
-                          style: AppTypography.kLight14.copyWith(color: AppColors.kgrey),
-                        ),
+                            widget.job.jobLocation,
+                            style: AppTypography.kLight14.copyWith(color: AppColors.kgrey),
+                          ),
                       ),
                     ],
                   ),
@@ -150,9 +158,6 @@ Widget build(BuildContext context) {
               ),
             ),
           ),
-
-          SizedBox(height: Get.height * 0.02),
-
           /// Tabs
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
@@ -202,22 +207,20 @@ Widget build(BuildContext context) {
   );
 }
 
-Widget _buildStatusChip(String label,Color color1,Color color2) {
-  return OutlinedButton(
-    onPressed: () {},
-    style: OutlinedButton.styleFrom(
-      backgroundColor: color1,
-      side: BorderSide(color: color1),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(Get.width * 0.02),
+  Widget _buildStatusChip(String label, Color color1, Color color2) {
+    return OutlinedButton(
+      onPressed: () {},
+      style: OutlinedButton.styleFrom(
+        backgroundColor: color1,
+        side: BorderSide(color: color1),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(Get.width * 0.02),
+        ),
+        padding: EdgeInsets.symmetric(horizontal: Get.width * 0.03, vertical: Get.width * 0.01),
       ),
-      padding:
-          EdgeInsets.symmetric(horizontal: Get.width * 0.03, vertical: Get.width * 0.01),
-    ),
-    child: Text(label,
-        style: AppTypography.kLight14.copyWith(color: color2)),
-  );
-}
+      child: Text(label, style: AppTypography.kLight14.copyWith(color: color2)),
+    );
+  }
 
 
 }
