@@ -833,15 +833,38 @@ class MyApIService {
   //   return response;
   // }
 
-  Future<List<MyjobsModel>> getMyJobs() async {
+  // Future<List<MyjobsModel>> getMyJobs(String contractorId) async {
+  //   var functionUrl = 'jobs/';
+  //   final response = await http.get(
+  //     Uri.parse(baseurl + functionUrl),
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //       'ngrok-skip-browser-warning': 'true',
+  //     },
+  //   );
+  //   if (response.statusCode == 200) {
+  //     final json = jsonDecode(response.body);
+  //     final List data = json is List ? json : json['data'];
+  //     return data.map((e) => MyjobsModel.fromJson(e)).toList();
+  //   } else {
+  //     throw Exception('Failed to load jobs');
+  //   }
+  // }
+
+  Future<List<MyjobsModel>> getMyJobs(String contractorId) async {
     var functionUrl = 'jobs/';
+    final uri = Uri.parse(baseurl + functionUrl).replace(queryParameters: {
+      'contractorId': contractorId,
+    });
+
     final response = await http.get(
-      Uri.parse(baseurl + functionUrl),
+      uri,
       headers: {
         "Content-Type": "application/json",
         'ngrok-skip-browser-warning': 'true',
       },
     );
+
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body);
       final List data = json is List ? json : json['data'];
@@ -850,6 +873,7 @@ class MyApIService {
       throw Exception('Failed to load jobs');
     }
   }
+
 
 
 // Future<http.Response> getData(String url, {String? controllerName}) async {
