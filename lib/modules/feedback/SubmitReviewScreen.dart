@@ -4,11 +4,13 @@ import 'package:get/get.dart';
 import 'package:taccontractor/data/data/constants/app_assets.dart';
 import 'package:taccontractor/data/data/constants/app_colors.dart';
 import 'package:taccontractor/data/data/constants/app_typography.dart';
+import 'package:taccontractor/models/myJobs_model.dart';
 import 'package:taccontractor/modules/checkin/jobcheckin/Submited_Review_Screen.dart';
 import 'package:taccontractor/modules/feedback/ReviewSubmittedScreen.dart';
 
 class ContractorSubmitReviewScreen extends StatefulWidget {
-  const ContractorSubmitReviewScreen({super.key});
+  final MyjobsModel job;
+  const ContractorSubmitReviewScreen({super.key, required this.job});
 
   @override
   State<ContractorSubmitReviewScreen> createState() =>
@@ -69,13 +71,13 @@ class _ContractorSubmitReviewScreenState
                   children: [
                     Expanded(
                       child: Text(
-                        'Security Escort for Actor – Airport to Residence',
+                        widget.job.jobTitle,
                         style: AppTypography.kBold20
                             .copyWith(color: AppColors.kWhite),
                       ),
                     ),
                     Text(
-                      '\$ 28/hr',
+                      "\$${widget.job.payPerHour}",
                       style: AppTypography.kBold20
                           .copyWith(color: Colors.cyanAccent),
                     ),
@@ -93,7 +95,7 @@ class _ContractorSubmitReviewScreenState
                         scale: Get.width * 0.0025, color: AppColors.kgrey),
                     SizedBox(width: 6),
                     Text(
-                      '29 Mar 2025',
+                      widget.job.shifts.first.date,
                       style: AppTypography.kLight14
                           .copyWith(color: AppColors.kgrey),
                     ),
@@ -102,7 +104,7 @@ class _ContractorSubmitReviewScreenState
                         scale: Get.width * 0.0025, color: AppColors.kgrey),
                     SizedBox(width: 6),
                     Text(
-                      '9:00 AM - 5:00 PM',
+                      "${widget.job.shifts.first.startTime.substring(0, 5)} - ${widget.job.shifts.first.endTime.substring(0, 5)}",
                       style: AppTypography.kLight14
                           .copyWith(color: AppColors.kgrey),
                     ),
@@ -144,7 +146,6 @@ class _ContractorSubmitReviewScreenState
                     Expanded(
                       child: TextFormField(
                         controller: reviewController,
-                        maxLines: 2,
                         style: AppTypography.kLight14
                             .copyWith(color: AppColors.kWhite),
                         decoration: InputDecoration(
@@ -261,7 +262,11 @@ class _ContractorSubmitReviewScreenState
                           borderRadius: BorderRadius.circular(10)),
                     ),
                     onPressed: () {
-                      Get.to(() => const ContractorReviewSubmittedScreen());
+                      Get.to(() => ContractorReviewSubmittedScreen(
+                        job: widget.job,
+                        rating: rating.value.toDouble(),
+                        review: reviewController.text,
+                      ));
                     },
                     child: Text(
                       "Submit Review",

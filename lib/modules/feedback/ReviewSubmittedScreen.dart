@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:taccontractor/data/data/constants/app_assets.dart';
@@ -6,8 +8,13 @@ import 'package:taccontractor/data/data/constants/app_typography.dart';
 import 'package:taccontractor/widhets/common%20widgets/buttons/custom_button_with_icon.dart';
 import 'package:taccontractor/widhets/common%20widgets/buttons/custom_icon_button.dart';
 
+import '../../models/myJobs_model.dart';
+
 class ContractorReviewSubmittedScreen extends StatelessWidget {
-  const ContractorReviewSubmittedScreen({super.key});
+  final MyjobsModel job;
+  final double rating;
+  final String review;
+  ContractorReviewSubmittedScreen({super.key, required this.job, required this.rating, required this.review});
 
   @override
   Widget build(BuildContext context) {
@@ -82,7 +89,7 @@ class ContractorReviewSubmittedScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Security Escort for Actor – Airport to Residence',
+                        job.jobTitle,
                         style: AppTypography.kLight12
                             .copyWith(color: AppColors.kWhite),
                       ),
@@ -92,7 +99,7 @@ class ContractorReviewSubmittedScreen extends StatelessWidget {
                       Icon(Icons.star,
                           size: Get.width * 0.06, color: AppColors.kSkyBlue),
                       SizedBox(width: Get.width * 0.003),
-                      Text("5.0",
+                      Text(                          rating.toString(),
                           style: AppTypography.kLight12
                               .copyWith(color: AppColors.kWhite)),
                     ],
@@ -102,7 +109,7 @@ class ContractorReviewSubmittedScreen extends StatelessWidget {
                  
                   SizedBox(height: Get.width * 0.015),
                   Text(
-                    'Johsan Bill is a professional and handled the security escort perfectly.',
+                    review,
                     style: AppTypography.kLight14
                         .copyWith(color: AppColors.kgrey),
                   ),

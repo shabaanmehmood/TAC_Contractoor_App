@@ -298,8 +298,8 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
           controller.maxExperience.value.toDouble()
       ),
       min: 0,
-      max: 100,
-      divisions: 100,
+      max: 50,
+      divisions: 50,
       labels: RangeLabels(
         "${controller.minExperience.value} years",
         "${controller.maxExperience.value} years",
@@ -320,8 +320,8 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
           controller.maxAge.value.toDouble()
       ),
       min: 0,
-      max: 100,
-      divisions: 100,
+      max: 50,
+      divisions: 50,
       labels: RangeLabels(
         "${controller.minAge.value} years",
         "${controller.maxAge.value} years",
@@ -342,8 +342,8 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
           controller.maximumLevel.value.toDouble()
       ),
       min: 0,
-      max: 100,
-      divisions: 100,
+      max: 50,
+      divisions: 50,
       labels: RangeLabels(
         "${controller.minimumLevel.value} level",
         "${controller.maximumLevel.value} level",
