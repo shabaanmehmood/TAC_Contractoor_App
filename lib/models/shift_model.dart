@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class Shift {
   String? id;
   final String date;
@@ -23,10 +25,20 @@ class Shift {
   }
 
   factory Shift.fromJson(Map<String, dynamic> json) {
+    List<String> parsedDays = [];
+    if (json['days'] is String) {
+      try {
+        parsedDays = List<String>.from(jsonDecode(json['days']));
+      } catch (_) {
+        parsedDays = [];
+      }
+    } else if (json['days'] is List) {
+      parsedDays = List<String>.from(json['days']);
+    }
     return Shift(
       id: json['id'],
       date: json['date'],
-      days: List<String>.from(json['days']),
+      days: parsedDays,
       timePeriod: json['timePeriod'],
       startTime: json['startTime'],
       endTime: json['endTime'],

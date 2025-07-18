@@ -18,6 +18,7 @@ import '../../../models/required_skills.dart';
 import '../../../widhets/common overlays/uploadFile_overlay.dart';
 import '../../../widhets/common widgets/buttons/tappableInputTile.dart';
 import '../../account/account.dart';
+import '../../landing_page/landing_page.dart';
 import 'company_info_controller.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 
@@ -103,7 +104,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
 
     final response = await MyApIService().createJob(job);
     if (response.statusCode == 201) {
-      Get.offAll(() => MyJobsScreen());
+      Get.back();
     } else {
       Get.snackbar("Error", "Job creation failed");
     }

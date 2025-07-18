@@ -178,7 +178,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       {"label": "Gender", "value": userController.userData.value?.gender ?? "-"},
                       {"label": "Date of Birth", "value": userController.userData.value?.dob ?? "-"},
                       {"label": "Contact Number", "value": userController.userData.value?.phone ?? "-"},
-                      {"label": "Postal Code", "value": "-"},
+                      {"label": "Postal Code", "value": userController.userData.value?.postalCode ?? "-"},
                       {"label": "Residential Address", "value": userController.userData.value?.postalAddress ?? "-"},
                     ],
                     onEdit: () {
@@ -194,7 +194,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     title: "Professional Information",
                     info: [
                       {"label": "ABN", "value":  userController.userData.value?.australianBusinessNumber ?? "-"},
-                      {"label": "Licence Expiry Date", "value":  "-"},
+                      // {"label": "Licence Expiry Date", "value":  "-"},
                     ],
                     // onEdit: () => Get.to(() => const EditProfessionalInfoScreen()),
                     onEdit: () {

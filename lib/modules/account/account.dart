@@ -7,6 +7,7 @@ import 'package:taccontractor/modules/account/components/logout.dart';
 import 'package:taccontractor/modules/account/components/profile/profile_screen.dart';
 import 'package:taccontractor/modules/account/help_support.dart';
 import 'package:taccontractor/modules/account/components/reviews/reviews_screen.dart';
+import 'package:taccontractor/modules/jobApplication/jobApplicationScreen.dart';
 import '../../controllers/user_controller.dart';
 import '../../data/data/constants/app_assets.dart';
 import '../../dataproviders/api_service.dart';
@@ -202,6 +203,17 @@ class AccountScreen extends StatelessWidget {
                     Icons.person,
                     'Manage your profile and documents',
                     onTap: () => Get.to(() => ProfileScreen(),
+                    // onTap: () => Get.to(() => JobApplicationsScreen(contractorId: userController.value.userData.value!.id!)
+                    ),
+                  ),
+                  // Menu Cards
+                  buildCard(
+                    screenWidth,
+                    'Job Applications',
+                    Icons.person,
+                    'Manage your guards job applications',
+                    // onTap: () => Get.to(() => ProfileScreen(),
+                    onTap: () => Get.to(() => JobApplicationsScreen(contractorId: userController.value.userData.value!.id!)
                     ),
                   ),
                   buildCard(

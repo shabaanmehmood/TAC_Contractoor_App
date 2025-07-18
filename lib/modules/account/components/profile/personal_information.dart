@@ -329,7 +329,7 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
         final userModel = UserUpdateModel(
           fullName: nameController.text,
           email: emailController.text,
-          gender: selectedGender,
+          gender: selectedGender?.toLowerCase(),
           dob: dobController.text,
           phone: contactController.text,
           postalCode: postalCodeController.text,

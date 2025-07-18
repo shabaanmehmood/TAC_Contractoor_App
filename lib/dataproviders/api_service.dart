@@ -5,6 +5,7 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:http/http.dart' as http;
 import 'package:taccontractor/models/ReportAnIssue.dart';
 import 'package:taccontractor/models/createDisputeModel.dart';
+import 'package:taccontractor/models/jobApplication_model.dart';
 import 'package:taccontractor/models/jobCategoriesModel.dart';
 import 'package:taccontractor/models/signUpModelForCompany.dart';
 
@@ -816,41 +817,6 @@ class MyApIService {
     return response;
   }
 
-  // Future<http.Response> getMyJobs() async {
-  //   var functionUrl = 'jobs/';
-  //   final response = await http.get(Uri.parse(baseurl + functionUrl),
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //       'ngrok-skip-browser-warning': 'true',
-  //     },
-  //   );
-  //   if (response.statusCode == 200) {
-  //     final json = jsonDecode(response.body);
-  //     debugPrint('Response in getAllLicense: $json');
-  //   } else {
-  //     // handle error
-  //   }
-  //   return response;
-  // }
-
-  // Future<List<MyjobsModel>> getMyJobs(String contractorId) async {
-  //   var functionUrl = 'jobs/';
-  //   final response = await http.get(
-  //     Uri.parse(baseurl + functionUrl),
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //       'ngrok-skip-browser-warning': 'true',
-  //     },
-  //   );
-  //   if (response.statusCode == 200) {
-  //     final json = jsonDecode(response.body);
-  //     final List data = json is List ? json : json['data'];
-  //     return data.map((e) => MyjobsModel.fromJson(e)).toList();
-  //   } else {
-  //     throw Exception('Failed to load jobs');
-  //   }
-  // }
-
   Future<List<MyjobsModel>> getMyJobs(String contractorId) async {
     var functionUrl = 'jobs/';
     final uri = Uri.parse(baseurl + functionUrl).replace(queryParameters: {
@@ -872,6 +838,56 @@ class MyApIService {
     } else {
       throw Exception('Failed to load jobs');
     }
+  }
+
+  Future<List<JobApplicationModel>> getJobApplications(String contractorId) async {
+    var functionUrl = 'jobApplication/applications/contractor/$contractorId';
+    final uri = Uri.parse(baseurl + functionUrl);
+
+    final response = await http.get(
+      uri,
+      headers: {
+        "Content-Type": "application/json",
+        'ngrok-skip-browser-warning': 'true',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      // Decode with utf8 to handle any special characters
+      final json = jsonDecode(response.body);
+      debugPrint('Response in getJobApplications: $json');
+      // Handle both direct list and wrapped in 'data'
+      final List data = json is List ? json : json['data'];
+      return data.map((e) => JobApplicationModel.fromJson(e)).toList();
+    } else {
+      return [];
+    }
+  }
+
+  Future<http.Response> updateJobStatus(String jobApplicationId, String userId, String jobId, String status) async {
+    var functionUrl = 'jobApplication/$jobApplicationId/status';
+    final response = await http.patch(
+      Uri.parse(baseurl + functionUrl),
+      headers: {
+        "Content-Type": "application/json",
+        'ngrok-skip-browser-warning': 'true',
+      },
+      body: jsonEncode({
+        "userId": userId,
+        "jobId": jobId,
+        "status": status,
+      }),
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      debugPrint('Job status updated successfully');
+      final json = jsonDecode(response.body);
+    } else {
+      debugPrint('Error updating job status: ${response.statusCode}');
+      debugPrint('Response body: ${response.body}');
+    }
+
+    return response;
   }
 
 
