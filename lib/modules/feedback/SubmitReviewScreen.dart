@@ -7,6 +7,7 @@ import 'package:taccontractor/data/data/constants/app_typography.dart';
 import 'package:taccontractor/models/myJobs_model.dart';
 import 'package:taccontractor/modules/checkin/jobcheckin/Submited_Review_Screen.dart';
 import 'package:taccontractor/modules/feedback/ReviewSubmittedScreen.dart';
+import 'package:taccontractor/modules/feedback/feedbackController.dart';
 
 class ContractorSubmitReviewScreen extends StatefulWidget {
   final MyjobsModel job;
@@ -21,6 +22,8 @@ class _ContractorSubmitReviewScreenState
     extends State<ContractorSubmitReviewScreen> {
   final RxDouble rating = 0.0.obs;
   final TextEditingController reviewController = TextEditingController();
+  final JobFeedbackController feedbackController = Get.put(JobFeedbackController());
+
 
   @override
   Widget build(BuildContext context) {
@@ -261,18 +264,25 @@ class _ContractorSubmitReviewScreenState
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10)),
                     ),
-                    onPressed: () {
+                    onPressed: () async{
+                        await feedbackController.submitJobFeedback(
+                      jobId: widget.job.jobId, 
+                      rating: rating.value.toInt(),  
+                      review: reviewController.text,
+                    );
                       Get.to(() => ContractorReviewSubmittedScreen(
                         job: widget.job,
                         rating: rating.value.toDouble(),
                         review: reviewController.text,
                       ));
                     },
-                    child: Text(
+                    child: Obx(()=>feedbackController.isLoading.value
+                              ? CircularProgressIndicator()
+                              :Text(
                       "Submit Review",
                       style: AppTypography.kBold16
                           .copyWith(color: AppColors.kBlack),
-                    ),
+                    ),)
                   ),
                 ),
               ),
