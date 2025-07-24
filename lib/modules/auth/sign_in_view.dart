@@ -9,6 +9,8 @@ import 'package:taccontractor/data/data/constants/app_spacing.dart';
 import 'package:taccontractor/data/data/constants/app_typography.dart';
 import 'package:taccontractor/data/data/constants/constants.dart';
 import 'package:taccontractor/modules/Jobs/Create%20Jobs/setJobDetailsScreen.dart';
+import 'package:taccontractor/modules/account/components/session_logout_controller.dart';
+import 'package:taccontractor/modules/auth/auth_controller/google_signin_controller.dart';
 import 'package:taccontractor/modules/auth/forget_password.dart';
 import 'package:taccontractor/routes/app_routes.dart';
 import 'package:flutter/material.dart';
@@ -30,6 +32,7 @@ class SignInViewController extends GetxController {
   TextEditingController passwordController = TextEditingController();
 
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  
 
   void togglePasswordView() {
     passwordVisible.value = !passwordVisible.value;
@@ -52,6 +55,8 @@ class SignInViewController extends GetxController {
 
         if (response.statusCode == 200) {
           debugPrint("data from API ${response.body}");
+          // await _sessionManagerController.saveLoginSession(); // <--- CALL IT HERE
+
           Get.offAndToNamed(AppRoutes.getLandingPageRoute());
           // await saveLoginSession();
         } else {
@@ -91,7 +96,8 @@ class SignInViewController extends GetxController {
 
 class SignInView extends StatelessWidget {
   final SignInViewController controller = Get.put(SignInViewController());
-
+  final GoogleSignInController authController = Get.find<GoogleSignInController>(); 
+ 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -251,6 +257,7 @@ class SignInView extends StatelessWidget {
                               SizedBox(width: AppSpacing.twentyHorizontal,),
                               GestureDetector(
                                 onTap: () {
+                                    authController.loginWithGoogle();
                                 },
                                 child: Text(
                                   'Continue with Google',

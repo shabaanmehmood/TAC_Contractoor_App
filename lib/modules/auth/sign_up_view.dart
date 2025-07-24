@@ -11,6 +11,7 @@ import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:taccontractor/data/data/constants/constants.dart';
+import 'package:taccontractor/modules/account/components/session_logout_controller.dart';
 import 'package:taccontractor/modules/auth/set_password.dart';
 import 'package:taccontractor/widhets/common%20widgets/buttons/TextFormFieldWidget.dart';
 
@@ -38,6 +39,7 @@ class SignUpViewController extends GetxController {
 
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final GlobalKey<FormState> passwordFormKey = GlobalKey<FormState>();
+  
 
   String imageBase64 = '';
 
@@ -113,7 +115,7 @@ class SignUpViewController extends GetxController {
 
 class SignUpView extends StatelessWidget {
   final SignUpViewController controller = Get.put(SignUpViewController());
-
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -286,6 +288,7 @@ class SignUpView extends StatelessWidget {
                       PrimaryButton(
                         color: AppColors.kSkyBlue,
                         onTap: ()async  {
+                          //  await _sessionManagerController.saveLoginSession(); // <--- CALL IT HERE too
                           controller.savePersonalInfoAndGoNext();
                         },
                         text: 'Continue & Set Password',

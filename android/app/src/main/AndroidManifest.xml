@@ -8,6 +8,9 @@
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 
+        <meta-data android:name="com.google.android.gms.client_id"
+        android:value="129556296565-co85knpf4vh0qedtlskbsla4o8lfoptn.apps.googleusercontent.com"/>
+
         <meta-data android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyAxiJ1f2ILgcjMHQ6YzJD11CPMqRqfu2v4"/>
 

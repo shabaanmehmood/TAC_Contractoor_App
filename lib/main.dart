@@ -7,6 +7,8 @@ import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:get/get_navigation/src/routes/transitions_type.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:taccontractor/data/data/constants/app_colors.dart';
+import 'package:taccontractor/modules/account/components/session_logout_controller.dart';
+import 'package:taccontractor/modules/auth/auth_controller/google_signin_controller.dart';
 import 'package:taccontractor/routes/app_routes.dart';
 
 import 'controllers/user_controller.dart';
@@ -41,6 +43,9 @@ void main() async {
   );
   Get.put(UserController(), permanent: true);
   Get.put(SetJobDetailsController());
+  // Get.put(SessionManagerController()); 
+  Get.put(GoogleSignInController()); // Register the controller
+
   // final initialRoute = await getInitialRoute();
   // runApp(Main(initialRoute: initialRoute,));
   runApp(
