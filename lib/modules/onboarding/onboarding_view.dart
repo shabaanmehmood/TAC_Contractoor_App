@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:taccontractor/data/data/constants/app_assets.dart';
 import 'package:taccontractor/data/data/constants/app_colors.dart';
 import 'package:taccontractor/data/data/constants/app_spacing.dart';
+import 'package:taccontractor/modules/auth/sign_in_view.dart';
 
 import '../../data/data/constants/app_theme.dart';
 import '../../models/onboarding.dart';
@@ -128,7 +130,33 @@ class OnboardingController extends GetxController {
     currentIndex.value = index; // ✅ Update the reactive state
   }
 
-  void onSkip() {
+
+// void onSkip() async {
+//   final signInController = Get.put(SignInViewController(), permanent: true);
+
+
+//   showDialog(
+//     context: Get.context!,
+//     barrierDismissible: false,
+//     builder: (_) => const Center(child: CircularProgressIndicator(
+//      color:AppColors.kSkyBlue,
+//     backgroundColor: AppColors.kSkyBlue, // or omit entirely
+//     )),
+//   );
+
+//   bool isLoggedIn = await signInController.checkAutoLoginAndRedirect();
+//   Get.back(); // dismiss loader
+
+//   if (!isLoggedIn) {
+//     Get.offAllNamed<dynamic>(AppRoutes.getSignInRoute());
+//   }
+// }
+
+
+  void onSkip() async{
+    
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isFirstTime', false);
     Get.offAllNamed<dynamic>(AppRoutes.getSignInRoute());
   }
 

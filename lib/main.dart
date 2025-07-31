@@ -50,7 +50,7 @@ void main() async {
   // runApp(Main(initialRoute: initialRoute,));
   runApp(
     Main(
-      initialRoute: AppRoutes.onboarding,
+      initialRoute: AppRoutes.splashScreen,
     ),
   );
 }
@@ -82,7 +82,7 @@ class Main extends StatelessWidget {
         // darkTheme: AppTheme.darkTheme,
         // themeMode: getThemeMode(themeController.theme),
         // initialRoute: AppRoutes.getOnboardingRoute(),
-        initialRoute: AppRoutes.onboarding,
+        initialRoute: AppRoutes.splashScreen,
         getPages: AppRoutes.routes,
       ),
     );

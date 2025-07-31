@@ -10,12 +10,14 @@ import 'package:taccontractor/modules/auth/sign_in_view.dart';
 import 'package:taccontractor/modules/jobDetailsScreen/open/jobDetailsScreen.dart';
 import 'package:taccontractor/modules/landing_page/landing_page.dart';
 import 'package:taccontractor/modules/myJobs/myJobsScreen.dart';
+import 'package:taccontractor/modules/splashScreen/splashScreen.dart';
 
 import '../modules/auth/signup_screens/select_account_type_screen.dart';
 import '../modules/onboarding/onboarding_view.dart';
 
 class AppRoutes {
-  static String onboarding = '/';
+  static String splashScreen = '/';
+  static String onboarding = '/onboarding';
   // static String welcome = '/auth';
   static String signIn = '/sign-in';
   static String select = '/SelectAccountTypeScreen';
@@ -24,8 +26,13 @@ class AppRoutes {
   static String settings = '/settings';
   static String profile = '/profile';
   static String guards = '/guards';
+  
 
   static List<GetPage> routes = [
+    GetPage<Route<dynamic>>(
+      name: splashScreen,
+      page: () =>SplashScreen(),
+    ),
     GetPage<Route<dynamic>>(
       name: onboarding,
       page: () =>OnboardingView(),
