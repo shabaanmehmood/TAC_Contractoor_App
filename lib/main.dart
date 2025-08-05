@@ -44,7 +44,6 @@ void main() async {
   Get.put(UserController(), permanent: true);
   Get.put(SetJobDetailsController());
   // Get.put(SessionManagerController()); 
-  Get.put(GoogleSignInController()); // Register the controller
 
   // final initialRoute = await getInitialRoute();
   // runApp(Main(initialRoute: initialRoute,));

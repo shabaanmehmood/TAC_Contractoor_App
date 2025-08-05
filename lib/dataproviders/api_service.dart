@@ -945,6 +945,22 @@ class MyApIService {
     return response;
   }
 
+  Future<http.Response> googleLogin(String token) async {
+    var functionUrl = 'contractorAuth/google-login';
+    final response = await http.post(
+      Uri.parse(baseurl + functionUrl),
+      headers: {
+        "Content-Type": "application/json",
+        'ngrok-skip-browser-warning': 'true',
+      },
+      body: jsonEncode({
+        "token": token,
+      }),
+    );
+    return response;
+  }
+
+
 
 
 
