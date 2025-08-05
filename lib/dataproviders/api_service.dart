@@ -890,6 +890,27 @@ class MyApIService {
     return response;
   }
 
+  Future<http.Response> getAllGuardsList() async {
+    var functionUrl = 'users';
+
+    final response = await http.get(Uri.parse(baseurl + functionUrl),
+      headers: {
+        "Content-Type": "application/json",
+        'ngrok-skip-browser-warning': 'true',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final json = jsonDecode(response.body);
+      final dataList = json['data'];
+      debugPrint('Users list: $dataList');
+    } else {
+      debugPrint('Error: ${response.statusCode} - ${response.body}');
+    }
+    return response;
+  }
+
+
 
 
 // Future<http.Response> getData(String url, {String? controllerName}) async {

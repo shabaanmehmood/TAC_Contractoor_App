@@ -18,13 +18,18 @@ import 'package:taccontractor/modules/newjob%20section/my_jobs_view.dart';
 import '../../controllers/user_controller.dart';
 
 class LandingPage extends StatefulWidget {
-  const LandingPage({super.key});
+  final int selectedIndex; // <-- Add this
+
+  const LandingPage({Key? key, this.selectedIndex = 0}) : super(key: key); // <-- Accept in constructor
+
 
   @override
   State<LandingPage> createState() => _LandingPageState();
 }
 
 class _LandingPageState extends State<LandingPage> {
+  late int _currentIndex;
+
   final List<Widget> _pages = [
     const HomeView(),
     const GuardsView(),
@@ -39,7 +44,24 @@ class _LandingPageState extends State<LandingPage> {
     // const MyProfileView(),
   ];
 
-  int _currentIndex = 0;
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.selectedIndex; // <-- Set the initial index with argument!
+  }
+
+  @override
+  void didUpdateWidget(LandingPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // Check if the selectedIndex has changed and update _currentIndex accordingly
+    if (widget.selectedIndex != oldWidget.selectedIndex) {
+      setState(() {
+        _currentIndex = widget.selectedIndex;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // bool isDarkMode(BuildContext context) =>
@@ -66,7 +88,7 @@ class _LandingPageState extends State<LandingPage> {
                 fontWeight: FontWeight.bold,
               ),
               unselectedLabelStyle:
-                  const TextStyle(fontSize: 13, color: Colors.grey),
+              const TextStyle(fontSize: 13, color: Colors.grey),
               selectedFontSize: 14,
               unselectedFontSize: 13,
               unselectedItemColor: Colors.grey,

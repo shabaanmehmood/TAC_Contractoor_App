@@ -15,6 +15,7 @@ import '../../../models/createJobModel.dart';
 import '../../../models/preferenceModel.dart';
 import '../../../models/requiredLicenseModel.dart';
 import '../../../models/required_skills.dart';
+import '../../../routes/app_routes.dart';
 import '../../../widhets/common overlays/uploadFile_overlay.dart';
 import '../../../widhets/common widgets/buttons/tappableInputTile.dart';
 import '../../account/account.dart';
@@ -104,7 +105,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
 
     final response = await MyApIService().createJob(job);
     if (response.statusCode == 201) {
-      Get.back();
+      Get.offAllNamed(AppRoutes.landing, arguments: {'selectedIndex': 2});
     } else {
       Get.snackbar("Error", "Job creation failed");
     }
