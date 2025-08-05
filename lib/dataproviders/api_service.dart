@@ -537,6 +537,39 @@ class MyApIService {
     return response;
   }
 
+  Future<http.Response> postJobFeedback(
+    String guardId,
+    String jobId,
+    int rating,
+    String review,
+) async {
+  var functionUrl = 'jobFeedback/';
+  final response = await http.post(
+    Uri.parse(baseurl + functionUrl),
+    headers: {
+      "Content-Type": "application/json",
+      'ngrok-skip-browser-warning': 'true',
+    },
+    body: jsonEncode({
+      "guardId": guardId,
+      "jobId": jobId,
+      "rating": rating,
+      "review": review,
+    }),
+  );
+
+  if (response.statusCode == 200 || response.statusCode == 201) {
+    debugPrint('Job feedback submitted successfully');
+    final json = jsonDecode(response.body);
+    debugPrint('Response in addJobFeedback: $json');
+  } else {
+    debugPrint('Error submitting job feedback: ${response.statusCode}');
+    debugPrint('Response body: ${response.body}');
+  }
+
+  return response;
+}
+
   Future<http.Response> addSecurityLicense(String licenseNumber, String expiryDate, String licenseTypeId,
       String userId, String licenseDocumentPath) async {
     var functionUrl = 'userLicenses/';
@@ -679,6 +712,8 @@ class MyApIService {
     }
     return response;
   }
+
+  
 
   Future<http.Response> addReportAnIssue(
       ReportAnIssueModel reportAnIssueModel,

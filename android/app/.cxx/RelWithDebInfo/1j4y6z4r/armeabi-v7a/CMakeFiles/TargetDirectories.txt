@@ -1,0 +1,2 @@
+C:/Users/Hp/OneDrive/Desktop/New folder/tac1/TAC_Contractoor_App/android/app/.cxx/RelWithDebInfo/1j4y6z4r/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/Users/Hp/OneDrive/Desktop/New folder/tac1/TAC_Contractoor_App/android/app/.cxx/RelWithDebInfo/1j4y6z4r/armeabi-v7a/CMakeFiles/rebuild_cache.dir
