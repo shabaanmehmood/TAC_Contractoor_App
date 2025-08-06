@@ -156,11 +156,7 @@ void main() async {
   // ✅ Dependency Injection
   Get.put(UserController(), permanent: true);
   Get.put(SetJobDetailsController());
-<<<<<<< HEAD
-  Get.put(GoogleSignInController());
-=======
   // Get.put(SessionManagerController()); 
->>>>>>> 3d9d81041f5da5bcbc796322bf15302716976321
 
   runApp(Main(initialRoute: AppRoutes.splashScreen));
 }
