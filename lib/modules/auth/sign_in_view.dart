@@ -9,6 +9,7 @@ import 'package:taccontractor/data/data/constants/app_spacing.dart';
 import 'package:taccontractor/data/data/constants/app_typography.dart';
 import 'package:taccontractor/data/data/constants/constants.dart';
 import 'package:taccontractor/modules/Jobs/Create%20Jobs/setJobDetailsScreen.dart';
+import 'package:taccontractor/modules/account/components/logoutConstant.dart';
 import 'package:taccontractor/modules/account/components/session_logout_controller.dart';
 import 'package:taccontractor/modules/auth/auth_controller/google_signin_controller.dart';
 import 'package:taccontractor/modules/auth/forget_password.dart';
@@ -103,9 +104,10 @@ class SignInViewController extends GetxController {
 
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
-  final String rememberEmailKey = 'rememberedEmail';
-  final String rememberPasswordKey = 'rememberedPassword';
-  final String loginTimeKey = 'loginTime';
+  final String rememberEmailKey = AppConstants.rememberEmailKey;
+  final String rememberPasswordKey = AppConstants.rememberPasswordKey;
+  final String loginTimeKey = AppConstants.loginTimeKey;
+
 
   void togglePasswordView() {
     passwordVisible.value = !passwordVisible.value;
