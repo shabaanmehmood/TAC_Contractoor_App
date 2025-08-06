@@ -242,8 +242,7 @@ class SignInViewController extends GetxController {
 
 class SignInView extends StatelessWidget {
   final SignInViewController controller = Get.put(SignInViewController());
-  final GoogleSignInController authController = Get.find<GoogleSignInController>(); 
- 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -416,9 +415,10 @@ class SignInView extends StatelessWidget {
                               ),
                               SizedBox(width: AppSpacing.twentyHorizontal,),
                               GestureDetector(
-                                onTap: () {
-                                    authController.loginWithGoogle();
-                                },
+                                onTap: () async {
+                                  final googleAuthService = GoogleAuthService();
+                                  await googleAuthService.signInWithGoogle();
+                                  },
                                 child: Text(
                                   'Continue with Google',
                                   style: AppTypography.kBold18.copyWith(
