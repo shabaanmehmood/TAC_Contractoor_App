@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "419940175084",
+    "project_id": "taccontractor-f77ef",
+    "storage_bucket": "taccontractor-f77ef.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:419940175084:android:b3463b98b5b8a6cfc629c9",
+        "android_client_info": {
+          "package_name": "com.example.taccontractor"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBnw4ZEUmYs7nYdl9kVI0uqr9lod3Q_eQQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
