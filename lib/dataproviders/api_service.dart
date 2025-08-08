@@ -7,6 +7,7 @@ import 'package:taccontractor/models/ReportAnIssue.dart';
 import 'package:taccontractor/models/createDisputeModel.dart';
 import 'package:taccontractor/models/jobApplication_model.dart';
 import 'package:taccontractor/models/jobCategoriesModel.dart';
+import 'package:taccontractor/models/notification_model.dart';
 import 'package:taccontractor/models/signUpModelForCompany.dart';
 
 import '../controllers/user_controller.dart';
@@ -1330,4 +1331,48 @@ Issue with filepath. Solve it:
     return await Geolocator.getCurrentPosition();
   }
   */
+
+
+  //  Future<List<ContractorNotification>> fetchNotifications(String contractorId) async {
+  //   var functionUrl = 'notification/contractors/$contractorId';
+
+  //   final response = await http.get(Uri.parse(baseurl + functionUrl),
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //       'ngrok-skip-browser-warning': 'true',
+  //     },
+  //   );
+
+  //   if (response.statusCode == 200) {
+  //     final jsonData = jsonDecode(response.body);
+    
+  //     final List<dynamic> dataList = jsonData['data'];
+  //     return dataList.map((item) => ContractorNotification.fromJson(item)).toList();
+  //   } else {
+  //     throw Exception('Failed to load notifications');
+  //   }
+  // }
+
+ Future<List<ContractorNotification>> fetchNotifications(String contractorId) async {
+    final uri = Uri.parse("${baseurl}notification/contractor/$contractorId");
+
+    final response = await http.get(
+      uri,
+      headers: {
+        "Content-Type": "application/json",
+        "ngrok-skip-browser-warning": "true",
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final jsonData = jsonDecode(response.body);
+      final List<dynamic> dataList = jsonData['data'];
+      return dataList.map((item) => ContractorNotification.fromJson(item)).toList();
+    } else {
+      throw Exception('Failed to load notifications');
+    }
+  }
+
+
 }
+
