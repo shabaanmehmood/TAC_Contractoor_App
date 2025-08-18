@@ -12,9 +12,6 @@ class NotificationController extends GetxController {
   final MyApIService _notificationService = MyApIService();
   UserController userController = Get.find<UserController>();
   
-
-   
-
   Future<void> loadNotifications() async {
     try {
       isLoading.value = true;

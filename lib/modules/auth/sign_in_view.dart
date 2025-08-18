@@ -476,34 +476,39 @@ class SignInView extends StatelessWidget {
                           )
                       ),
                       SizedBox(height: AppSpacing.thirtyVertical,),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      Column(
                         children: [
-                          Text(
-                            'Don\'t have an account?',
-                            style: AppTypography.kBold16.copyWith(
-                                color: Colors.grey
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: (){
-                              Get.toNamed(AppRoutes.getSelectRoute());
-                            },
-                            child: Text(
-                              'Create Account',
-                              style: AppTypography.kBold18.copyWith(
-                                  color: AppColors.kSkyBlue
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Don\'t have an account?',
+                                style: AppTypography.kBold16.copyWith(
+                                    color: Colors.grey
+                                ),
                               ),
-                            ),
-                          )
-                        ],
-                      ),
-                      Text(
-                        'Powered by TAC Solutions',
-                        style: AppTypography.kLight14.copyWith(
+                              TextButton(
+                                onPressed: (){
+                                  Get.toNamed(AppRoutes.getSelectRoute());
+                                },
+                                child: Text(
+                                  'Create Account',
+                                  style: AppTypography.kBold18.copyWith(
+                                      color: AppColors.kSkyBlue
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
+                          Text(
+                            'Powered by TAC Solutions',
+                            style: AppTypography.kLight14.copyWith(
                             color: Colors.grey
                         ),
                       ),
+                        ],
+                      ),
+                     
                     ],
                   ),
                 ),
