@@ -122,46 +122,88 @@ import 'components/onboarding_card.dart';
 //   }
 // }
 
-class OnboardingController extends GetxController {
-  final PageController pageController = PageController();
-  var currentIndex = 0.obs; // ✅ Make it reactive
+// class OnboardingController extends GetxController {
+//   final PageController pageController = PageController();
+//   var currentIndex = 0.obs; // ✅ Make it reactive
 
-  void onPageChanged(int index) {
-    currentIndex.value = index; // ✅ Update the reactive state
-  }
-
-
-// void onSkip() async {
-//   final signInController = Get.put(SignInViewController(), permanent: true);
+//   void onPageChanged(int index) {
+//     currentIndex.value = index; // ✅ Update the reactive state
+//   }
 
 
-//   showDialog(
-//     context: Get.context!,
-//     barrierDismissible: false,
-//     builder: (_) => const Center(child: CircularProgressIndicator(
-//      color:AppColors.kSkyBlue,
-//     backgroundColor: AppColors.kSkyBlue, // or omit entirely
-//     )),
-//   );
+// // void onSkip() async {
+// //   final signInController = Get.put(SignInViewController(), permanent: true);
 
-//   bool isLoggedIn = await signInController.checkAutoLoginAndRedirect();
-//   Get.back(); // dismiss loader
 
-//   if (!isLoggedIn) {
+// //   showDialog(
+// //     context: Get.context!,
+// //     barrierDismissible: false,
+// //     builder: (_) => const Center(child: CircularProgressIndicator(
+// //      color:AppColors.kSkyBlue,
+// //     backgroundColor: AppColors.kSkyBlue, // or omit entirely
+// //     )),
+// //   );
+
+// //   bool isLoggedIn = await signInController.checkAutoLoginAndRedirect();
+// //   Get.back(); // dismiss loader
+
+// //   if (!isLoggedIn) {
+// //     Get.offAllNamed<dynamic>(AppRoutes.getSignInRoute());
+// //   }
+// // }
+
+
+//   void onSkip() async{
+    
+//     final prefs = await SharedPreferences.getInstance();
+//     await prefs.setBool('isFirstTime', false);
 //     Get.offAllNamed<dynamic>(AppRoutes.getSignInRoute());
+//   }
+
+//   void onNextPage() {
+//     if (currentIndex.value == onboardingList.length - 1) {
+//       Get.offAllNamed<dynamic>(AppRoutes.getSignInRoute());
+//     } else {
+//       pageController.nextPage(
+//         duration: const Duration(milliseconds: 500),
+//         curve: Curves.ease,
+//       );
+//     }
+//   }
+
+//   // void onSkip() {
+//   //   if (currentIndex.value == onboardingList.length - 1) {
+//   //     Get.offAllNamed<dynamic>(AppRoutes.getSignInRoute());
+//   //   } else {
+//   //     Get.offAllNamed<dynamic>(AppRoutes.getWelcomeRoute());
+//   //   }
+//   // }
+
+//   @override
+//   void onClose() {
+//     pageController.dispose();
+//     super.onClose();
 //   }
 // }
 
+class OnboardingController extends GetxController {
+  final PageController pageController = PageController();
+  var currentIndex = 0.obs;
 
-  void onSkip() async{
-    
+  void onPageChanged(int index) {
+    currentIndex.value = index;
+  }
+
+  void onSkip() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isFirstTime', false);
     Get.offAllNamed<dynamic>(AppRoutes.getSignInRoute());
   }
 
-  void onNextPage() {
+  void onNextPage() async {
     if (currentIndex.value == onboardingList.length - 1) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('isFirstTime', false);
       Get.offAllNamed<dynamic>(AppRoutes.getSignInRoute());
     } else {
       pageController.nextPage(
@@ -171,20 +213,13 @@ class OnboardingController extends GetxController {
     }
   }
 
-  // void onSkip() {
-  //   if (currentIndex.value == onboardingList.length - 1) {
-  //     Get.offAllNamed<dynamic>(AppRoutes.getSignInRoute());
-  //   } else {
-  //     Get.offAllNamed<dynamic>(AppRoutes.getWelcomeRoute());
-  //   }
-  // }
-
   @override
   void onClose() {
     pageController.dispose();
     super.onClose();
   }
 }
+
 
 class OnboardingView extends StatelessWidget {
   OnboardingView({super.key});
