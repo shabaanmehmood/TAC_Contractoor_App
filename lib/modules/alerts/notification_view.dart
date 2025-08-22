@@ -217,7 +217,7 @@ Container(
   ),
   child: ClipOval(
     child: Image.network(
-      item.image,
+      item.image!,
       height: 30,
       width: 30,
       fit: BoxFit.cover,

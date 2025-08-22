@@ -19,56 +19,204 @@ class SearchViewController extends GetxController {
   final RxList<String> appliedFilters = <String>[].obs;
   final RxString sortBy = 'Latest'.obs;
 
+  // Advanced filter properties
+  final RxDouble payRateMin = 20.0.obs;
+  final RxDouble payRateMax = 100.0.obs;
+  final RxString jobType = ''.obs;
+  final RxString shiftTiming = ''.obs;
+  final RxString requiredLevel = ''.obs;
+  final RxString experience = ''.obs;
+  final RxList<String> licenses = <String>[].obs;
+  final RxList<String> premises = <String>[].obs;
+  final RxString location = ''.obs;
+  final RxBool useCurrentLocation = true.obs;
+
+  final TextEditingController searchController = TextEditingController();
+
+  @override
+  void onInit() {
+    super.onInit();
+    searchController.text = searchQuery.value;
+  }
+
+  @override
+  void onClose() {
+    searchController.dispose();
+    super.onClose();
+  }
+
+
   void updateFilter(String filter) {
     selectedFilter.value = filter;
   }
 
-  void initWithData() {
-    final guardsController = Get.find<GuardsViewController>();
+  // void initWithData() {
+  //   final guardsController = Get.find<GuardsViewController>();
+  //   jobList.value = guardsController.jobList;
+  // }
+    // void initWithData(GuardsViewController guardsController) {
+    // jobList.value = guardsController.jobList;
+    //  }
+
+     void initWithData(GuardsViewController guardsController) {
     jobList.value = guardsController.jobList;
+    // Set initial search query if coming from guards view
+    if (guardsController.searchQuery.value.isNotEmpty) {
+      searchQuery.value = guardsController.searchQuery.value;
+      searchController.text = guardsController.searchQuery.value;
+    }
   }
 
-  List<JobData> getFilteredJobs() {
-    var jobs = jobList.where((job) {
-      if (searchQuery.value.isNotEmpty) {
-        final query = searchQuery.value.toLowerCase();
-        return job.title.toLowerCase().contains(query) ||
-            job.contractorName.toLowerCase().contains(query) ||
-            job.categoryName.toLowerCase().contains(query) ||
-            job.location.toLowerCase().contains(query);
-      }
-      return true;
-    }).toList();
+ List<JobData> getFilteredJobs() {
+  var jobs = jobList.where((job) {
+    // Apply search filter
+    if (searchQuery.value.isNotEmpty) {
+      final query = searchQuery.value.toLowerCase();
+      bool matchesSearch = job.title.toLowerCase().contains(query) ||
+          job.contractorName.toLowerCase().contains(query) ||
+          job.categoryName.toLowerCase().contains(query) ||
+          job.location.toLowerCase().contains(query);
+      if (!matchesSearch) return false;
+    }
 
+    // Apply category filter
     if (selectedFilter.value != 'All') {
-      jobs = jobs.where((job) => _getCategoryType(job) == selectedFilter.value).toList();
+      if (_getCategoryType(job) != selectedFilter.value) return false;
     }
 
+    // Apply advanced filters
     if (appliedFilters.isNotEmpty) {
-      jobs = jobs.where((job) {
-        return appliedFilters.every((filter) {
-          return true;
+      double jobPayRate = double.tryParse(job.payPerHour.toString()) ?? 0.0;
+      // Pay rate filter
+      if (jobPayRate < payRateMin.value || jobPayRate > payRateMax.value) {
+        return false;
+      }
+
+      // Job type filter
+      if (jobType.value.isNotEmpty) {
+        // You can implement job type matching based on your job data structure
+        // For now, we'll skip this filter
+      }
+
+      // Shift timing filter
+      if (shiftTiming.value.isNotEmpty) {
+        // Check if job matches shift timing
+        bool hasMatchingShift = job.shifts.any((shift) {
+          String startHour = shift.startTime.split(':')[0];
+          int hour = int.tryParse(startHour) ?? 0;
+          
+          switch (shiftTiming.value) {
+            case 'Morning':
+              return hour >= 6 && hour < 12;
+            case 'Afternoon':
+              return hour >= 12 && hour < 17;
+            case 'Evening':
+              return hour >= 17 && hour < 21;
+            case 'Night':
+              return hour >= 21 || hour < 6;
+            default:
+              return true;
+          }
         });
-      }).toList();
+        if (!hasMatchingShift) return false;
+      }
+
+      // Location filter
+      if (location.value.isNotEmpty && !useCurrentLocation.value) {
+        if (!job.location.toLowerCase().contains(location.value.toLowerCase())) {
+          return false;
+        }
+      }
+
+      // License filters
+      if (licenses.isNotEmpty) {
+        // This would need to be implemented based on your job data structure
+        // For now, we'll assume all jobs match license requirements
+      }
+
+      // Premises filters
+      if (premises.isNotEmpty) {
+        bool matchesPremises = premises.any((premise) =>
+            job.categoryName.toLowerCase().contains(premise.toLowerCase()));
+        if (!matchesPremises) return false;
+      }
     }
 
-    switch (sortBy.value) {
-      case 'Latest':
+    return true;
+  }).toList();
+
+  // Apply sorting
+  switch (sortBy.value) {
+    case 'Latest':
+      jobs.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      break;
+    case 'Oldest':
+      jobs.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+      break;
+    case 'Pay Rate (High to Low)':
+      jobs.sort((a, b) => b.payPerHour.compareTo(a.payPerHour));
+      break;
+    case 'Pay Rate (Low to High)':
+      jobs.sort((a, b) => a.payPerHour.compareTo(b.payPerHour));
+      break;
+    case 'Most Relevant':
+      // Sort by relevance based on search query match and other factors
+      if (searchQuery.value.isNotEmpty) {
+        jobs.sort((a, b) => _calculateRelevanceScore(b).compareTo(_calculateRelevanceScore(a)));
+      } else {
+        // If no search query, fall back to latest
         jobs.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-        break;
-      case 'Oldest':
-        jobs.sort((a, b) => a.createdAt.compareTo(b.createdAt));
-        break;
-      case 'Pay Rate (High to Low)':
-        jobs.sort((a, b) => b.payPerHour.compareTo(a.payPerHour));
-        break;
-      case 'Pay Rate (Low to High)':
-        jobs.sort((a, b) => a.payPerHour.compareTo(b.payPerHour));
-        break;
-    }
-
-    return jobs;
+      }
+      break;
   }
+
+  return jobs;
+}
+double _calculateRelevanceScore(JobData job) {
+  double score = 0.0;
+  
+  if (searchQuery.value.isNotEmpty) {
+    final query = searchQuery.value.toLowerCase();
+    
+    // Title match gets highest score
+    if (job.title.toLowerCase().contains(query)) {
+      score += 100.0;
+      // Exact title match gets bonus
+      if (job.title.toLowerCase() == query) {
+        score += 50.0;
+      }
+    }
+    
+    // Company name match
+    if (job.contractorName.toLowerCase().contains(query)) {
+      score += 75.0;
+    }
+    
+    // Category match
+    if (job.categoryName.toLowerCase().contains(query)) {
+      score += 60.0;
+    }
+    
+    // Location match
+    if (job.location.toLowerCase().contains(query)) {
+      score += 40.0;
+    }
+    
+    // Recent jobs get slight bonus for relevance
+    final daysSinceCreated = DateTime.now().difference(job.createdAt).inDays;
+    if (daysSinceCreated <= 7) {
+      score += 20.0;
+    } else if (daysSinceCreated <= 30) {
+      score += 10.0;
+    }
+     double jobPayRate = double.tryParse(job.payPerHour.toString()) ?? 0.0;
+    // Higher pay rate gets slight bonus
+    score += (jobPayRate / 10.0);
+  }
+  
+  return score;
+}
+
 
   String _getCategoryType(JobData job) {
     if (job.categoryName.toLowerCase().contains('armed')) {
@@ -94,15 +242,57 @@ class SearchViewController extends GetxController {
 
   void setSortBy(String sort) {
     sortBy.value = sort;
+     update();
   }
+
+    // Method to apply advanced filters
+  void applyAdvancedFilters(Map<String, dynamic> filters) {
+    payRateMin.value = filters['payRateMin'] ?? 20.0;
+    payRateMax.value = filters['payRateMax'] ?? 100.0;
+    jobType.value = filters['jobType'] ?? '';
+    shiftTiming.value = filters['shiftTiming'] ?? '';
+    requiredLevel.value = filters['requiredLevel'] ?? '';
+    experience.value = filters['experience'] ?? '';
+    licenses.value = List<String>.from(filters['licenses'] ?? []);
+    premises.value = List<String>.from(filters['premises'] ?? []);
+    location.value = filters['location'] ?? '';
+    useCurrentLocation.value = filters['useCurrentLocation'] ?? true;
+
+    // Add filter labels to applied filters
+    appliedFilters.clear();
+    if (jobType.value.isNotEmpty) appliedFilters.add(jobType.value);
+    if (shiftTiming.value.isNotEmpty) appliedFilters.add(shiftTiming.value);
+    if (requiredLevel.value.isNotEmpty) appliedFilters.add('Level ${requiredLevel.value}');
+    if (experience.value.isNotEmpty) appliedFilters.add('${experience.value} years');
+    appliedFilters.addAll(licenses);
+    appliedFilters.addAll(premises);
+    if (location.value.isNotEmpty && !useCurrentLocation.value) {
+      appliedFilters.add(location.value);
+    }
+  }
+ 
+     void performSearch() {
+    searchQuery.value = searchController.text;
+  }
+
 }
 
 class SearchView extends StatelessWidget {
-  SearchView({Key? key}) : super(key: key) {
-    controller.initWithData();
-  }
 
+  
+  final GuardsViewController guardsController; // Add this propert
   final controller = Get.put(SearchViewController());
+
+  // SearchView({Key? key}) : super(key: key) {
+  //   controller.initWithData();
+  // }
+
+  SearchView({Key? key, required this.guardsController}) : super(key: key) {
+   controller.initWithData(guardsController);
+   Get.put(SortController());
+     }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -127,14 +317,29 @@ class SearchView extends StatelessWidget {
                     style: AppTypography.kLight14.copyWith(color: AppColors.kWhite),
                   )),
                   Spacer(),
-                  TextButton.icon(
-                    onPressed: () => showSortBottomSheet(context),
+                  // TextButton.icon(
+                  //   onPressed: () => showSortBottomSheet(context),
+                  //   label: Text(
+                  //     'Sort by',
+                  //     style: AppTypography.kBold16.copyWith(color: AppColors.kSkyBlue),
+                  //   ),
+                  //   icon: Icon(Icons.filter_list_rounded, color: AppColors.kSkyBlue),
+                  // ),
+                  Obx(() => TextButton.icon(
+                    onPressed: () {
+                      // Make sure SortController is initialized before showing
+                      if (!Get.isRegistered<SortController>()) {
+                        Get.put(SortController());
+                      }
+                      showSortBottomSheet(context);
+                    },
                     label: Text(
-                      'Sort by',
+                      'Sort by: ${_getSortDisplayName()}',
                       style: AppTypography.kBold16.copyWith(color: AppColors.kSkyBlue),
                     ),
                     icon: Icon(Icons.filter_list_rounded, color: AppColors.kSkyBlue),
-                  ),
+                  )),
+
                 ],
               ),
               SizedBox(height: AppSpacing.fiveVertical),
@@ -143,6 +348,14 @@ class SearchView extends StatelessWidget {
               Expanded(
                 child: Obx(() {
                   final jobs = controller.getFilteredJobs();
+                   if (jobs.isEmpty) {
+                    return Center(
+                      child: Text(
+                        'No jobs found matching your criteria',
+                        style: AppTypography.kBold16.copyWith(color: AppColors.kWhite),
+                      ),
+                    );
+                  }
                   return ListView.separated(
                     itemCount: jobs.length,
                     separatorBuilder: (context, index) => SizedBox(height: AppSpacing.fiveVertical),
@@ -180,6 +393,25 @@ class SearchView extends StatelessWidget {
     );
   }
 
+      // Replace the _getSortDisplayName() method with this updated version
+String _getSortDisplayName() {
+  switch (controller.sortBy.value) {
+    case 'Latest':
+      return 'Recent';
+    case 'Oldest':
+      return 'Oldest'; // Fixed typo from "OldReest"
+    case 'Pay Rate (High to Low)':
+      return 'Pay ↓';
+    case 'Pay Rate (Low to High)':
+      return 'Pay ↑';
+    case 'Most Relevant':
+      return 'Relevant';
+    default:
+      return 'Recent';
+  }
+}
+
+
   Widget _buildAppBar(BuildContext context) {
     return Column(
       children: [
@@ -203,10 +435,18 @@ class SearchView extends StatelessWidget {
           icon2: AppAssets.kFilter,
           leadingIcon: AppAssets.kSearch,
           isEnabled: true,
-          controller: TextEditingController(),
+          // controller: TextEditingController(),
+          // onChanged: (value) {
+          //   controller.searchQuery.value = value;
+          // },
+           controller: controller.searchController,
           onChanged: (value) {
             controller.searchQuery.value = value;
           },
+          onSearchPressed: () {
+            controller.performSearch();
+          },
+
         ),
       ],
     );

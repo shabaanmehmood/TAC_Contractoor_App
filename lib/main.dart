@@ -6,10 +6,12 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:get/get_navigation/src/routes/transitions_type.dart';
+import 'package:taccontractor/controllers/mapController.dart';
 import 'package:taccontractor/data/data/constants/app_colors.dart';
 import 'package:taccontractor/dataproviders/notification_services/notification_handler.dart';
 import 'package:taccontractor/dataproviders/notification_services/notification_services.dart';
 import 'package:taccontractor/firebase_options.dart';
+import 'package:taccontractor/modules/Guards/guards_view.dart';
 import 'package:taccontractor/modules/auth/auth_controller/google_signin_controller.dart';
 import 'package:taccontractor/routes/app_routes.dart';
 import 'controllers/user_controller.dart';
@@ -156,6 +158,8 @@ void main() async {
   // ✅ Dependency Injection
   Get.put(UserController(), permanent: true);
   Get.put(SetJobDetailsController());
+   Get.put(MapController(), permanent: true); // <-- Add this line here
+  // Get.put(GuardsViewController());
   // Get.put(SessionManagerController()); 
 
   runApp(Main(initialRoute: AppRoutes.splashScreen));

@@ -110,6 +110,8 @@ class SearchField extends StatelessWidget {
   final bool isIconColorBlue;
   final bool isBorderBlue;
   final bool isEnabled;
+  final GuardsViewController? guardsController; // Add this property
+  final VoidCallback? onSearchPressed; // Add this parameter
 
   const SearchField({
     this.leadingIcon,
@@ -121,22 +123,33 @@ class SearchField extends StatelessWidget {
     this.isEnabled = false,
     required this.isIconColorBlue,
     required this.isBorderBlue,
+    this.guardsController, // Require it in the constructor
+    this.onSearchPressed, // Add this parameter
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        if (!isEnabled) {
-          // Only navigate if the field is not enabled (in guards_view.dart)
-          Get.to(() => SearchView())?.then((value) {
-            // Refresh guards view if needed
-            final guardsController = Get.find<GuardsViewController>();
-            guardsController.update();
-          });
+      // onTap: () {
+      //   if (!isEnabled) {
+      //     // Only navigate if the field is not enabled (in guards_view.dart)
+      //     Get.to(() => SearchView())?.then((value) {
+      //       // Refresh guards view if needed
+      //       final guardsController = Get.find<GuardsViewController>();
+      //       guardsController.update();
+      //     });
+      //   }
+      // },
+
+        onTap: () {
+         if (!isEnabled) {
+          // Navigate and pass the controller directly
+        Get.to(() => SearchView(guardsController: guardsController!))?.then((value) {
+        guardsController!.update();
+        });
         }
-      },
+        },
       child: Container(
         width: double.infinity,
         color: Colors.transparent,
@@ -196,19 +209,47 @@ class SearchField extends StatelessWidget {
                         width: 22,
                         color: isIconColorBlue ? AppColors.kSkyBlue : Colors.grey,
                       ),
+                      // onPressed: () {
+                      //   Get.to(() => const AdvancedFiltersView())?.then((selectedFilters) {
+                      //     if (selectedFilters != null && selectedFilters is List<String>) {
+                      //       final searchController = Get.find<SearchViewController>();
+                      //       // Clear previous filters
+                      //       searchController.appliedFilters.clear();
+                      //       // Add new filters
+                      //       for (String filter in selectedFilters) {
+                      //         searchController.addFilter(filter);
+                      //       }
+                      //     }
+                      //   });
+                      // },
                       onPressed: () {
-                        Get.to(() => const AdvancedFiltersView())?.then((selectedFilters) {
-                          if (selectedFilters != null && selectedFilters is List<String>) {
-                            final searchController = Get.find<SearchViewController>();
-                            // Clear previous filters
-                            searchController.appliedFilters.clear();
-                            // Add new filters
-                            for (String filter in selectedFilters) {
-                              searchController.addFilter(filter);
-                            }
-                          }
-                        });
-                      },
+                // Check if this is a search icon or filter icon based on the asset
+                if (icon2! == AppAssets.kSearch && onSearchPressed != null) {
+                  // This is the search icon - perform search
+                  onSearchPressed!();
+                } else if (icon2! == AppAssets.kFilter) {
+                  // This is the filter icon - open advanced filters
+                  Get.to(() => const AdvancedFiltersView())?.then((selectedFilters) {
+                    if (selectedFilters != null && selectedFilters is List<String>) {
+                      final searchController = Get.find<SearchViewController>();
+                      // Clear previous filters
+                      searchController.appliedFilters.clear();
+                      // Add new filters
+                      for (String filter in selectedFilters) {
+                        searchController.addFilter(filter);
+                      }
+                    }
+                  });
+                } else {
+                  // Default behavior for other icons
+                  Get.to(() => const AdvancedFiltersView())?.then((selectedFilters) {
+                    if (selectedFilters != null && selectedFilters is List<String>) {
+                      // Handle the selected filters
+                      print('Selected filters: $selectedFilters');
+                    }
+                  });
+                }
+              },
                     ),
                 ],
               ),
