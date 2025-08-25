@@ -134,7 +134,7 @@ class DocumentInfoScreen extends StatelessWidget {
                             }
                           },
                           onChanged: (_) => controller.formKey.currentState?.validate(),
-                          isRequired: false,
+                          isRequired: true,
                         ),
                         _DocumentTile(
                           title: "National Crime Police Check",

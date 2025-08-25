@@ -81,16 +81,21 @@ Widget _appBar(BuildContext context) {
         children: [
           Row(
             children: [
-              Builder(
-                builder: (BuildContext context) {
-                  return Image.asset(
-                    AppAssets.kTacHomeScreenLogo,
-                    height: Get.height * 0.07,
-                    width: Get.width * 0.25,
+              Row(
+                children: [
+                  Image.asset(
+                    "assets/splash_Logo1.png",
+                    height: Get.height * 0.045,
+                    // width: Get.width * 0.18,
                     fit: BoxFit.contain,
-                  );
-                },
+                  ),
+                  Text(
+                    'Home',
+                    style: AppTypography.kBold16.copyWith(color: AppColors.kWhite),
+                  ),
+                ],
               ),
+              
               const Spacer(),
               Stack(
                 children: [
@@ -114,6 +119,7 @@ Widget _appBar(BuildContext context) {
                 ],
               ),
               const SizedBox(width: 10),
+              // Profile picture (commented in your code)
               // Obx(() {
               //   final imagePath = userController.userData.value?.profileImages?.first.imageUrl;
               //   final imageUrl = MyApIService.fullImageUrl(imagePath);
@@ -137,7 +143,7 @@ Widget _appBar(BuildContext context) {
           SearchField(
             isBorderBlue: true,
             isEnabled: false,
-            text: 'Search for Security Guards',
+            text: 'Search for Security jobs..',
             isIconColorBlue: false,
             icon2: AppAssets.kSearch,
             guardsController: guardsController, // Pass the found controller
@@ -147,4 +153,5 @@ Widget _appBar(BuildContext context) {
     ),
   );
 }
+
 

@@ -406,7 +406,7 @@ class SignInView extends StatelessWidget {
                                   Get.to(() => ForgetPasswordView());
                                 },
                                 child: Text(
-                                  'Forget Password',
+                                  'Forget Password?',
                                   style: AppTypography.kBold16.copyWith(
                                       color: AppColors.kSkyBlue
                                   ),)),

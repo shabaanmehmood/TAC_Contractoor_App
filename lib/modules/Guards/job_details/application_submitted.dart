@@ -98,8 +98,11 @@ class ApplicationSubmittedScreen extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {
-                  Get.offAndToNamed(AppRoutes.getLandingPageRoute()); // Navigate to guards page route
+                  onPressed: () {
+                  // Get.offAndToNamed(AppRoutes.getLandingPageRoute()); // Navigate to guards page route
+                Get.back(); 
+                Get.back(); 
+                
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.kSkyBlue,
