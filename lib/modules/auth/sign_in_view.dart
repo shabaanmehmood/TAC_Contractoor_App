@@ -203,7 +203,9 @@ Future<bool> checkAutoLoginAndRedirect() async {
 
         if (response.statusCode == 200) {
           await prefs.setInt(loginTimeKey, DateTime.now().millisecondsSinceEpoch);
+          // Get.offAllNamed(AppRoutes.getLandingPageRoute());
           Get.offAllNamed(AppRoutes.getLandingPageRoute());
+    
           return true;
         }
       }
@@ -220,12 +222,13 @@ Future<bool> checkAutoLoginAndRedirect() async {
 
   Future<void> submitSignIn(BuildContext context, String? fcmToken, {bool autoLogin = false}) async {
     if (autoLogin || formKey.currentState!.validate()) {
+    
       final apiService = MyApIService();
 
       try {
         final response = await apiService.login(
-          emailController.text.trim(),
-          passwordController.text.trim(),
+          emailController.text.toString(),
+          passwordController.text.toString(),
           fcmToken!,
         );
 
@@ -237,8 +240,11 @@ Future<bool> checkAutoLoginAndRedirect() async {
             await prefs.setInt(loginTimeKey, DateTime.now().millisecondsSinceEpoch);
           }
 
-          Get.offAndToNamed(AppRoutes.getLandingPageRoute());
+          // Get.offAndToNamed(AppRoutes.getLandingPageRoute());
+          Get.offAllNamed(AppRoutes.getLandingPageRoute());
         } else {
+          debugPrint("data from API ${response.body}");
+          debugPrint("data from API ${response.body}");
           final Map<String, dynamic> responseBody = jsonDecode(response.body);
           final String errorMessage = responseBody['message'] ?? 'Unknown error';
 
@@ -251,8 +257,10 @@ Future<bool> checkAutoLoginAndRedirect() async {
               showNoButton: false,
             );
           }
+           debugPrint('Error login failed: ${response.body}');
         }
       } catch (e) {
+        debugPrint('Network error: ${e.toString()}');
         if (!autoLogin) {
           await AdaptiveAlertDialogWidget.show(
             context,
@@ -263,8 +271,11 @@ Future<bool> checkAutoLoginAndRedirect() async {
           );
         }
       }
+      
     }
   }
+
+
 }
 
 
@@ -300,13 +311,13 @@ class SignInView extends StatelessWidget {
                     children: [
                       Text(
                         "Login",
-                        style: AppTypography.kBold24.copyWith(
+                        style: AppTypography.customkBold24.copyWith(
                           color: AppColors.kWhite
                         )
                       ),
                       Text(
                         "Welcome Back!",
-                        style: AppTypography.kLight14.copyWith(
+                        style: AppTypography.customkLight14.copyWith(
                           color: Colors.grey
                         )
                       ),
@@ -395,7 +406,7 @@ class SignInView extends StatelessWidget {
                                   controlAffinity: ListTileControlAffinity.leading,
                                   title: Text(
                                     'Remember me',
-                                    style: AppTypography.kLight14.copyWith(color: AppColors.kWhite),
+                                    style: AppTypography.customkLight14.copyWith(color: AppColors.kWhite),
                                   ),
                                 )),
 
@@ -407,7 +418,7 @@ class SignInView extends StatelessWidget {
                                 },
                                 child: Text(
                                   'Forget Password?',
-                                  style: AppTypography.kBold16.copyWith(
+                                  style: AppTypography.customkBold16.copyWith(
                                       color: AppColors.kSkyBlue
                                   ),)),
                           ),
@@ -422,11 +433,13 @@ class SignInView extends StatelessWidget {
                         },
                         text: 'Login',
                       ),
+
+                         
                       SizedBox(height: AppSpacing.twentyVertical,),
                       Center(
                         child: Text(
                           'OR',
-                          style: AppTypography.kBold16.copyWith(
+                          style: AppTypography.customkBold16.copyWith(
                             color: AppColors.kSkyBlue,
                           ),
                         ),
@@ -487,7 +500,7 @@ class SignInView extends StatelessWidget {
                             children: [
                               Text(
                                 'Don\'t have an account?',
-                                style: AppTypography.kBold16.copyWith(
+                                style: AppTypography.customkBold16.copyWith(
                                     color: Colors.grey
                                 ),
                               ),
@@ -497,7 +510,7 @@ class SignInView extends StatelessWidget {
                                 },
                                 child: Text(
                                   'Create Account',
-                                  style: AppTypography.kBold18.copyWith(
+                                  style: AppTypography.customkBold16.copyWith(
                                       color: AppColors.kSkyBlue
                                   ),
                                 ),
@@ -506,7 +519,7 @@ class SignInView extends StatelessWidget {
                           ),
                           Text(
                             'Powered by TAC Solutions',
-                            style: AppTypography.kLight14.copyWith(
+                            style: AppTypography.customkLight14.copyWith(
                             color: Colors.grey
                         ),
                       ),
