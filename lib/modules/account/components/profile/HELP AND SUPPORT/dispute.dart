@@ -28,101 +28,88 @@ class DisputeController extends GetxController {
   final TextEditingController transactionDateController = TextEditingController();
   final TextEditingController disputeAmountController = TextEditingController();
 
-  Future<void> submitDispute() async {
-    final apiService = MyApIService(); // create instance
-    try{
-      if(selectedDisputeType.value == 'jobRelated'){
-        final createDisputeModel = CreateDisputeModel(
-          disputeType: 'job',
-          contractorId: userController.userData.value!.id!,
-          dateOfIncident: dateOfIncidentController.text,
-          description: descriptionController.text,
-          jobId: jobId,
-          supportingDocument: base64Images.value,
-          transactionId: (transactionIdController.text.isNotEmpty)
-              ? transactionIdController.text
-              : null,
-          transactionDate: (transactionDateController.text.isNotEmpty)
-              ? transactionDateController.text
-              : null,
-          disputeAmount: (disputeAmountController.text.isNotEmpty)
-              ? disputeAmountController.text
-              : null,
-        );
-        final response = await apiService.addDispute(
-          //   jobId,
-          //   dateOfIncidentController.text,
-          //   descriptionController.text,
-          //   transactionIdController.text,
-          //   transactionDateController.text,
-          //   disputeAmountController.text,
-          //   userController.userData.value!.id!,
-          //   base64Images.value,
-          // 'job',
-          // // selectedDisputeType.value,
-          // jobId,
-          // dateOfIncidentController.text,
-          // descriptionController.text,
-          // userController.userData.value!.id!,
-          // base64Images.value,
-          // null,
-          // null,
-          // null,
-          createDisputeModel
-        );
-        if (response.statusCode == 200) {
-          debugPrint("data from API ${response.body}");
-          Get.back();
-        } else {
-          debugPrint("data from API ${response.body}");
-          debugPrint('Error Add dispute failed: ${response.body}');
-        }
+  // Validation method
+  bool validateFields() {
+    if (selectedDisputeType.value.isEmpty) {
+      Get.snackbar('Error', 'Please select a dispute type',
+          backgroundColor: Colors.red, colorText: Colors.white);
+      return false;
+    }
+    if (dateOfIncidentController.text.isEmpty) {
+      Get.snackbar('Error', 'Please enter the date of incident',
+          backgroundColor: Colors.red, colorText: Colors.white);
+      return false;
+    }
+    if (descriptionController.text.isEmpty) {
+      Get.snackbar('Error', 'Please describe your issue in detail',
+          backgroundColor: Colors.red, colorText: Colors.white);
+      return false;
+    }
+    if (selectedDisputeType.value == 'earningRelated') {
+      if (transactionIdController.text.isEmpty) {
+        Get.snackbar('Error', 'Please enter the transaction ID',
+            backgroundColor: Colors.red, colorText: Colors.white);
+        return false;
       }
-      else if (selectedDisputeType.value == 'earningRelated'){
-        final createDisputeModel = CreateDisputeModel(
-          disputeType: 'transaction',
-          contractorId: userController.userData.value!.id!,
-          dateOfIncident: dateOfIncidentController.text,
-          description: descriptionController.text,
-          jobId: jobId,
-          supportingDocument: base64Images.value,
-          transactionId: (transactionIdController.text.isNotEmpty)
-              ? transactionIdController.text
-              : null,
-          transactionDate: (transactionDateController.text.isNotEmpty)
-              ? transactionDateController.text
-              : null,
-          disputeAmount: (disputeAmountController.text.isNotEmpty)
-              ? disputeAmountController.text
-              : null,
-        );
-        final response = await apiService.addDispute(
-          // 'transaction',
-          // // selectedDisputeType.value,
-          // jobId,
-          // dateOfIncidentController.text,
-          // descriptionController.text,
-          // transactionIdController.text,
-          // transactionDateController.text,
-          // disputeAmountController.text,
-          // userController.userData.value!.id!,
-          // base64Images.value,
-          createDisputeModel
-        );
-        if (response.statusCode == 200) {
-          debugPrint("data from API ${response.body}");
-          Get.back();
-        } else {
-          debugPrint("data from API ${response.body}");
-          debugPrint('Error Add dispute failed: ${response.body}');
-        }
+      if (transactionDateController.text.isEmpty) {
+        Get.snackbar('Error', 'Please enter the transaction date',
+            backgroundColor: Colors.red, colorText: Colors.white);
+        return false;
+      }
+      if (disputeAmountController.text.isEmpty) {
+        Get.snackbar('Error', 'Please enter the dispute amount',
+            backgroundColor: Colors.red, colorText: Colors.white);
+        return false;
       }
     }
-    catch(e){
+    if (base64Images.value.isEmpty) {
+      Get.snackbar('Error', 'Please upload a supporting document',
+          backgroundColor: Colors.red, colorText: Colors.white);
+      return false;
+    }
+    if (!agreeToTerms.value) {
+      Get.snackbar('Error', 'You must agree to the terms and conditions',
+          backgroundColor: Colors.red, colorText: Colors.white);
+      return false;
+    }
+    return true;
+  }
+
+  Future<void> submitDispute() async {
+    if (!validateFields()) return;
+
+    final apiService = MyApIService();
+    try {
+      final createDisputeModel = CreateDisputeModel(
+        disputeType: selectedDisputeType.value == 'jobRelated' ? 'job' : 'transaction',
+        contractorId: userController.userData.value!.id!,
+        dateOfIncident: dateOfIncidentController.text,
+        description: descriptionController.text,
+        jobId: jobId,
+        supportingDocument: base64Images.value,
+        transactionId: transactionIdController.text.isNotEmpty
+            ? transactionIdController.text
+            : null,
+        transactionDate: transactionDateController.text.isNotEmpty
+            ? transactionDateController.text
+            : null,
+        disputeAmount: disputeAmountController.text.isNotEmpty
+            ? disputeAmountController.text
+            : null,
+      );
+
+      final response = await apiService.addDispute(createDisputeModel);
+      if (response.statusCode == 200) {
+        debugPrint("data from API ${response.body}");
+        Get.back();
+      } else {
+        debugPrint("data from API ${response.body}");
+        debugPrint('Error Add dispute failed: ${response.body}');
+      }
+    } catch (e) {
       debugPrint('Error Network error: ${e.toString()}');
     }
   }
-
 }
 
 class DisputeScreen extends StatelessWidget {
@@ -404,9 +391,7 @@ class DisputeScreen extends StatelessWidget {
                                 ),
                               ),
                               onPressed: () {
-                                if (controller.base64Images.isNotEmpty && controller.agreeToTerms.value == true) {
-                                  controller.submitDispute();
-                                }
+                                controller.submitDispute();
                               },
                               child: const Text('Submit Dispute',
                                   style: TextStyle(color: AppColors.kDarkBlue)),
