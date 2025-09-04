@@ -477,7 +477,7 @@ class _JobDropdownButton extends StatelessWidget {
               job.shiftIds,
             );
 
-            if (res.statusCode == 200) {
+            if (res.statusCode == 201) {
               Get.snackbar(
                 'Hired',
                 'Successfully hired ${guard.fullName} for ${job.jobTitle}',
