@@ -57,9 +57,9 @@ class MessagesController extends GetxController {
         allMessages.value = contractors.map<MessageModel>((c) {
           return MessageModel(
             name: (c['fullName']?.isNotEmpty == true) ? c['fullName'] : (c['email'] ?? "No Name"),
-            time: "",                   // you can format c['updatedDate'] or leave empty
-            message: c['email'] ?? "", // storing email for search here
-            image: AppAssets.kTacLogo, // update to image if available
+            time: "",
+            message: c['email'] ?? "",
+            image: AppAssets.kTacLogo,
             contractorId: c['id'] ?? "",
           );
         }).toList();

@@ -5,8 +5,11 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:http/http.dart' as http;
 import 'package:taccontractor/models/ReportAnIssue.dart';
 import 'package:taccontractor/models/createDisputeModel.dart';
+import 'package:taccontractor/models/earning_model.dart';
+import 'package:taccontractor/models/guardsList_model.dart';
 import 'package:taccontractor/models/jobApplication_model.dart';
 import 'package:taccontractor/models/jobCategoriesModel.dart';
+import 'package:taccontractor/models/jobMinimal_model.dart';
 import 'package:taccontractor/models/notification_model.dart';
 import 'package:taccontractor/models/signUpModelForCompany.dart';
 
@@ -947,6 +950,71 @@ class MyApIService {
     return response;
   }
 
+  Future<List<GuardsList>> getAllGuardsListForAvailableGuards() async {
+    var functionUrl = 'users';
+
+    final response = await http.get(Uri.parse(baseurl + functionUrl),
+      headers: {
+        "Content-Type": "application/json",
+        'ngrok-skip-browser-warning': 'true',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final json = jsonDecode(response.body);
+      return GuardsList.fromApiResponse(json);
+    } else {
+      debugPrint('Error: ${response.statusCode} - ${response.body}');
+      return [];
+    }
+  }
+
+  Future<List<JobMinimal>> getAllJobsListForDirectHire(String userId) async {
+    var functionUrl = 'jobs/contractor/jobs/$userId';
+
+    final response = await http.get(Uri.parse(baseurl + functionUrl),
+      headers: {
+        "Content-Type": "application/json",
+        'ngrok-skip-browser-warning': 'true',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final json = jsonDecode(response.body);
+      return JobMinimal.fromApiResponse(json);
+    } else {
+      debugPrint('Error: ${response.statusCode} - ${response.body}');
+      return [];
+    }
+  }
+
+  Future<http.Response> directHire(String contractorId, String guardId, String jobId, List<String> shiftIds) async {
+    var functionUrl = 'jobApplication/direct-hire';
+    final response = await http.post(
+      Uri.parse(baseurl + functionUrl),
+      headers: {
+        "Content-Type": "application/json",
+        'ngrok-skip-browser-warning': 'true',
+      },
+      body: jsonEncode({
+        "contractorId": contractorId,
+        "guardId": guardId,
+        "jobId": jobId,
+        "shiftIds": [...shiftIds],
+      }),
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      debugPrint('direct hire successful');
+      final json = jsonDecode(response.body);
+    } else {
+      debugPrint('Error in direct hire: ${response.statusCode}');
+      debugPrint('Response body: ${response.body}');
+    }
+
+    return response;
+  }
+
   Future<http.Response> googleLogin(String token, String fcmToken) async {
     var functionUrl = 'contractorAuth/google-login';
     final response = await http.post(
@@ -963,8 +1031,23 @@ class MyApIService {
     return response;
   }
 
+  Future<ContractorPaymentData?> getEarnings(String userId) async {
+    var functionUrl = 'payment/contractor/payments/$userId';
 
+    final response = await http.get(Uri.parse(baseurl + functionUrl), headers: {
+      "Content-Type": "application/json",
+      'ngrok-skip-browser-warning': 'true',
+    });
 
+    if (response.statusCode == 200) {
+      final json = jsonDecode(response.body);
+      debugPrint('Earnings data: ${json['data']}');
+      return ContractorPaymentData.fromJson(json['data']);
+    } else {
+      debugPrint('Error: ${response.statusCode} - ${response.body}');
+      return null;
+    }
+  }
 
 
 // Future<http.Response> getData(String url, {String? controllerName}) async {

@@ -28,6 +28,10 @@ class CreateJobModel {
   final List<SkillModel> SkillIds;
   final List<Shift> shifts;
   final Preferences preferences;
+  final String cardNumber;
+  final String expiryMonth;
+  final String expiryYear;
+  final String cvv;
 
   CreateJobModel({
     required this.title,
@@ -54,6 +58,10 @@ class CreateJobModel {
     required this.SkillIds,
     required this.shifts,
     required this.preferences,
+    required this.cardNumber,
+    required this.expiryMonth,
+    required this.expiryYear,
+    required this.cvv,
   });
 
   Map<String, dynamic> toJson() {
@@ -82,6 +90,10 @@ class CreateJobModel {
       'skillIds': SkillIds.map((s) => s.id).toList(),
       'shifts': shifts.map((shift) => shift.toJson()).toList(),
       'preferences': preferences.toJson(),
+      'cardNumber': cardNumber,
+      'expMonth': expiryMonth,
+      'expYear': expiryYear,
+      'cvc': cvv,
     };
   }
 }

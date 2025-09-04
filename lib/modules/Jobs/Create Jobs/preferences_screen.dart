@@ -100,7 +100,10 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
         maxYearsExperience: controller.maxExperience.value,
         appearanceRequirements: controller.jobAppearance.text,
       ),
-      // Other fields...
+      cardNumber: controller.cardNumberController.text,
+      expiryMonth: controller.cardExpiryMonthController.text,
+      expiryYear: controller.cardExpiryYearController.text,
+      cvv: controller.cardCvvController.text,
     );
 
     final response = await MyApIService().createJob(job);
@@ -498,7 +501,125 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                            controller.shifts.isNotEmpty &&
                            controller.formKey.currentState!.validate()
                         ) {
-                          createJob();
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              final TextEditingController cardNumberController = TextEditingController();
+                              final TextEditingController expiryMonthController = TextEditingController();
+                              final TextEditingController expiryYearController = TextEditingController();
+                              final TextEditingController cvvController = TextEditingController();
+                              final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+                              bool isLoading = false;
+
+                              return StatefulBuilder(
+                                builder: (context, setState) {
+                                  return AlertDialog(
+                                    backgroundColor: AppColors.kDarkestBlue,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                    title: Text(
+                                      "Enter Card Details",
+                                      style: AppTypography.kBold18.copyWith(color: Colors.white),
+                                    ),
+                                    content: Form(
+                                      key: formKey,
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          TextFormField(
+                                            controller: controller.cardNumberController,
+                                            keyboardType: TextInputType.number,
+                                            decoration: _inputDecoration("Card Number", AppAssets.kMail),
+                                            style: TextStyle(color: AppColors.kWhite),
+                                            validator: (value) {
+                                              if (value == null || value.isEmpty || value.length < 16) {
+                                                return "Card Number is required";
+                                              }
+                                              return null;
+                                            },
+                                          ),
+                                          SizedBox(height: AppSpacing.tenVertical),
+                                          TextFormField(
+                                            controller: controller.cardExpiryMonthController,
+                                            keyboardType: TextInputType.number,
+                                            maxLength: 2,
+                                            decoration: _inputDecoration("Expiry Month", AppAssets.kMail),
+                                            style: TextStyle(color: AppColors.kWhite),
+                                            validator: (value) {
+                                              if (value == null || value.isEmpty || value.length != 2) {
+                                                return "Expiry Month is required";
+                                              }
+                                              return null;
+                                            },
+                                          ),
+                                          SizedBox(height: AppSpacing.tenVertical),
+                                          TextFormField(
+                                            controller: controller.cardExpiryYearController,
+                                            keyboardType: TextInputType.number,
+                                            maxLength: 4,
+                                            decoration: _inputDecoration("Expiry Year", AppAssets.kMail),
+                                            style: TextStyle(color: AppColors.kWhite),
+                                            validator: (value) {
+                                              if (value == null || value.isEmpty || value.length != 4) {
+                                                return "Expiry Year is required";
+                                              }
+                                              return null;
+                                            },
+                                          ),
+                                          SizedBox(height: AppSpacing.tenVertical),
+                                          TextFormField(
+                                            controller: controller.cardCvvController,
+                                            keyboardType: TextInputType.number,
+                                            maxLength: 3,
+                                            decoration: _inputDecoration("CVV", AppAssets.kMail),
+                                            style: TextStyle(color: AppColors.kWhite),
+                                            validator: (value) {
+                                              if (value == null || value.isEmpty) {
+                                                return "CVV is required";
+                                              }
+                                              return null;
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Get.back(),
+                                        child: Text("Cancel", style: TextStyle(color: AppColors.kSkyBlue)),
+                                      ),
+                                      ElevatedButton(
+                                        onPressed: () async {
+                                          if (formKey.currentState!.validate()) {
+                                            setState(() {
+                                              isLoading = true;
+                                            });
+                                            await createJob();
+                                            setState(() {
+                                              isLoading = false;
+                                            });
+                                          } else {
+                                            Get.snackbar(
+                                              "Error",
+                                              "Please fill all the fields",
+                                              snackPosition: SnackPosition.BOTTOM,
+                                              backgroundColor: Colors.red.withOpacity(0.8),
+                                              colorText: Colors.white,
+                                            );
+                                          }
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: AppColors.kSkyBlue,
+                                        ),
+                                        child: isLoading
+                                            ? CircularProgressIndicator(color: Colors.white)
+                                            : Text("Submit"),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                          );
                         } else {
                           Get.snackbar(
                             "Error",

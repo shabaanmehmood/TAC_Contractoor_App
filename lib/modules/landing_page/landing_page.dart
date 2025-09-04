@@ -16,6 +16,7 @@ import 'package:taccontractor/modules/myJobs/myJobsScreen.dart';
 import 'package:taccontractor/modules/newjob%20section/my_jobs_view.dart';
 
 import '../../controllers/user_controller.dart';
+import '../find_jobs/guards.dart';
 
 class LandingPage extends StatefulWidget {
   final int selectedIndex; // <-- Add this
@@ -32,7 +33,7 @@ class _LandingPageState extends State<LandingPage> {
 
   final List<Widget> _pages = [
     const HomeView(),
-    const GuardsView(),
+    AvailableGuardsScreen(),
     // const JobsView(),
     // MyJobsView1(),
     MyJobsScreen(),

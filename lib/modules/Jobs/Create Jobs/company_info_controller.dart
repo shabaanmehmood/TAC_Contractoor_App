@@ -38,6 +38,11 @@ class SetJobDetailsController extends GetxController {
   final reportingManager = TextEditingController();
   final reportingManagerNumber = TextEditingController();
   var leaderRequired = false.obs; // Observable bool
+  final cardNumberController = TextEditingController();
+  final cardExpiryMonthController = TextEditingController();
+  final cardExpiryYearController = TextEditingController();
+  final cardCvvController = TextEditingController();
+
   // ================= Preference controllers ==================
 
   final formKeyforpreference = GlobalKey<FormState>();

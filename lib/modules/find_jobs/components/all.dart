@@ -39,8 +39,8 @@ class FilteredGuards extends StatelessWidget {
 
         return Padding(
           padding: EdgeInsets.only(
-              left: Get.width * 0.04,
-              right: Get.width * 0.04,
+              // left: Get.width * 0.04,
+              // right: Get.width * 0.04,
               bottom: Get.height * 0.015),
           child: Container(
             padding: EdgeInsets.all(Get.width * 0.03),
