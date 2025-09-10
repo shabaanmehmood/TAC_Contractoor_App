@@ -5,6 +5,20 @@ import '../../../dataproviders/api_service.dart';
 import '../../models/jobMinimal_model.dart';
 
 class GuardsController extends GetxController {
+
+  
+ final RxInt selectedIndex = 0.obs;
+
+  // List of button titles
+  final List<String> buttonTitles = ['All', 'Armed', 'Event', 'Corporate'];
+
+  // Method to update the selected index
+  void setSelectedIndex(int index) {
+    selectedIndex.value = index;
+    // You can also add filtering logic here based on the index
+    // e.g., filterJobsByStatus(buttonTitles[index].toLowerCase());
+  }
+  
   final RxList<GuardsList> guards = <GuardsList>[].obs;
   final RxList<GuardsList> filtered = <GuardsList>[].obs;
   final RxString searchText = ''.obs;

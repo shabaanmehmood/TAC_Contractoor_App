@@ -79,8 +79,8 @@ class MessagesScreen extends StatelessWidget {
                       onSelected: (_) {
                         controller.selectedChipIndex.value = index;
                       },
-                      selectedColor: AppColors.kPrimary,
-                      backgroundColor: AppColors.kJobCardColor,
+                      selectedColor: AppColors.kSkyBlue,
+                      backgroundColor: AppColors.kDarkBlue,
                       labelStyle: TextStyle(
                         color: isSelected ? Colors.white : AppColors.ktextlight,
                       ),
@@ -110,54 +110,59 @@ class MessagesScreen extends StatelessWidget {
                     await controller.fetchAllContractors();
                   },
                   color: AppColors.kPrimary, // Optional: match your theme
-                  child: ListView.builder(
-                    itemCount: controller.messages.length,
-                    itemBuilder: (context, index) {
-                      final msg = controller.messages[index];
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        child: GestureDetector(
-                          onTap: () {
-                            // Pass userId or data to ChatScreen as needed
-                            Get.to(() => ChatScreen(
-                              contractorId: msg.contractorId, //userId
-                              message: msg.message,
-                              image: msg.image,
-                              name: msg.name,
-                              time: msg.time,
-                            ));
-                            print("User clicked: ${msg.name}");
-                          },
-                          child: Row(
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
-                                child: Image.asset(
-                                  msg.image,
-                                  width: 50,
-                                  height: 50,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                              SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      msg.name,
-                                      style: AppTypography.kBold16.copyWith(color: Colors.white),
-                                    ),
-                                    // You might show email or another field here.
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
+                  child:ListView.separated(
+  itemCount: controller.messages.length,
+  separatorBuilder: (context, index) {
+    return SizedBox(height: Get.height * 0.02);
+  },
+  itemBuilder: (context, index) {
+    final msg = controller.messages[index];
+    return Container(
+      padding: EdgeInsets.all(Get.width * 0.03),
+      decoration: BoxDecoration(
+        color: AppColors.kinput.withOpacity(0.5),
+        borderRadius: BorderRadius.circular(Get.width * 0.02),
+      ),
+      child: GestureDetector(
+        onTap: () {
+          Get.to(() => ChatScreen(
+            contractorId: msg.contractorId,
+            message: msg.message,
+            image: msg.image,
+            name: msg.name,
+            time: msg.time,
+          ));
+          print("User clicked: ${msg.name}");
+        },
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Image.asset(
+                msg.image,
+                width: 50,
+                height: 50,
+                fit: BoxFit.cover,
+              ),
+            ),
+            SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    msg.name,
+                    style: AppTypography.kBold16.copyWith(color: Colors.white),
                   ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  },
+)
                 );
               }),
             )

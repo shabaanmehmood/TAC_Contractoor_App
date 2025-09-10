@@ -39,6 +39,10 @@ class AppTypography {
     fontWeight: FontWeight.w700,
     fontSize: 12 ,
   );
+  static TextStyle kBold13 = TextStyle(
+    fontWeight: FontWeight.w700,
+    fontSize: 13 ,
+  );
   static TextStyle kBold14 = TextStyle(
     fontWeight: FontWeight.w700,
     fontSize: 14 ,
