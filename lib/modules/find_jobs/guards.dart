@@ -903,40 +903,57 @@ class _JobDropdownButton extends StatelessWidget {
     final MyApIService apiService = MyApIService();
 
     return Obx(() {
+      // If jobs are empty, show just the button that loads jobs
+      if (c.jobs.isEmpty) {
+        return ElevatedButton(
+          onPressed: () async {
+            await c.loadJobs();
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.kSkyBlue,
+            padding: EdgeInsets.symmetric(
+                horizontal: Get.width * 0.04, vertical: Get.height * 0.01),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            elevation: 0,
+            minimumSize: Size(Get.width * 0.15, Get.height * 0.04),
+          ),
+          child: Text('Hire',
+              style: AppTypography.kBold12.copyWith(color: Colors.black)),
+        );
+      }
+
+      // If jobs are available, show the dropdown
       return DropdownButtonHideUnderline(
         child: DropdownButton<JobMinimal>(
           menuWidth: Get.width * 0.5,
           iconSize: 0,
           dropdownColor: AppColors.kDarkBlue,
           borderRadius: BorderRadius.circular(8),
-          hint: ElevatedButton(
-            onPressed: c.loadJobs,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.kSkyBlue,
-              padding: EdgeInsets.symmetric(
-                  horizontal: Get.width * 0.04, vertical: Get.height * 0.01),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              elevation: 0,
-              minimumSize: Size(Get.width * 0.15, Get.height * 0.04), // Minimum button size
+          hint: Container(
+            padding: EdgeInsets.symmetric(
+                horizontal: Get.width * 0.04, vertical: Get.height * 0.01),
+            decoration: BoxDecoration(
+              color: AppColors.kSkyBlue,
+              borderRadius: BorderRadius.circular(8),
             ),
             child: Text('Hire',
                 style: AppTypography.kBold12.copyWith(color: Colors.black)),
           ),
+          value: null, // Always null so dropdown can be opened
           onChanged: (JobMinimal? job) async {
             if (job == null) return;
 
             final confirmed = await Get.dialog<bool>(
               _ConfirmDialog(
-                jobTitle: job.jobTitle ?? "Unknown Job", // Null safety
-                guardName: guard.fullName ?? "Unknown Guard", // Null safety
+                jobTitle: job.jobTitle ?? "Unknown Job",
+                guardName: guard.fullName ?? "Unknown Guard",
               ),
             );
             if (confirmed != true) return;
 
             try {
-              // Add null checks for required data
               final userId = c.userController.userData.value?.id;
               if (userId == null || guard.id == null || job.jobId == null) {
                 Get.snackbar(
@@ -953,7 +970,7 @@ class _JobDropdownButton extends StatelessWidget {
                 userId,
                 guard.id!,
                 job.jobId!,
-                job.shiftIds ?? [], // Null safety for shiftIds
+                job.shiftIds ?? [],
               );
 
               if (res.statusCode == 201) {
@@ -986,7 +1003,7 @@ class _JobDropdownButton extends StatelessWidget {
           items: c.jobs.map<DropdownMenuItem<JobMinimal>>((job) {
             return DropdownMenuItem<JobMinimal>(
               value: job,
-              child: Text(job.jobTitle ?? "Unknown Job", // Null safety
+              child: Text(job.jobTitle ?? "Unknown Job",
                   style: AppTypography.kBold14.copyWith(color: Colors.white)),
             );
           }).toList(),

@@ -1,5 +1,8 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:taccontractor/controllers/user_controller.dart';
+import 'package:taccontractor/data/data/constants/app_colors.dart';
+import 'package:taccontractor/data/data/constants/app_typography.dart';
 import 'package:taccontractor/models/guardsList_model.dart';
 import '../../../dataproviders/api_service.dart';
 import '../../models/jobMinimal_model.dart';
@@ -50,12 +53,37 @@ class GuardsController extends GetxController {
     isLoading(false);
   }
 
-  Future<void> loadJobs() async {
-    if (jobs.isEmpty) {
-      final list = await apiService.getAllJobsListForDirectHire(userController.userData.value!.id!);
-      jobs.assignAll(list);
-    }
-  }
+ Future<void> loadJobs() async {
+   if (jobs.isEmpty) {
+     final list = await apiService.getAllJobsListForDirectHire(userController.userData.value!.id!);
+     jobs.assignAll(list);
+   }
+
+   // Show alert if no jobs are available
+   if (jobs.isEmpty) {
+     Get.dialog(
+       AlertDialog(
+         backgroundColor: AppColors.kDarkBlue,
+         title: Text('No Active Jobs',
+             style: AppTypography.kBold18.copyWith(color: Colors.white)),
+         content: Text(
+           "There's no active job to hire guard for. Please create a job first to hire guard directly.",
+           style: AppTypography.kLight16.copyWith(color: Colors.white),
+         ),
+         actions: [
+           ElevatedButton(
+             style: ElevatedButton.styleFrom(
+                 backgroundColor: AppColors.kSkyBlue,
+                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+             onPressed: () => Get.back(),
+             child: Text('OK',
+                 style: AppTypography.kBold14.copyWith(color: Colors.black)),
+           ),
+         ],
+       ),
+     );
+   }
+ }
 
   void _performFilter() {
     final q = searchText.value.trim().toLowerCase();

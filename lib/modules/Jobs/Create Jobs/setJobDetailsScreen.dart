@@ -783,6 +783,7 @@ class _SetJobDetailsScreenState extends State<SetJobDetailsScreen> {
                           decoration: _inputDecoration(
                               "Reporting Manager Number", AppAssets.kCal),
                           validator: controller.validatePhone,
+                          keyboardType: TextInputType.phone,
                           onChanged: (value){
                             controller.formKey.currentState?.validate();
                           },

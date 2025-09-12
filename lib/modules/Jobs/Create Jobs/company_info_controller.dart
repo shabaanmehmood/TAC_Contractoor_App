@@ -75,12 +75,12 @@ class SetJobDetailsController extends GetxController {
   /// Existing controllers...
   var latitude = 0.0.obs;
   var longitude = 0.0.obs;
-  var minExperience = 0.obs;
-  var maxExperience = 0.obs;
-  var minAge = 0.obs;
-  var maxAge = 0.obs;
-  var minimumLevel = 0.obs;
-  var maximumLevel = 0.obs;
+  var minExperience = 1.obs;
+  var maxExperience = 1.obs;
+  var minAge = 1.obs;
+  var maxAge = 1.obs;
+  var minimumLevel = 1.obs;
+  var maximumLevel = 1.obs;
   var selectedSkills = <SkillModel>[].obs;
   var availableSkills = <SkillModel>[].obs;
 
