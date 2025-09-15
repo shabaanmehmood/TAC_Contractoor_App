@@ -1615,27 +1615,27 @@ class SearchView extends StatelessWidget {
               ),
               SizedBox(height: AppSpacing.fiveVertical),
               _buildFilterChips(),
-              SizedBox(height: AppSpacing.tenVertical),
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.transparent,
-                        side: BorderSide(color: AppColors.kSkyBlue),
-                        minimumSize: Size(double.infinity, 40),
-                      ),
-                      onPressed: () {
-                        controller.clearAllFilters();
-                      },
-                      child: Text(
-                        'Clear All Filters',
-                        style: AppTypography.kBold14.copyWith(color: AppColors.kSkyBlue),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+              // SizedBox(height: AppSpacing.tenVertical),
+              // Row(
+              //   children: [
+              //     Expanded(
+              //       child: ElevatedButton(
+              //         style: ElevatedButton.styleFrom(
+              //           backgroundColor: Colors.transparent,
+              //           side: BorderSide(color: AppColors.kSkyBlue),
+              //           minimumSize: Size(double.infinity, 40),
+              //         ),
+              //         onPressed: () {
+              //           controller.clearAllFilters();
+              //         },
+              //         child: Text(
+              //           'Clear All Filters',
+              //           style: AppTypography.kBold14.copyWith(color: AppColors.kSkyBlue),
+              //         ),
+              //       ),
+              //     ),
+              //   ],
+              // ),
               SizedBox(height: AppSpacing.tenVertical),
               Expanded(
                 child: GetBuilder<SearchViewController>(
