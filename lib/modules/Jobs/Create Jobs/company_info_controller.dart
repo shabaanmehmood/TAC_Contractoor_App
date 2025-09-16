@@ -86,14 +86,76 @@ class SetJobDetailsController extends GetxController {
 
   Future<void> getDeviceLocation() async {
     try {
+      // Check if location services are enabled
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        Get.snackbar(
+          "Error",
+          "Location services are disabled. Please enable location services.",
+          backgroundColor: AppColors.kDarkBlue,
+          colorText: Colors.white,
+        );
+        return;
+      }
+
+      // Check location permissions
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          Get.snackbar(
+            "Error",
+            "Location permissions are denied",
+            backgroundColor: AppColors.kDarkBlue,
+            colorText: Colors.white,
+          );
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        Get.snackbar(
+          "Error",
+          "Location permissions are permanently denied. Please enable them in settings.",
+          backgroundColor: AppColors.kDarkBlue,
+          colorText: Colors.white,
+        );
+        return;
+      }
+
+      // Get current position with high accuracy
       Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high
+        desiredAccuracy: LocationAccuracy.high,
+        timeLimit: Duration(seconds: 10), // Add timeout
       );
+
+      // Store the location in observables
       latitude.value = position.latitude;
       longitude.value = position.longitude;
-      siteLocation.text = "Lat: ${latitude.value}, Lng: ${longitude.value}";
+
+      // Update the site location text field
+      siteLocation.text = "Lat: ${latitude.value.toStringAsFixed(6)}, Lng: ${longitude.value.toStringAsFixed(6)}";
+
+      // Optional: Show success message
+      Get.snackbar(
+        "Success",
+        "Location retrieved successfully",
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+        duration: Duration(seconds: 2),
+      );
+
+      // Debug print to verify location is stored
+      debugPrint("Location stored - Lat: ${latitude.value}, Lng: ${longitude.value}");
+
     } catch (e) {
-      Get.snackbar("Error", "Could not get location");
+      debugPrint("Location error: $e");
+      Get.snackbar(
+        "Error",
+        "Could not get location: ${e.toString()}",
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     }
   }
 
