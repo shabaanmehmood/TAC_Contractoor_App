@@ -1457,7 +1457,34 @@ Issue with filepath. Solve it:
       throw Exception('Failed to load notifications');
     }
   }
+ 
+  // You would add the markAllRead method here when you are ready to call the API
 
+  Future<void> markAllNotificationsAsRead(String contractorId) async {
+    final uri = Uri.parse("${baseurl}notification/contractor/$contractorId/read-all");
+    
+    try {
+      final response = await http.patch(
+        uri,
+        headers: {
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true",
+        },
+      );
+      
+      print('Mark all read response status code: ${response.statusCode}');
+      print('Mark all read response body: ${response.body}');
 
+      if (response.statusCode == 200) {
+        // Success
+        print("All notifications marked as read successfully.");
+      } else {
+        throw Exception('Failed to mark notifications as read: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error marking notifications as read: $e');
+      throw Exception('Network error: Could not mark all as read.');
+    }
+  }
 }
 

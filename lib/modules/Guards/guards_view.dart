@@ -1,3 +1,227 @@
+// import 'dart:async';
+// import 'dart:convert';
+
+// import 'package:flutter/material.dart';
+// import 'package:flutter_svg/svg.dart';
+// import 'package:get/get.dart';
+// import 'package:taccontractor/controllers/mapController.dart';
+// import 'package:taccontractor/data/data/constants/app_assets.dart';
+// import 'package:taccontractor/data/data/constants/app_spacing.dart';
+// import 'package:taccontractor/data/data/constants/constants.dart';
+// import 'package:taccontractor/modules/home/components/search_field.dart';
+// import 'package:taccontractor/modules/search/search_view.dart';
+// import 'package:taccontractor/widhets/common%20widgets/buttons/job_card.dart';
+
+// import '../../controllers/user_controller.dart';
+// import '../../data/data/constants/app_colors.dart';
+// import '../../dataproviders/api_service.dart';
+// import '../../models/jobCard_model.dart';
+// import '../../models/jobResponse_model.dart';
+// import '../../models/job_model.dart';
+// import '../alerts/notification_view.dart';
+// import 'dummy_data.dart';
+
+// class GuardsViewController extends GetxController {
+//   final RxList<JobData> jobList = <JobData>[].obs;
+//   final RxBool isLoading = false.obs;
+//   final RxString errorMessage = ''.obs;
+//   final RxString selectedFilter = 'All'.obs;
+//   final myApiService = MyApIService();
+//   MapController mapController = Get.find<MapController>();
+
+//   final RxString searchQuery = ''.obs;
+//   final RxMap<String, double> cachedDistances = <String, double>{}.obs;
+//   final RxBool isFirstLoad = true.obs;
+
+//   // Add search controller
+//   final TextEditingController searchController = TextEditingController();
+
+//   void clearDistanceCache() {
+//     cachedDistances.clear();
+//     isFirstLoad.value = true;
+//   }
+
+//   Timer? _refreshTimer;
+
+//   @override
+//   void onInit() {
+//     super.onInit();
+//     fetchJob();
+//     _refreshTimer = Timer.periodic(const Duration(seconds: 90), (_) => fetchJob(forceRefresh: false));
+//   }
+
+//   @override
+//   void onClose() {
+//     _refreshTimer?.cancel();
+//     searchController.dispose();
+//     super.onClose();
+//   }
+
+//   // Fetch jobs from API
+//   Future<void> fetchJob({bool forceRefresh = true}) async {
+//     try {
+//       isLoading.value = true;
+//       errorMessage.value = '';
+
+//       final response = await myApiService.getJobsList();
+
+//       if (response.statusCode == 200) {
+//         final nearbyJobsResponse = NearbyJobsResponse.fromJson(jsonDecode(response.body));
+//         jobList.value = nearbyJobsResponse.data;
+
+//         // Calculate distances only on first load or forced refresh
+//         if (isFirstLoad.value || forceRefresh) {
+//           await _calculateDistances();
+//           isFirstLoad.value = false;
+//         }
+//       } else {
+//         errorMessage.value = 'Failed to load jobs. Status code: ${response.statusCode}';
+//       }
+//     } catch (e) {
+//       errorMessage.value = 'Error fetching jobs: $e';
+//     } finally {
+//       isLoading.value = false;
+//     }
+//   }
+
+//   Future<void> _calculateDistances() async {
+//     for (var job in jobList) {
+//       if (!cachedDistances.containsKey(job.id)) {
+//         try {
+//           final distance = await mapController.getJobLocation(job.latitude, job.longitude);
+//           cachedDistances[job.id] = distance;
+//         } catch (e) {
+//           debugPrint('Error calculating distance for job ${job.id}: $e');
+//         }
+//       }
+//     }
+//   }
+
+//   // Update getFilteredJobs to include search and proper filtering
+//   List<JobData> getFilteredJobs() {
+//     // Start with all jobs from jobList
+//     var jobs = List<JobData>.from(jobList);
+
+//     // Apply search filter
+//     if (searchQuery.value.isNotEmpty) {
+//       final query = searchQuery.value.toLowerCase();
+//       jobs = jobs.where((job) {
+//         return job.title.toLowerCase().contains(query) ||
+//             job.contractorName.toLowerCase().contains(query) ||
+//             job.categoryName.toLowerCase().contains(query) ||
+//             job.location.toLowerCase().contains(query);
+//       }).toList();
+//     }
+
+//     // Apply category filter (Armed, Event, Corporate, All)
+//     if (selectedFilter.value != 'All') {
+//       jobs = jobs.where((job) => _getCategoryType(job) == selectedFilter.value).toList();
+//     }
+
+//     return jobs;
+//   }
+
+//   // Helper method to determine job category/department type
+//   String _getCategoryType(JobData job) {
+//     // Check both categoryName and premisesTypeName for Armed jobs
+//     String categoryLower = job.categoryName.toLowerCase();
+//     String premisesLower = job.premisesTypeName?.toLowerCase() ?? '';
+    
+//     if (categoryLower.contains('armed') || premisesLower.contains('armed')) {
+//       return 'Armed';
+//     } else if (categoryLower.contains('event') || premisesLower.contains('event')) {
+//       return 'Event';
+//     } else if (categoryLower.contains('corporate') || premisesLower.contains('corporate')) {
+//       return 'Corporate';
+//     } else {
+//       return 'Other';
+//     }
+//   }
+
+//   // Update filter method
+//   void updateFilter(String filter) {
+//     selectedFilter.value = filter;
+//   }
+
+//   // Convert job data to job card model
+//   Future<JobCardModel> jobDataToCardModel(JobData job) async {
+//     // Get first shift for display
+//     final firstShift = job.shifts.isNotEmpty ? job.shifts.first : null;
+
+//     // Format days string
+//     String dayStr = firstShift != null && firstShift.days.isNotEmpty
+//         ? firstShift.days.join(', ')
+//         : 'N/A';
+
+//     // Format shift time string
+//     String shiftTimeStr = firstShift != null
+//         ? '${_formatTime(firstShift.startTime)} - ${_formatTime(firstShift.endTime)}'
+//         : 'N/A';
+
+//     return JobCardModel(
+//       jobTitle: job.title,
+//       perHourRate: '\$${job.payPerHour}/hr',
+//       companyName: job.contractorName.isNotEmpty ? job.contractorName : 'Company',
+//       rating: '4.5', // Placeholder since rating isn't in API
+//       hiringTag: 'Hiring Now',
+//       jobType: job.categoryName,
+//       location: _shortenLocation(job.location),
+//       distance: null,
+//       day: dayStr,
+//       shiftTime: shiftTimeStr,
+//       requiredPersons: '${job.noOfGuardsRequired} guards needed',
+//       jobDept: _getCategoryType(job),
+//       jobData: job, // Pass original data for details screen
+//     );
+//   }
+
+//   // Helper to get distance in miles
+//   Future<String> getDistanceInMiles(String latitude, String longitude) async {
+//     double calculatedDistance = await mapController.getJobLocation(latitude, longitude);
+//     return '${calculatedDistance.truncate()} mi away';
+//   }
+
+//   // Helper to format time from API (HH:MM:SS) to more readable format
+//   String _formatTime(String timeStr) {
+//     try {
+//       final parts = timeStr.split(':');
+//       if (parts.length < 2) return timeStr;
+
+//       int hour = int.parse(parts[0]);
+//       final minute = parts[1];
+//       final period = hour >= 12 ? 'PM' : 'AM';
+
+//       // Convert to 12-hour format
+//       if (hour > 12) hour -= 12;
+//       if (hour == 0) hour = 12;
+
+//       return '$hour:$minute $period';
+//     } catch (e) {
+//       return timeStr;
+//     }
+//   }
+
+//   // Helper to shorten location for display
+//   String _shortenLocation(String location) {
+//     if (location.length > 25) {
+//       return location.substring(0, 25) + '...';
+//     }
+//     return location;
+//   }
+
+//   void performSearch() {
+//     searchQuery.value = searchController.text;
+//     // Navigate to search view with current data
+//     Get.to(() => SearchView(guardsController: this));
+//   }
+
+//   // Clear search
+//   void clearSearch() {
+//     searchQuery.value = '';
+//     searchController.clear();
+//   }
+// }
+
 import 'dart:async';
 import 'dart:convert';
 
@@ -35,7 +259,6 @@ class GuardsViewController extends GetxController {
 
   // Add search controller
   final TextEditingController searchController = TextEditingController();
-
 
   void clearDistanceCache() {
     cachedDistances.clear();
@@ -97,31 +320,7 @@ class GuardsViewController extends GetxController {
     }
   }
 
-
-  // Future<String> getJobDistance(String jobId, String latitude, String longitude) async {
-  //   if (cachedDistances.containsKey(jobId)) {
-  //     return '${cachedDistances[jobId]!.truncate()} mi away';
-  //   }
-  //
-  //   try {
-  //     final distance = await mapController.getJobLocation(latitude, longitude);
-  //     cachedDistances[jobId] = distance;
-  //     return '${distance.truncate()} mi away';
-  //   } catch (e) {
-  //     return 'Distance unavailable';
-  //   }
-  // }
-
-  // // Get filtered jobs based on selected department/category
-  // List<JobData> getFilteredJobs() {
-  //   if (selectedFilter.value == 'All') {
-  //     return jobList;
-  //   } else {
-  //     return jobList.where((job) => _getCategoryType(job) == selectedFilter.value).toList();
-  //   }
-  // }
-
-  // Update getFilteredJobs to include search
+  // Update getFilteredJobs to include search and proper filtering
   List<JobData> getFilteredJobs() {
     var jobs = jobList.where((job) {
       // Apply search filter
@@ -137,20 +336,43 @@ class GuardsViewController extends GetxController {
 
     // Apply category filter
     if (selectedFilter.value != 'All') {
-      jobs = jobs.where((job) => _getCategoryType(job) == selectedFilter.value).toList();
+      jobs = jobs.where((job) => _matchesCategoryFilter(job, selectedFilter.value)).toList();
     }
 
     return jobs;
   }
 
+  // Improved category matching
+  bool _matchesCategoryFilter(JobData job, String filter) {
+    switch (filter) {
+      case 'Armed':
+        return job.categoryName.toLowerCase().contains('armed') ||
+               job.title.toLowerCase().contains('armed') ||
+               (job.premisesTypeName?.toLowerCase().contains('armed') ?? false);
+      case 'Event':
+        return job.categoryName.toLowerCase().contains('event') ||
+               job.title.toLowerCase().contains('event') ||
+               (job.premisesTypeName?.toLowerCase().contains('event') ?? false);
+      case 'Corporate':
+        return job.categoryName.toLowerCase().contains('corporate') ||
+               job.title.toLowerCase().contains('corporate') ||
+               (job.premisesTypeName?.toLowerCase().contains('corporate') ?? false);
+      default:
+        return true;
+    }
+  }
+
   // Helper method to determine job category/department type
   String _getCategoryType(JobData job) {
     // Map job categories to filter types
-    if (job.categoryName.toLowerCase().contains('armed')) {
+    if (job.categoryName.toLowerCase().contains('armed') || 
+        job.title.toLowerCase().contains('armed')) {
       return 'Armed';
-    } else if (job.categoryName.toLowerCase().contains('event')) {
+    } else if (job.categoryName.toLowerCase().contains('event') || 
+               job.title.toLowerCase().contains('event')) {
       return 'Event';
-    } else if (job.categoryName.toLowerCase().contains('corporate')) {
+    } else if (job.categoryName.toLowerCase().contains('corporate') || 
+               job.title.toLowerCase().contains('corporate')) {
       return 'Corporate';
     } else {
       return 'Other';
@@ -181,8 +403,6 @@ class GuardsViewController extends GetxController {
       jobType: job.categoryName,
       location: _shortenLocation(job.location),
       distance: null,
-      // distance: await _getDistanceInMiles(job.latitude, job.longitude),
-      // distance: '${job.distance?.toStringAsFixed(1)} mi',
       day: dayStr,
       shiftTime: shiftTimeStr,
       requiredPersons: '${job.noOfGuardsRequired} guards needed',
@@ -225,10 +445,16 @@ class GuardsViewController extends GetxController {
     return location;
   }
 
-   void performSearch() {
+  void performSearch() {
     searchQuery.value = searchController.text;
     // Navigate to search view with current data
     Get.to(() => SearchView(guardsController: this));
+  }
+
+  // Method to update filter from guards view
+  void updateFilter(String filter) {
+    selectedFilter.value = filter;
+    update();
   }
 }
 
