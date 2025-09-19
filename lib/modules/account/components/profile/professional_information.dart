@@ -232,17 +232,45 @@ class _EditProfessionalInfoScreenState extends State<EditProfessionalInfoScreen>
                         keyboardType: TextInputType.number,
                       ),
                       const SizedBox(height: 14),
-                      buildTextField(
-                        label: 'Australian Company Number',
-                        iconPath: AppAssets.kLoc,
-                        controller: acn,
-                        maxLength: 11,
-                        keyboardType: TextInputType.number,
-                      ),
+                      // buildTextField(
+                      //   label: 'Australian Company Number',
+                      //   iconPath: AppAssets.kLoc,
+                      //   controller: acn,
+                      //   maxLength: 11,
+                      //   keyboardType: TextInputType.number,
+                      // ),
+                      TextField(
+  controller: acn, // Use a different controller for ACN
+  keyboardType: TextInputType.number,
+  maxLength: 9, // ACN is 9 digits long
+  style: AppTypography.kLight14.copyWith(color: AppColors.kWhite),
+  decoration: InputDecoration(
+    hintText: "XXX XXX XXX", // Hint text showing the 9-digit format
+    labelText: 'ACN', // Label for the ACN field
+    labelStyle: AppTypography.kLight14.copyWith(color: AppColors.kinput),
+    counterText: "",
+    prefixIcon: Padding(
+      padding: const EdgeInsets.all(12.0),
+      child: Image.asset(
+        AppAssets.kLoc, // Use the correct asset for ACN icon
+        width: 24,
+        height: 24,
+        color: AppColors.kinput,
+      ),
+    ),
+    enabledBorder: const UnderlineInputBorder(
+      borderSide: BorderSide(color: AppColors.kinput),
+    ),
+    focusedBorder: const UnderlineInputBorder(
+      borderSide: BorderSide(color: AppColors.kSkyBlue),
+    ),
+  ),
+                       ),
                     ],
 
                   if(userController.userData.value!.registeringAs == 'contractor')
                     ...[
+  //                      
                       buildTextField(
                         label: 'ABN',
                         iconPath: AppAssets.kAbn,
