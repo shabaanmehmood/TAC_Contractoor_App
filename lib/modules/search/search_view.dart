@@ -2316,7 +2316,7 @@ class SearchView extends StatelessWidget {
                 ],
               ),
               SizedBox(height: AppSpacing.fiveVertical),
-              _buildFilterChips(),
+              // _buildFilterChips(),
               // SizedBox(height: AppSpacing.tenVertical),
               // Row(
               //   children: [
