@@ -217,6 +217,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:taccontractor/modules/Messages/socket_file.dart';
 import '../../controllers/user_controller.dart';
 import 'message_model.dart';
 
@@ -226,6 +227,7 @@ class ChatController extends GetxController {
   RxList<ChatMessage> messages = <ChatMessage>[].obs;
   final String guardType = "Contractor";
   String _contractorId = "";
+  final SocketService _socketService = SocketService();
 
   void connectSocket(String contractorId) {
     _contractorId = contractorId;
@@ -328,6 +330,7 @@ class ChatController extends GetxController {
         isMe: true,
         isSeen: false
     ));
+    _socketService.refreshChatList();
   }
 
   void disconnect() {
