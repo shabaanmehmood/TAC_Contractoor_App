@@ -600,7 +600,11 @@ class _SetJobDetailsScreenState extends State<SetJobDetailsScreen> {
               Row(
                 children: [
                   GestureDetector(
-                      onTap: () => Get.back(),
+                      // onTap: () => Get.back(),
+                      onTap: (){
+                      controller.clearAllFields(); 
+                      Get.back();
+                    }, 
                       child: Image.asset(AppAssets.kArrowBackward)
                   ),                  const SizedBox(width: 10),
                   Text("Create New Job", style: AppTypography.kBold24.copyWith(color: Colors.white)),
@@ -835,7 +839,11 @@ class _SetJobDetailsScreenState extends State<SetJobDetailsScreen> {
               Row(
                 children: [
                   OutlinedButton(
-                    onPressed: () => Get.back(),
+                    // onPressed: () => Get.back(),
+                    onPressed: (){
+                      controller.clearAllFields(); 
+                      Get.back();
+                    }, 
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(
                           color: AppColors.kSkyBlue, width: 1.5),

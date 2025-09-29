@@ -84,6 +84,42 @@ class SetJobDetailsController extends GetxController {
   var selectedSkills = <SkillModel>[].obs;
   var availableSkills = <SkillModel>[].obs;
 
+  // Add this method to your controller class (e.g., JobCreationController)
+void clearAllFields() {
+  // Clear TextEditingControllers
+  jobTitle.clear();
+  payPerHour.clear();
+  jobResponsiblities.clear();
+  siteLocation.clear();
+  reportingManagerNumber.clear();
+  reportingManager.clear();
+  noOfGuardsRequired.clear();
+  jobSOPs.clear();
+  cardNumberController.clear();
+  cardExpiryMonthController.clear();
+  cardExpiryYearController.clear();
+  cardCvvController.clear();
+  jobAppearance.clear();
+
+  // Reset Rx variables to their initial state
+  jobDescription.value = 'description';
+  leaderRequired.value = false;
+  latitude.value = 0.0;
+  longitude.value = 0.0;
+  minExperience.value = 0;
+  maxExperience.value = 0;
+  minAge.value = 0;
+  maxAge.value = 0;
+  minimumLevel.value = 0;
+  maximumLevel.value = 0;
+  selectedSkills.clear(); // Assuming it's an RxList
+  selectedLicenses.clear(); // Assuming it's an RxList
+  shifts.clear(); // Assuming it's an RxList
+  selectedCategory.value = ''; // Or to an initial default value
+  selectedPremises.value = ""; // Or to an initial default value
+  jobType.value = "recurring"; // Or to an initial default value
+}
+
   Future<void> getDeviceLocation() async {
     try {
       // Check if location services are enabled
