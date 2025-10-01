@@ -84,11 +84,12 @@ Widget _appBar(BuildContext context) {
               Row(
                 children: [
                   Image.asset(
-                    "assets/splash_Logo1.png",
+                    "assets/logo.png",
                     height: Get.height * 0.045,
                     // width: Get.width * 0.18,
                     fit: BoxFit.contain,
                   ),
+                  SizedBox(width:6),
                   Text(
                     'Home',
                     style: AppTypography.kBold16.copyWith(color: AppColors.kWhite),
