@@ -6,6 +6,7 @@ import 'package:taccontractor/data/data/constants/app_colors.dart';
 import 'package:taccontractor/data/data/constants/app_assets.dart';
 import 'package:taccontractor/modules/Messages/chat_controller.dart';
 import 'package:taccontractor/modules/Messages/client%20profile/client_profile_screen.dart';
+import 'package:taccontractor/modules/Messages/messages_controller.dart';
 import 'message_model.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -70,7 +71,11 @@ class _ChatScreenState extends State<ChatScreen> {
         elevation: 0,
         leading: IconButton(
           icon: Image.asset(AppAssets.kBack, width: 24, height: 24),
-          onPressed: () => Get.back(),
+          onPressed: (){
+            final messagesController = Get.find<MessagesController>();
+            messagesController.refreshFromChatScreen();
+            Get.back(result: true);
+          }
         ),
         title: Row(
           children: [

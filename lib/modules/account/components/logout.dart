@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:taccontractor/data/data/constants/app_colors.dart';
+import 'package:taccontractor/modules/Messages/socket_file.dart';
 import 'package:taccontractor/modules/account/components/logoutConstant.dart';
 
 import '../../../controllers/user_controller.dart';
@@ -31,6 +32,8 @@ class LogoutController extends GetxController {
         await prefs.remove(AppConstants.rememberEmailKey);
         await prefs.remove(AppConstants.rememberPasswordKey);
         await prefs.remove(AppConstants.loginTimeKey);
+        userController.clearUser();
+        SocketService().disconnect();
 
         // await clearLoginSession();
         Get.offAllNamed(AppRoutes.getSignInRoute());

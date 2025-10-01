@@ -20,6 +20,7 @@ import '../models/jobResponse_model.dart';
 import '../models/myJobs_model.dart';
 import '../models/userdata_model.dart';
 import '../models/userupdate_model.dart';
+import '../modules/Messages/socket_file.dart';
 
 class MyApIService {
 
@@ -179,6 +180,7 @@ class MyApIService {
           final userData = GetUserById.fromJson(jsonDecode(getUserResponse.body)).data;
           if (userData != null) {
             Get.find<UserController>().setUser(userData);
+            SocketService().initialize();
           }
         }
       }
