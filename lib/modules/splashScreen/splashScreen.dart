@@ -54,7 +54,7 @@
 
 //     // final signInController = Get.put(SignInViewController(), permanent: true);
 //     // bool isLoggedIn = await signInController.checkAutoLoginAndRedirect();
-//     // Get.back(); 
+//     // Get.back();
 //     // if (!isLoggedIn) {
 //     //   Get.to(() => OnboardingView());
 //     // }
@@ -145,7 +145,7 @@
 
 //     // final signInController = Get.put(SignInViewController(), permanent: true);
 //     // bool isLoggedIn = await signInController.checkAutoLoginAndRedirect();
-//     // Get.back(); 
+//     // Get.back();
 //     // if (!isLoggedIn) {
 //     //   Get.to(() => OnboardingView());
 //     // }
@@ -178,14 +178,13 @@
 
 // }
 
-
-
-// tested code 
+// tested code
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:taccontractor/controllers/mapController.dart';
 import 'package:taccontractor/data/data/constants/app_colors.dart';
 import 'package:taccontractor/modules/auth/sign_in_view.dart';
 import 'package:taccontractor/modules/onboarding/onboarding_view.dart';
@@ -231,7 +230,7 @@ class _SplashScreenState extends State<SplashScreen>
     } else {
       final signInController = Get.put(SignInViewController(), permanent: true);
       bool isLoggedIn = await signInController.checkAutoLoginAndRedirect();
-      
+
       if (!isLoggedIn) {
         // Use offAll to remove splash from navigation stack
         Get.offAllNamed(AppRoutes.getSignInRoute());
@@ -243,7 +242,8 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     // Dynamic sizing based on current index
-    double height = _currentImageIndex == 0 ? Get.height * 0.3 : Get.height * 0.9;
+    double height =
+        _currentImageIndex == 0 ? Get.height * 0.3 : Get.height * 0.9;
     double width = _currentImageIndex == 0 ? Get.width * 0.35 : Get.width * 0.8;
 
     return Scaffold(
@@ -252,7 +252,8 @@ class _SplashScreenState extends State<SplashScreen>
         child: AnimatedSwitcher(
           duration: const Duration(milliseconds: 600),
           child: SizedBox(
-            key: ValueKey<int>(_currentImageIndex), // important for AnimatedSwitcher
+            key: ValueKey<int>(
+                _currentImageIndex), // important for AnimatedSwitcher
             height: height,
             width: width,
             child: Image.asset(

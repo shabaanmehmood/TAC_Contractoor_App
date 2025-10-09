@@ -21,8 +21,8 @@ import '../find_jobs/guards.dart';
 class LandingPage extends StatefulWidget {
   final int selectedIndex; // <-- Add this
 
-  const LandingPage({Key? key, this.selectedIndex = 0}) : super(key: key); // <-- Accept in constructor
-
+  const LandingPage({Key? key, this.selectedIndex = 0})
+      : super(key: key); // <-- Accept in constructor
 
   @override
   State<LandingPage> createState() => _LandingPageState();
@@ -32,7 +32,7 @@ class _LandingPageState extends State<LandingPage> {
   late int _currentIndex;
 
   final List<Widget> _pages = [
-    const HomeView(),
+    HomeView(),
     AvailableGuardsScreen(),
     // const JobsView(),
     // MyJobsView1(),
@@ -48,7 +48,8 @@ class _LandingPageState extends State<LandingPage> {
   @override
   void initState() {
     super.initState();
-    _currentIndex = widget.selectedIndex; // <-- Set the initial index with argument!
+    _currentIndex =
+        widget.selectedIndex; // <-- Set the initial index with argument!
   }
 
   @override
@@ -89,7 +90,7 @@ class _LandingPageState extends State<LandingPage> {
                 fontWeight: FontWeight.bold,
               ),
               unselectedLabelStyle:
-              const TextStyle(fontSize: 13, color: Colors.grey),
+                  const TextStyle(fontSize: 13, color: Colors.grey),
               selectedFontSize: 14,
               unselectedFontSize: 13,
               unselectedItemColor: Colors.grey,

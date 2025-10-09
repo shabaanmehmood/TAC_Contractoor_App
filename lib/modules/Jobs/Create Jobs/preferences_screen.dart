@@ -60,6 +60,13 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
   }
 
   Future<void> createJob() async {
+    final coords =
+        await controller.setLatLngFromAddress(controller.siteLocation.text);
+
+    if (coords == null) {
+      Get.snackbar("Error", "Could not determine location coordinates");
+      return;
+    }
     if (controller.shifts.isEmpty ||
         controller.selectedLicenses.isEmpty ||
         controller.selectedSkills.isEmpty) {
@@ -75,8 +82,8 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
       description: controller.jobDescription.value,
       responsibilities: controller.jobResponsiblities.text,
       location: controller.siteLocation.text,
-      latitude: controller.latitude.toString(),
-      longitude: controller.longitude.toString(),
+      latitude: coords['lat'].toString(),
+      longitude: coords['lon'].toString(),
       reportingManagerNumber: controller.reportingManagerNumber.text,
       reportingManagerName: controller.reportingManager.text,
       minAge: controller.minAge.value.toString(),
@@ -108,14 +115,12 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
 
     final response = await MyApIService().createJob(job);
     if (response.statusCode == 201) {
-      controller.clearAllFields(); 
+      controller.clearAllFields();
       Get.offAllNamed(AppRoutes.landing, arguments: {'selectedIndex': 2});
     } else {
       Get.snackbar("Error", "Job creation failed");
     }
   }
-
-  
 
   void showLicensesBottomSheet(BuildContext context, controller) {
     showModalBottomSheet(
@@ -149,23 +154,23 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                   children: [
                     Text(
                       "Required Licenses",
-                      style: AppTypography.kBold18.copyWith(
-                          color: AppColors.kWhite
-                      ),
+                      style: AppTypography.kBold18
+                          .copyWith(color: AppColors.kWhite),
                     ),
                     GestureDetector(
                       onTap: () => Get.back(),
-                      child: Text("Done", style: AppTypography.kBold16.copyWith(
-                        color: AppColors.kSkyBlue,
-                      )),
+                      child: Text("Done",
+                          style: AppTypography.kBold16.copyWith(
+                            color: AppColors.kSkyBlue,
+                          )),
                     ),
                   ],
                 ),
                 SizedBox(height: AppSpacing.tenVertical),
                 // Multi-select list of licenses
-                ...controller.availableLicenses.map((license) =>
-                    _buildLicenseOption(controller, license)
-                ).toList(),
+                ...controller.availableLicenses
+                    .map((license) => _buildLicenseOption(controller, license))
+                    .toList(),
               ],
             );
           }),
@@ -208,20 +213,22 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                     children: [
                       Text(
                         "Required Skills",
-                        style: AppTypography.kBold18.copyWith(color: AppColors.kWhite),
+                        style: AppTypography.kBold18
+                            .copyWith(color: AppColors.kWhite),
                       ),
                       GestureDetector(
                         onTap: () => Get.back(),
-                        child: Text("Done", style: AppTypography.kBold16.copyWith(
-                          color: AppColors.kSkyBlue,
-                        )),
+                        child: Text("Done",
+                            style: AppTypography.kBold16.copyWith(
+                              color: AppColors.kSkyBlue,
+                            )),
                       ),
                     ],
                   ),
                   SizedBox(height: AppSpacing.tenVertical),
-                  ...controller.availableSkills.map((skill) =>
-                      _buildSkillOption(controller, skill)
-                  ).toList(),
+                  ...controller.availableSkills
+                      .map((skill) => _buildSkillOption(controller, skill))
+                      .toList(),
                 ],
               ),
             );
@@ -233,24 +240,24 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
 
   Widget _buildSkillOption(controller, skill) {
     return Obx(() => Column(
-      children: [
-        CheckboxListTile(
-          value: controller.selectedSkills.contains(skill),
-          onChanged: (selected) {
-            if (selected == true) {
-              controller.selectedSkills.add(skill);
-            } else {
-              controller.selectedSkills.remove(skill);
-            }
-          },
-          title: Text(skill.name, style: TextStyle(color: Colors.white)),
-          activeColor: AppColors.kSkyBlue,
-          checkColor: AppColors.kDarkBlue,
-          controlAffinity: ListTileControlAffinity.leading,
-        ),
-        Divider(color: AppColors.kSkyBlue),
-      ],
-    ));
+          children: [
+            CheckboxListTile(
+              value: controller.selectedSkills.contains(skill),
+              onChanged: (selected) {
+                if (selected == true) {
+                  controller.selectedSkills.add(skill);
+                } else {
+                  controller.selectedSkills.remove(skill);
+                }
+              },
+              title: Text(skill.name, style: TextStyle(color: Colors.white)),
+              activeColor: AppColors.kSkyBlue,
+              checkColor: AppColors.kDarkBlue,
+              controlAffinity: ListTileControlAffinity.leading,
+            ),
+            Divider(color: AppColors.kSkyBlue),
+          ],
+        ));
   }
 
   // Widget _buildSkillOption(controller, String skill) {
@@ -277,90 +284,84 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
 
   Widget _buildLicenseOption(controller, RequiredLicense license) {
     return Obx(() => Column(
-      children: [
-        CheckboxListTile(
-          value: controller.selectedLicenses.contains(license),
-          onChanged: (selected) {
-            if (selected == true) {
-              controller.selectedLicenses.add(license);
-            } else {
-              controller.selectedLicenses.remove(license);
-            }
-          },
-          title: Text(license.name, style: TextStyle(color: Colors.white)),
-          activeColor: AppColors.kSkyBlue,
-          checkColor: AppColors.kDarkBlue,
-          controlAffinity: ListTileControlAffinity.leading,
-        ),
-        Divider(color: AppColors.kSkyBlue),
-      ],
-    ));
+          children: [
+            CheckboxListTile(
+              value: controller.selectedLicenses.contains(license),
+              onChanged: (selected) {
+                if (selected == true) {
+                  controller.selectedLicenses.add(license);
+                } else {
+                  controller.selectedLicenses.remove(license);
+                }
+              },
+              title: Text(license.name, style: TextStyle(color: Colors.white)),
+              activeColor: AppColors.kSkyBlue,
+              checkColor: AppColors.kDarkBlue,
+              controlAffinity: ListTileControlAffinity.leading,
+            ),
+            Divider(color: AppColors.kSkyBlue),
+          ],
+        ));
   }
 
   Widget _buildExperienceSlider() {
     return Obx(() => RangeSlider(
-      activeColor: AppColors.kSkyBlue,
-      inactiveColor: Colors.grey,
-      values: RangeValues(
-          controller.minExperience.value.toDouble(),
-          controller.maxExperience.value.toDouble()
-      ),
-      min: 0,
-      max: 50,
-      divisions: 50,
-      labels: RangeLabels(
-        "${controller.minExperience.value} years",
-        "${controller.maxExperience.value} years",
-      ),
-      onChanged: (RangeValues values) {
-        controller.minExperience.value = values.start.toInt();
-        controller.maxExperience.value = values.end.toInt();
-      },
-    ));
+          activeColor: AppColors.kSkyBlue,
+          inactiveColor: Colors.grey,
+          values: RangeValues(controller.minExperience.value.toDouble(),
+              controller.maxExperience.value.toDouble()),
+          min: 0,
+          max: 50,
+          divisions: 50,
+          labels: RangeLabels(
+            "${controller.minExperience.value} years",
+            "${controller.maxExperience.value} years",
+          ),
+          onChanged: (RangeValues values) {
+            controller.minExperience.value = values.start.toInt();
+            controller.maxExperience.value = values.end.toInt();
+          },
+        ));
   }
 
   Widget _buildAgeLimitSlider() {
     return Obx(() => RangeSlider(
-      activeColor: AppColors.kSkyBlue,
-      inactiveColor: Colors.grey,
-      values: RangeValues(
-          controller.minAge.value.toDouble(),
-          controller.maxAge.value.toDouble()
-      ),
-      min: 0,
-      max: 50,
-      divisions: 50,
-      labels: RangeLabels(
-        "${controller.minAge.value} years",
-        "${controller.maxAge.value} years",
-      ),
-      onChanged: (RangeValues values) {
-        controller.minAge.value = values.start.toInt();
-        controller.maxAge.value = values.end.toInt();
-      },
-    ));
+          activeColor: AppColors.kSkyBlue,
+          inactiveColor: Colors.grey,
+          values: RangeValues(controller.minAge.value.toDouble(),
+              controller.maxAge.value.toDouble()),
+          min: 0,
+          max: 50,
+          divisions: 50,
+          labels: RangeLabels(
+            "${controller.minAge.value} years",
+            "${controller.maxAge.value} years",
+          ),
+          onChanged: (RangeValues values) {
+            controller.minAge.value = values.start.toInt();
+            controller.maxAge.value = values.end.toInt();
+          },
+        ));
   }
 
   Widget _buildLevelsLimitSlider() {
     return Obx(() => RangeSlider(
-      activeColor: AppColors.kSkyBlue,
-      inactiveColor: Colors.grey,
-      values: RangeValues(
-          controller.minimumLevel.value.toDouble(),
-          controller.maximumLevel.value.toDouble()
-      ),
-      min: 0,
-      max: 50,
-      divisions: 50,
-      labels: RangeLabels(
-        "${controller.minimumLevel.value} level",
-        "${controller.maximumLevel.value} level",
-      ),
-      onChanged: (RangeValues values) {
-        controller.minimumLevel.value = values.start.toInt();
-        controller.maximumLevel.value = values.end.toInt();
-      },
-    ));
+          activeColor: AppColors.kSkyBlue,
+          inactiveColor: Colors.grey,
+          values: RangeValues(controller.minimumLevel.value.toDouble(),
+              controller.maximumLevel.value.toDouble()),
+          min: 0,
+          max: 50,
+          divisions: 50,
+          labels: RangeLabels(
+            "${controller.minimumLevel.value} level",
+            "${controller.maximumLevel.value} level",
+          ),
+          onChanged: (RangeValues values) {
+            controller.minimumLevel.value = values.start.toInt();
+            controller.maximumLevel.value = values.end.toInt();
+          },
+        ));
   }
 
   @override
@@ -377,16 +378,21 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                 children: [
                   GestureDetector(
                       onTap: () => Get.back(),
-                      child: Image.asset(AppAssets.kArrowBackward)
-                  ),                  const SizedBox(width: 10),
-                  Text("Create New Job", style: AppTypography.kBold24.copyWith(color: Colors.white)),
+                      child: Image.asset(AppAssets.kArrowBackward)),
+                  const SizedBox(width: 10),
+                  Text("Create New Job",
+                      style:
+                          AppTypography.kBold24.copyWith(color: Colors.white)),
                 ],
               ),
               const SizedBox(height: 20),
               Row(
                 children: const [
                   StepTab(title: "Job Details", isCompleted: true),
-                  StepTab(title: "Preferences", isCurrent: true,),
+                  StepTab(
+                    title: "Preferences",
+                    isCurrent: true,
+                  ),
                 ],
               ),
               const SizedBox(height: 20),
@@ -402,13 +408,17 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                       children: [
                         Obx(() {
                           // Show comma-separated license names or placeholder
-                          final licenseNames = controller.selectedLicenses.isEmpty
-                              ? "License Required"
-                              : controller.selectedLicenses.map((e) => e.name).join(', ');
+                          final licenseNames =
+                              controller.selectedLicenses.isEmpty
+                                  ? "License Required"
+                                  : controller.selectedLicenses
+                                      .map((e) => e.name)
+                                      .join(', ');
 
                           return TappableInputTile(
                             title: "License Required",
-                            controller: TextEditingController(text: licenseNames),
+                            controller:
+                                TextEditingController(text: licenseNames),
                             onTap: () {
                               showLicensesBottomSheet(context, controller);
                             },
@@ -422,42 +432,44 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                           decoration: _inputDecoration(
                               "Job Appearance", AppAssets.kMail),
                           validator: controller.validateRequired,
-                          onChanged: (value){
+                          onChanged: (value) {
                             controller.formKey.currentState?.validate();
                           },
                         ),
                         SizedBox(height: AppSpacing.fifteenVertical),
                         Text(
                           "Levels",
-                          style: AppTypography.kBold16.copyWith(
-                              color: AppColors.kWhite),
+                          style: AppTypography.kBold16
+                              .copyWith(color: AppColors.kWhite),
                         ),
                         _buildLevelsLimitSlider(),
                         SizedBox(height: AppSpacing.fifteenVertical),
                         Text(
                           "Age Limit",
-                          style: AppTypography.kBold16.copyWith(
-                              color: AppColors.kWhite),
+                          style: AppTypography.kBold16
+                              .copyWith(color: AppColors.kWhite),
                         ),
                         _buildAgeLimitSlider(),
                         SizedBox(height: AppSpacing.fifteenVertical),
                         Text(
                           "Years of Experience",
-                          style: AppTypography.kBold16.copyWith(
-                              color: AppColors.kWhite),
+                          style: AppTypography.kBold16
+                              .copyWith(color: AppColors.kWhite),
                         ),
                         _buildExperienceSlider(),
                         SizedBox(height: AppSpacing.fifteenVertical),
                         Text(
                           "Required Skills",
-                          style: AppTypography.kBold16.copyWith(
-                              color: AppColors.kWhite),
+                          style: AppTypography.kBold16
+                              .copyWith(color: AppColors.kWhite),
                         ),
                         SizedBox(height: AppSpacing.fiveVertical),
                         Obx(() {
                           final skillNames = controller.selectedSkills.isEmpty
                               ? "Required Skills"
-                              : controller.selectedSkills.map((e) => e.name).join(', ');
+                              : controller.selectedSkills
+                                  .map((e) => e.name)
+                                  .join(', ');
 
                           return TappableInputTile(
                             title: "Required Skills",
@@ -467,8 +479,6 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                             },
                           );
                         }),
-
-
                         SizedBox(height: 20),
                       ],
                     ),
@@ -482,8 +492,6 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                 children: [
                   OutlinedButton(
                     onPressed: () => Get.back(),
-                  
-                  
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(
                           color: AppColors.kSkyBlue, width: 1.5),
@@ -499,21 +507,27 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: (){
-                        if(controller.formKeyforpreference.currentState!.validate() &&
-                           controller.selectedLicenses.isNotEmpty &&
-                           controller.selectedSkills.isNotEmpty &&
-                           controller.shifts.isNotEmpty &&
-                           controller.formKey.currentState!.validate()
-                        ) {
+                      onPressed: () {
+                        if (controller.formKeyforpreference.currentState!
+                                .validate() &&
+                            controller.selectedLicenses.isNotEmpty &&
+                            controller.selectedSkills.isNotEmpty &&
+                            controller.shifts.isNotEmpty &&
+                            controller.formKey.currentState!.validate()) {
                           showDialog(
                             context: context,
                             builder: (BuildContext context) {
-                              final TextEditingController cardNumberController = TextEditingController();
-                              final TextEditingController expiryMonthController = TextEditingController();
-                              final TextEditingController expiryYearController = TextEditingController();
-                              final TextEditingController cvvController = TextEditingController();
-                              final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+                              final TextEditingController cardNumberController =
+                                  TextEditingController();
+                              final TextEditingController
+                                  expiryMonthController =
+                                  TextEditingController();
+                              final TextEditingController expiryYearController =
+                                  TextEditingController();
+                              final TextEditingController cvvController =
+                                  TextEditingController();
+                              final GlobalKey<FormState> formKey =
+                                  GlobalKey<FormState>();
                               bool isLoading = false;
 
                               return StatefulBuilder(
@@ -521,10 +535,13 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                                   return SingleChildScrollView(
                                     child: AlertDialog(
                                       backgroundColor: AppColors.kDarkestBlue,
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10)),
                                       title: Text(
                                         "Enter Card Details",
-                                        style: AppTypography.kBold18.copyWith(color: Colors.white),
+                                        style: AppTypography.kBold18
+                                            .copyWith(color: Colors.white),
                                       ),
                                       content: Form(
                                         key: formKey,
@@ -532,54 +549,83 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
                                             TextFormField(
-                                              controller: controller.cardNumberController,
-                                              keyboardType: TextInputType.number,
-                                              decoration: _inputDecoration("Card Number", AppAssets.kMail),
-                                              style: TextStyle(color: AppColors.kWhite),
+                                              controller: controller
+                                                  .cardNumberController,
+                                              keyboardType:
+                                                  TextInputType.number,
+                                              decoration: _inputDecoration(
+                                                  "Card Number",
+                                                  AppAssets.kMail),
+                                              style: TextStyle(
+                                                  color: AppColors.kWhite),
                                               validator: (value) {
-                                                if (value == null || value.isEmpty || value.length < 16) {
+                                                if (value == null ||
+                                                    value.isEmpty ||
+                                                    value.length < 16) {
                                                   return "Card Number is required";
                                                 }
                                                 return null;
                                               },
                                             ),
-                                            SizedBox(height: AppSpacing.tenVertical),
+                                            SizedBox(
+                                                height: AppSpacing.tenVertical),
                                             TextFormField(
-                                              controller: controller.cardExpiryMonthController,
-                                              keyboardType: TextInputType.number,
+                                              controller: controller
+                                                  .cardExpiryMonthController,
+                                              keyboardType:
+                                                  TextInputType.number,
                                               maxLength: 2,
-                                              decoration: _inputDecoration("Expiry Month", AppAssets.kMail),
-                                              style: TextStyle(color: AppColors.kWhite),
+                                              decoration: _inputDecoration(
+                                                  "Expiry Month",
+                                                  AppAssets.kMail),
+                                              style: TextStyle(
+                                                  color: AppColors.kWhite),
                                               validator: (value) {
-                                                if (value == null || value.isEmpty || value.length != 2) {
+                                                if (value == null ||
+                                                    value.isEmpty ||
+                                                    value.length != 2) {
                                                   return "Expiry Month is required";
                                                 }
                                                 return null;
                                               },
                                             ),
-                                            SizedBox(height: AppSpacing.tenVertical),
+                                            SizedBox(
+                                                height: AppSpacing.tenVertical),
                                             TextFormField(
-                                              controller: controller.cardExpiryYearController,
-                                              keyboardType: TextInputType.number,
+                                              controller: controller
+                                                  .cardExpiryYearController,
+                                              keyboardType:
+                                                  TextInputType.number,
                                               maxLength: 4,
-                                              decoration: _inputDecoration("Expiry Year", AppAssets.kMail),
-                                              style: TextStyle(color: AppColors.kWhite),
+                                              decoration: _inputDecoration(
+                                                  "Expiry Year",
+                                                  AppAssets.kMail),
+                                              style: TextStyle(
+                                                  color: AppColors.kWhite),
                                               validator: (value) {
-                                                if (value == null || value.isEmpty || value.length != 4) {
+                                                if (value == null ||
+                                                    value.isEmpty ||
+                                                    value.length != 4) {
                                                   return "Expiry Year is required";
                                                 }
                                                 return null;
                                               },
                                             ),
-                                            SizedBox(height: AppSpacing.tenVertical),
+                                            SizedBox(
+                                                height: AppSpacing.tenVertical),
                                             TextFormField(
-                                              controller: controller.cardCvvController,
-                                              keyboardType: TextInputType.number,
+                                              controller:
+                                                  controller.cardCvvController,
+                                              keyboardType:
+                                                  TextInputType.number,
                                               maxLength: 3,
-                                              decoration: _inputDecoration("CVV", AppAssets.kMail),
-                                              style: TextStyle(color: AppColors.kWhite),
+                                              decoration: _inputDecoration(
+                                                  "CVV", AppAssets.kMail),
+                                              style: TextStyle(
+                                                  color: AppColors.kWhite),
                                               validator: (value) {
-                                                if (value == null || value.isEmpty) {
+                                                if (value == null ||
+                                                    value.isEmpty) {
                                                   return "CVV is required";
                                                 }
                                                 return null;
@@ -591,11 +637,14 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                                       actions: [
                                         TextButton(
                                           onPressed: () => Get.back(),
-                                          child: Text("Cancel", style: TextStyle(color: AppColors.kSkyBlue)),
+                                          child: Text("Cancel",
+                                              style: TextStyle(
+                                                  color: AppColors.kSkyBlue)),
                                         ),
                                         ElevatedButton(
                                           onPressed: () async {
-                                            if (formKey.currentState!.validate()) {
+                                            if (formKey.currentState!
+                                                .validate()) {
                                               setState(() {
                                                 isLoading = true;
                                               });
@@ -607,8 +656,10 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                                               Get.snackbar(
                                                 "Error",
                                                 "Please fill all the fields",
-                                                snackPosition: SnackPosition.BOTTOM,
-                                                backgroundColor: Colors.red.withOpacity(0.8),
+                                                snackPosition:
+                                                    SnackPosition.BOTTOM,
+                                                backgroundColor:
+                                                    Colors.red.withOpacity(0.8),
                                                 colorText: Colors.white,
                                               );
                                             }
@@ -617,7 +668,8 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                                             backgroundColor: AppColors.kSkyBlue,
                                           ),
                                           child: isLoading
-                                              ? CircularProgressIndicator(color: Colors.white)
+                                              ? CircularProgressIndicator(
+                                                  color: Colors.white)
                                               : Text("Submit"),
                                         ),
                                       ],
@@ -658,33 +710,35 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
   }
 
   Widget _buildSlider(String value) {
-    final SetJobDetailsController controller = Get.put(SetJobDetailsController());
+    final SetJobDetailsController controller =
+        Get.put(SetJobDetailsController());
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: AppSpacing.fiveVertical,),
+        SizedBox(
+          height: AppSpacing.fiveVertical,
+        ),
         Container(
-          padding: EdgeInsets.only(top: 8,right: 8, left: 8),
+          padding: EdgeInsets.only(top: 8, right: 8, left: 8),
           decoration: BoxDecoration(
               shape: BoxShape.rectangle,
               border: Border.all(color: Colors.grey),
-              borderRadius: BorderRadius.circular(8)
-          ),
+              borderRadius: BorderRadius.circular(8)),
           child: Column(
             children: [
               Row(
                 children: [
-                  Text("20y", style: AppTypography.kBold16.copyWith(
-                      color: AppColors.kWhite
-                  )),
+                  Text("20y",
+                      style: AppTypography.kBold16
+                          .copyWith(color: AppColors.kWhite)),
                   Spacer(),
-                  Text("30y", style: AppTypography.kBold16.copyWith(
-                      color: AppColors.kWhite
-                  )),
+                  Text("30y",
+                      style: AppTypography.kBold16
+                          .copyWith(color: AppColors.kWhite)),
                   Spacer(),
-                  Text("40y", style: AppTypography.kBold16.copyWith(
-                      color: AppColors.kWhite
-                  )),
+                  Text("40y",
+                      style: AppTypography.kBold16
+                          .copyWith(color: AppColors.kWhite)),
                 ],
               ),
               Slider(
@@ -722,14 +776,14 @@ class StepTab extends StatelessWidget {
     Color progressColor = isCompleted
         ? AppColors.kSkyBlue
         : isCurrent
-        ? AppColors.kWhite
-        : AppColors.ktextlight.withOpacity(0.2);
+            ? AppColors.kWhite
+            : AppColors.ktextlight.withOpacity(0.2);
 
     double progressValue = isCompleted
         ? 1
         : isCurrent
-        ? 0.5
-        : 0.0;
+            ? 0.5
+            : 0.0;
 
     return Expanded(
       child: Padding(
@@ -755,7 +809,7 @@ class StepTab extends StatelessWidget {
                 fontFamily: 'YourFontFamily', // Specify the font family
                 fontSize: 13, // Adjust the font size
                 fontWeight:
-                FontWeight.w600, // Adjust the font weight (optional)
+                    FontWeight.w600, // Adjust the font weight (optional)
               ),
             )
           ],

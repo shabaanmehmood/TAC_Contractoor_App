@@ -158,7 +158,7 @@ void main() async {
   // ✅ Dependency Injection
   Get.put(UserController(), permanent: true);
   Get.put(SetJobDetailsController());
-   Get.put(MapController(), permanent: true); // <-- Add this line here
+  Get.put(MapController(), permanent: true); // <-- Add this line here
   // Get.put(GuardsViewController());
   // Get.put(SessionManagerController()); 
 

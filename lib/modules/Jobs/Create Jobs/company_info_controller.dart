@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 import 'package:taccontractor/controllers/user_controller.dart';
 import 'package:taccontractor/data/data/constants/app_colors.dart';
 import 'package:taccontractor/models/jobCategoriesModel.dart';
@@ -24,7 +25,7 @@ class SetJobDetailsController extends GetxController {
   final jobTitle = TextEditingController();
   final payPerHour = TextEditingController();
   final jobCategory = TextEditingController();
-  var selectedJobCategoryOption = "".obs;      // For storing the ID
+  var selectedJobCategoryOption = "".obs; // For storing the ID
   final jobDescription = 'description'.obs;
   final jobResponsiblities = TextEditingController();
   final jobSOPs = TextEditingController();
@@ -85,40 +86,40 @@ class SetJobDetailsController extends GetxController {
   var availableSkills = <SkillModel>[].obs;
 
   // Add this method to your controller class (e.g., JobCreationController)
-void clearAllFields() {
-  // Clear TextEditingControllers
-  jobTitle.clear();
-  payPerHour.clear();
-  jobResponsiblities.clear();
-  siteLocation.clear();
-  reportingManagerNumber.clear();
-  reportingManager.clear();
-  noOfGuardsRequired.clear();
-  jobSOPs.clear();
-  cardNumberController.clear();
-  cardExpiryMonthController.clear();
-  cardExpiryYearController.clear();
-  cardCvvController.clear();
-  jobAppearance.clear();
+  void clearAllFields() {
+    // Clear TextEditingControllers
+    jobTitle.clear();
+    payPerHour.clear();
+    jobResponsiblities.clear();
+    siteLocation.clear();
+    reportingManagerNumber.clear();
+    reportingManager.clear();
+    noOfGuardsRequired.clear();
+    jobSOPs.clear();
+    cardNumberController.clear();
+    cardExpiryMonthController.clear();
+    cardExpiryYearController.clear();
+    cardCvvController.clear();
+    jobAppearance.clear();
 
-  // Reset Rx variables to their initial state
-  jobDescription.value = 'description';
-  leaderRequired.value = false;
-  latitude.value = 0.0;
-  longitude.value = 0.0;
-  minExperience.value = 0;
-  maxExperience.value = 0;
-  minAge.value = 0;
-  maxAge.value = 0;
-  minimumLevel.value = 0;
-  maximumLevel.value = 0;
-  selectedSkills.clear(); // Assuming it's an RxList
-  selectedLicenses.clear(); // Assuming it's an RxList
-  shifts.clear(); // Assuming it's an RxList
-  selectedCategory.value = ''; // Or to an initial default value
-  selectedPremises.value = ""; // Or to an initial default value
-  jobType.value = "recurring"; // Or to an initial default value
-}
+    // Reset Rx variables to their initial state
+    jobDescription.value = 'description';
+    leaderRequired.value = false;
+    latitude.value = 0.0;
+    longitude.value = 0.0;
+    minExperience.value = 0;
+    maxExperience.value = 0;
+    minAge.value = 0;
+    maxAge.value = 0;
+    minimumLevel.value = 0;
+    maximumLevel.value = 0;
+    selectedSkills.clear(); // Assuming it's an RxList
+    selectedLicenses.clear(); // Assuming it's an RxList
+    shifts.clear(); // Assuming it's an RxList
+    selectedCategory.value = ''; // Or to an initial default value
+    selectedPremises.value = ""; // Or to an initial default value
+    jobType.value = "recurring"; // Or to an initial default value
+  }
 
   Future<void> getDeviceLocation() async {
     try {
@@ -170,7 +171,8 @@ void clearAllFields() {
       longitude.value = position.longitude;
 
       // Update the site location text field
-      siteLocation.text = "Lat: ${latitude.value.toStringAsFixed(6)}, Lng: ${longitude.value.toStringAsFixed(6)}";
+      siteLocation.text =
+          "Lat: ${latitude.value.toStringAsFixed(6)}, Lng: ${longitude.value.toStringAsFixed(6)}";
 
       // Optional: Show success message
       Get.snackbar(
@@ -182,8 +184,8 @@ void clearAllFields() {
       );
 
       // Debug print to verify location is stored
-      debugPrint("Location stored - Lat: ${latitude.value}, Lng: ${longitude.value}");
-
+      debugPrint(
+          "Location stored - Lat: ${latitude.value}, Lng: ${longitude.value}");
     } catch (e) {
       debugPrint("Location error: $e");
       Get.snackbar(
@@ -209,9 +211,8 @@ void clearAllFields() {
       final response = await MyApIService().getAllLicense();
       if (response.statusCode == 200) {
         final List<dynamic> jsonList = jsonDecode(response.body)['data'];
-        availableLicenses.value = jsonList
-            .map((json) => RequiredLicense.fromJson(json))
-            .toList();
+        availableLicenses.value =
+            jsonList.map((json) => RequiredLicense.fromJson(json)).toList();
       }
     } catch (e) {
       Get.snackbar("Error", "Failed to fetch licenses");
@@ -220,13 +221,13 @@ void clearAllFields() {
 
   Future<void> fetchRequiredSkills() async {
     try {
-      final response = await myApiService.getRequiredSkills(); // Make sure this hits your skills endpoint
+      final response = await myApiService
+          .getRequiredSkills(); // Make sure this hits your skills endpoint
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonMap = jsonDecode(response.body);
         final List<dynamic> jsonList = jsonMap['data'];
-        availableSkills.value = jsonList
-            .map((json) => SkillModel.fromJson(json))
-            .toList();
+        availableSkills.value =
+            jsonList.map((json) => SkillModel.fromJson(json)).toList();
       } else {
         availableSkills.clear();
         Get.snackbar("Error", "Failed to fetch skills");
@@ -243,8 +244,10 @@ void clearAllFields() {
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonMap = jsonDecode(response.body);
         final List<dynamic> jsonList = jsonMap['data'];
-        availableCategories.value = jsonList.map((json) => JobCategoryModel.fromJson(json)).toList();
-        debugPrint('Available Categories Ids: ${availableCategories.map((e) => e.id).toList()}');
+        availableCategories.value =
+            jsonList.map((json) => JobCategoryModel.fromJson(json)).toList();
+        debugPrint(
+            'Available Categories Ids: ${availableCategories.map((e) => e.id).toList()}');
       } else {
         availableCategories.clear();
         debugPrint('Error: ${response.statusCode} - ${response.body}');
@@ -255,15 +258,39 @@ void clearAllFields() {
     }
   }
 
+  Future<Map<String, double>?> setLatLngFromAddress(String address) async {
+    final url = Uri.parse(
+      "https://nominatim.openstreetmap.org/search?q=$address&format=json&limit=1",
+    );
+
+    final response =
+        await http.get(url, headers: {"User-Agent": "flutter-app"});
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      if (data.isNotEmpty) {
+        final lat = double.parse(data[0]['lat']);
+        final lon = double.parse(data[0]['lon']);
+
+        // Update the controller values
+        latitude.value = lat;
+        longitude.value = lon;
+
+        // Also return the values
+        return {'lat': lat, 'lon': lon};
+      }
+    }
+    return null;
+  }
+
   Future<void> fetchJobPremises(String userId) async {
     try {
       final response = await myApiService.getJobPremises(userId);
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonMap = jsonDecode(response.body);
         final List<dynamic> jsonList = jsonMap['data'];
-        availablePremises.value = jsonList
-            .map((json) => JobPremisesModel.fromJson(json))
-            .toList();
+        availablePremises.value =
+            jsonList.map((json) => JobPremisesModel.fromJson(json)).toList();
       } else {
         availablePremises.clear();
         debugPrint('Error: ${response.statusCode} - ${response.body}');
@@ -273,7 +300,6 @@ void clearAllFields() {
       debugPrint('Exception: $e');
     }
   }
-
 
   // In your controller
   RxString jobType = 'recurring'.obs; // or 'One Time'
@@ -290,7 +316,6 @@ void clearAllFields() {
       shifts.addAll(newShifts);
     }
   }
-
 
   void removeShift(int index) {
     shifts.removeAt(index);
