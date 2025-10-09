@@ -10,6 +10,8 @@ import 'package:taccontractor/models/guardsList_model.dart';
 import 'package:taccontractor/models/jobApplication_model.dart';
 import 'package:taccontractor/models/jobCategoriesModel.dart';
 import 'package:taccontractor/models/jobMinimal_model.dart';
+import 'package:taccontractor/models/latestguard.dart';
+import 'package:taccontractor/models/nearbyjob.dart';
 import 'package:taccontractor/models/notification_model.dart';
 import 'package:taccontractor/models/signUpModelForCompany.dart';
 
@@ -23,7 +25,6 @@ import '../models/userupdate_model.dart';
 import '../modules/Messages/socket_file.dart';
 
 class MyApIService {
-
   UserController get userController => Get.find<UserController>();
 
   //get access token url:
@@ -41,16 +42,16 @@ class MyApIService {
   String baseurl = 'http://148.66.158.113:3006/api/v1/'; //portal flutter.
   // String controllerBase = 'https://truegigs.com/portal/'; //baseUrl for other calls
 
-
-  Future<http.Response> signUpForCompany({required SignUpModelForCompany SignUpModelForCompany,}) async {
+  Future<http.Response> signUpForCompany({
+    required SignUpModelForCompany SignUpModelForCompany,
+  }) async {
     var functionUrl = 'contractorAuth/signUp';
     final response = await http.post(Uri.parse(baseurl + functionUrl),
-      headers: {
-        'Content-Type': 'application/json',
-        'ngrok-skip-browser-warning': 'true',
-      },
-    body: jsonEncode(SignUpModelForCompany.toJson())
-    );
+        headers: {
+          'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': 'true',
+        },
+        body: jsonEncode(SignUpModelForCompany.toJson()));
     //   body: jsonEncode({
     //     'registeringAs': registeringAs,
     //     'email': email,
@@ -82,21 +83,54 @@ class MyApIService {
         final getuserbyid = await getUserByID(userId!);
         debugPrint('get user by ID called $getuserbyid');
         if (getuserbyid.statusCode == 200) {
-          final userData = GetUserById.fromJson(jsonDecode(getuserbyid.body)).data;
+          final userData =
+              GetUserById.fromJson(jsonDecode(getuserbyid.body)).data;
           if (userData != null) {
             Get.find<UserController>().setUser(userData);
           }
         }
       }
     } else {
-      debugPrint('inside signup method call for company: ${response.statusCode}');
+      debugPrint(
+          'inside signup method call for company: ${response.statusCode}');
     }
     return response;
   }
 
+  Future<NearbyJobsResponses?> JobsLocations(
+      String latitude, String longitude) async {
+    var functionUrl = 'jobs/findNearBy';
+    try {
+      final response = await http.post(
+        Uri.parse(baseurl + functionUrl),
+        headers: {
+          "Content-Type": "application/json",
+          'ngrok-skip-browser-warning': 'true',
+        },
+        body: jsonEncode({
+          "latitude": latitude,
+          "longitude": longitude,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final jsonData = jsonDecode(response.body);
+        final jobsResponse = NearbyJobsResponses.fromJson(jsonData);
+        return jobsResponse;
+      } else {
+        print('Failed to load jobs. Status code: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error fetching jobs: $e');
+      return null;
+    }
+  }
+
   Future<http.Response> signUpForContractor({SignUpModelForIndividual}) async {
     var functionUrl = 'contractorAuth/signUp';
-    final response = await http.post(Uri.parse(baseurl + functionUrl),
+    final response = await http.post(
+      Uri.parse(baseurl + functionUrl),
       headers: {
         'Content-Type': 'application/json',
         'ngrok-skip-browser-warning': 'true',
@@ -122,8 +156,9 @@ class MyApIService {
       //   'nationalCrimeCheck': nationalCrimeCheck,
       //   'whiteCard': whiteCard,
       // }),
-      body: jsonEncode(SignUpModelForIndividual.toJson() // Encode body as JSON string
-      ),
+      body: jsonEncode(
+          SignUpModelForIndividual.toJson() // Encode body as JSON string
+          ),
     );
 
     if (response.statusCode == 200) {
@@ -137,19 +172,22 @@ class MyApIService {
         final getuserbyid = await getUserByID(userId!);
         debugPrint('get user by ID called $getuserbyid');
         if (getuserbyid.statusCode == 200) {
-          final userData = GetUserById.fromJson(jsonDecode(getuserbyid.body)).data;
+          final userData =
+              GetUserById.fromJson(jsonDecode(getuserbyid.body)).data;
           if (userData != null) {
             Get.find<UserController>().setUser(userData);
           }
         }
       }
     } else {
-      debugPrint('inside signup method call for company: ${response.statusCode}');
+      debugPrint(
+          'inside signup method call for company: ${response.statusCode}');
     }
     return response;
   }
 
-  Future<http.Response> login(String email, String password, String fcmToken) async {
+  Future<http.Response> login(
+      String email, String password, String fcmToken) async {
     var functionUrl = 'contractorAuth/login';
     final response = await http.post(
       Uri.parse(baseurl + functionUrl),
@@ -157,7 +195,8 @@ class MyApIService {
         "Content-Type": "application/json",
         'ngrok-skip-browser-warning': 'true',
       },
-      body: jsonEncode({ // Encode body as JSON string
+      body: jsonEncode({
+        // Encode body as JSON string
         "email": email,
         "password": password,
         "fcmToken": fcmToken,
@@ -177,7 +216,8 @@ class MyApIService {
         // Get complete user data including image
         final getUserResponse = await getUserByID(userId!);
         if (getUserResponse.statusCode == 200) {
-          final userData = GetUserById.fromJson(jsonDecode(getUserResponse.body)).data;
+          final userData =
+              GetUserById.fromJson(jsonDecode(getUserResponse.body)).data;
           if (userData != null) {
             Get.find<UserController>().setUser(userData);
             SocketService().initialize();
@@ -198,7 +238,8 @@ class MyApIService {
         "Content-Type": "application/json",
         'ngrok-skip-browser-warning': 'true',
       },
-      body: jsonEncode({ // Encode body as JSON string
+      body: jsonEncode({
+        // Encode body as JSON string
         "email": email,
       }),
     );
@@ -213,7 +254,8 @@ class MyApIService {
         "Content-Type": "application/json",
         'ngrok-skip-browser-warning': 'true',
       },
-      body: jsonEncode({ // Encode body as JSON string
+      body: jsonEncode({
+        // Encode body as JSON string
         "email": email,
         "otp": otp,
       }),
@@ -221,7 +263,8 @@ class MyApIService {
     return response;
   }
 
-  Future<http.Response> resetPassword(String email, String password, String confirmPassword) async {
+  Future<http.Response> resetPassword(
+      String email, String password, String confirmPassword) async {
     var functionUrl = 'contractorAuth/set-password-by-email';
     final response = await http.post(
       Uri.parse(baseurl + functionUrl),
@@ -229,7 +272,8 @@ class MyApIService {
         "Content-Type": "application/json",
         'ngrok-skip-browser-warning': 'true',
       },
-      body: jsonEncode({ // Encode body as JSON string
+      body: jsonEncode({
+        // Encode body as JSON string
         "email": email,
         "password": password,
         "confirmPassword": confirmPassword,
@@ -264,12 +308,14 @@ class MyApIService {
     return response;
   }
 
-  Future<http.StreamedResponse> uploadFile(String userId, String fileType, String filePath) async {
+  Future<http.StreamedResponse> uploadFile(
+      String userId, String fileType, String filePath) async {
     var functionUrl = 'contractorDocuments/upload';
-    final request = http.MultipartRequest('POST',Uri.parse(baseurl + functionUrl))
-      ..fields['userId'] = userId
-      ..fields['type'] = fileType
-      ..files.add(await http.MultipartFile.fromPath('file', filePath));
+    final request =
+        http.MultipartRequest('POST', Uri.parse(baseurl + functionUrl))
+          ..fields['userId'] = userId
+          ..fields['type'] = fileType
+          ..files.add(await http.MultipartFile.fromPath('file', filePath));
 
     request.headers.addAll({
       'ngrok-skip-browser-warning': 'true',
@@ -280,7 +326,8 @@ class MyApIService {
 
   Future<http.Response> getUserByID(String userId) async {
     var functionUrl = 'contractors/$userId';
-    final response = await http.get(Uri.parse(baseurl + functionUrl),
+    final response = await http.get(
+      Uri.parse(baseurl + functionUrl),
       headers: {
         "Content-Type": "application/json",
         'ngrok-skip-browser-warning': 'true',
@@ -308,7 +355,13 @@ class MyApIService {
     return '$imageBaseUrl$imagePath';
   }
 
-  Future<http.Response> addBankDetails(String bankName, String accountTitle, String accountNumber, String iban, String expiryDate, String userId) async {
+  Future<http.Response> addBankDetails(
+      String bankName,
+      String accountTitle,
+      String accountNumber,
+      String iban,
+      String expiryDate,
+      String userId) async {
     var functionUrl = 'contractorBankDetails';
     final response = await http.post(
       Uri.parse(baseurl + functionUrl),
@@ -330,7 +383,8 @@ class MyApIService {
 
   Future<http.Response> getBankDetails(String userId) async {
     var functionUrl = 'userBankDetails/$userId';
-    final response = await http.get(Uri.parse(baseurl + functionUrl),
+    final response = await http.get(
+      Uri.parse(baseurl + functionUrl),
       headers: {
         "Content-Type": "application/json",
         'ngrok-skip-browser-warning': 'true',
@@ -351,9 +405,11 @@ class MyApIService {
     return response;
   }
 
-  Future<http.Response> getBankDetailsWithParams(Map<String, String> queryParams) async {
+  Future<http.Response> getBankDetailsWithParams(
+      Map<String, String> queryParams) async {
     var functionUrl = 'contractorBankDetails/';
-    final uri = Uri.parse(baseurl+ functionUrl).replace(queryParameters: queryParams);
+    final uri =
+        Uri.parse(baseurl + functionUrl).replace(queryParameters: queryParams);
 
     final response = await http.get(
       uri,
@@ -366,7 +422,6 @@ class MyApIService {
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body);
       final dataList = json['data'];
-
     } else {
       debugPrint('Error: ${response.statusCode} - ${response.body}');
     }
@@ -375,7 +430,8 @@ class MyApIService {
 
   Future<http.Response> deleteBankDetails(String userId) async {
     var functionUrl = 'contractorBankDetails/$userId';
-    final response = await http.delete(Uri.parse(baseurl + functionUrl),
+    final response = await http.delete(
+      Uri.parse(baseurl + functionUrl),
       headers: {
         "Content-Type": "application/json",
         'ngrok-skip-browser-warning': 'true',
@@ -396,7 +452,8 @@ class MyApIService {
     return response;
   }
 
-  Future<http.Response> addDispute(CreateDisputeModel createDisputeModel) async {
+  Future<http.Response> addDispute(
+      CreateDisputeModel createDisputeModel) async {
     var functionUrl = 'contractorDispute';
 
     final response = await http.post(
@@ -405,7 +462,8 @@ class MyApIService {
         "Content-Type": "application/json",
         'ngrok-skip-browser-warning': 'true',
       },
-      body: jsonEncode(createDisputeModel.toJson()), // Encode body as JSON string
+      body:
+          jsonEncode(createDisputeModel.toJson()), // Encode body as JSON string
     );
     if (response.statusCode == 201) {
       final jsonData = jsonDecode(response.body);
@@ -511,7 +569,8 @@ class MyApIService {
 
   Future<http.Response> deleteAccount(String userId) async {
     var functionUrl = 'users/$userId';
-    final response = await http.delete(Uri.parse(baseurl + functionUrl),
+    final response = await http.delete(
+      Uri.parse(baseurl + functionUrl),
       headers: {
         "Content-Type": "application/json",
         'ngrok-skip-browser-warning': 'true',
@@ -519,8 +578,7 @@ class MyApIService {
     );
     if (response.statusCode == 200) {
       debugPrint('User account deleted successfully');
-      }
-    else {
+    } else {
       debugPrint('Error deleting user: ${response.statusCode}');
     }
     return response;
@@ -528,7 +586,8 @@ class MyApIService {
 
   Future<http.Response> getAllLicense() async {
     var functionUrl = 'license/';
-    final response = await http.get(Uri.parse(baseurl + functionUrl),
+    final response = await http.get(
+      Uri.parse(baseurl + functionUrl),
       headers: {
         "Content-Type": "application/json",
         'ngrok-skip-browser-warning': 'true',
@@ -537,7 +596,6 @@ class MyApIService {
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body);
       debugPrint('Response in getAllLicense: $json');
-
     } else {
       // handle error
     }
@@ -549,36 +607,40 @@ class MyApIService {
     String jobId,
     int rating,
     String review,
-) async {
-  var functionUrl = 'jobFeedback/';
-  final response = await http.post(
-    Uri.parse(baseurl + functionUrl),
-    headers: {
-      "Content-Type": "application/json",
-      'ngrok-skip-browser-warning': 'true',
-    },
-    body: jsonEncode({
-      "guardId": guardId,
-      "jobId": jobId,
-      "rating": rating,
-      "review": review,
-    }),
-  );
+  ) async {
+    var functionUrl = 'jobFeedback/';
+    final response = await http.post(
+      Uri.parse(baseurl + functionUrl),
+      headers: {
+        "Content-Type": "application/json",
+        'ngrok-skip-browser-warning': 'true',
+      },
+      body: jsonEncode({
+        "guardId": guardId,
+        "jobId": jobId,
+        "rating": rating,
+        "review": review,
+      }),
+    );
 
-  if (response.statusCode == 200 || response.statusCode == 201) {
-    debugPrint('Job feedback submitted successfully');
-    final json = jsonDecode(response.body);
-    debugPrint('Response in addJobFeedback: $json');
-  } else {
-    debugPrint('Error submitting job feedback: ${response.statusCode}');
-    debugPrint('Response body: ${response.body}');
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      debugPrint('Job feedback submitted successfully');
+      final json = jsonDecode(response.body);
+      debugPrint('Response in addJobFeedback: $json');
+    } else {
+      debugPrint('Error submitting job feedback: ${response.statusCode}');
+      debugPrint('Response body: ${response.body}');
+    }
+
+    return response;
   }
 
-  return response;
-}
-
-  Future<http.Response> addSecurityLicense(String licenseNumber, String expiryDate, String licenseTypeId,
-      String userId, String licenseDocumentPath) async {
+  Future<http.Response> addSecurityLicense(
+      String licenseNumber,
+      String expiryDate,
+      String licenseTypeId,
+      String userId,
+      String licenseDocumentPath) async {
     var functionUrl = 'userLicenses/';
     final response = await http.post(
       Uri.parse(baseurl + functionUrl),
@@ -598,8 +660,7 @@ class MyApIService {
       debugPrint('User security license added successfully');
       final json = jsonDecode(response.body);
       debugPrint('Response in addSecurityLicense: $json');
-    }
-    else {
+    } else {
       debugPrint('Error adding user security license: ${response.statusCode}');
     }
     return response;
@@ -608,7 +669,8 @@ class MyApIService {
   Future<http.Response> getUserSecurityLicenses(String userId) async {
     var functionUrl = 'userLicenses/user/$userId';
 
-    final response = await http.get(Uri.parse(baseurl + functionUrl),
+    final response = await http.get(
+      Uri.parse(baseurl + functionUrl),
       headers: {
         "Content-Type": "application/json",
         'ngrok-skip-browser-warning': 'true',
@@ -618,14 +680,14 @@ class MyApIService {
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body);
       final dataList = json['data'];
-
     } else {
       debugPrint('Error: ${response.statusCode} - ${response.body}');
     }
     return response;
   }
 
-  Future<NearbyJobsResponse?> fetchJobsLocations(String latitude, String longitude) async {
+  Future<NearbyJobsResponse?> fetchJobsLocations(
+      String latitude, String longitude) async {
     var functionUrl = 'jobs/findNearBy';
     try {
       final response = await http.post(
@@ -657,7 +719,8 @@ class MyApIService {
   Future<http.Response> getJobsList() async {
     var functionUrl = 'jobs';
 
-    final response = await http.get(Uri.parse(baseurl + functionUrl),
+    final response = await http.get(
+      Uri.parse(baseurl + functionUrl),
       headers: {
         "Content-Type": "application/json",
         'ngrok-skip-browser-warning': 'true',
@@ -667,14 +730,14 @@ class MyApIService {
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body);
       final dataList = json['data'];
-      
     } else {
       debugPrint('Error: ${response.statusCode} - ${response.body}');
     }
     return response;
   }
 
-  Future<http.Response> applyJob(String userId, String jobId, List<String?> shiftId) async {
+  Future<http.Response> applyJob(
+      String userId, String jobId, List<String?> shiftId) async {
     var functionUrl = 'jobApplication/apply';
     final response = await http.post(
       Uri.parse(baseurl + functionUrl),
@@ -697,7 +760,8 @@ class MyApIService {
     return response;
   }
 
-  Future<http.Response> getJobApplicationStatus(String userId, String jobId, List<String> shiftId) async {
+  Future<http.Response> getJobApplicationStatus(
+      String userId, String jobId, List<String> shiftId) async {
     var functionUrl = 'jobApplication/apply';
     final response = await http.post(
       Uri.parse(baseurl + functionUrl),
@@ -719,12 +783,10 @@ class MyApIService {
     }
     return response;
   }
-
-  
 
   Future<http.Response> addReportAnIssue(
-      ReportAnIssueModel reportAnIssueModel,
-      ) async {
+    ReportAnIssueModel reportAnIssueModel,
+  ) async {
     var functionUrl = 'contractorReportAnIssue/';
 
     // // Prepare the request body
@@ -748,7 +810,8 @@ class MyApIService {
         "Content-Type": "application/json",
         'ngrok-skip-browser-warning': 'true',
       },
-      body: jsonEncode(reportAnIssueModel.toJson()), // Encode body as JSON string
+      body:
+          jsonEncode(reportAnIssueModel.toJson()), // Encode body as JSON string
     );
 
     if (response.statusCode == 201) {
@@ -765,7 +828,8 @@ class MyApIService {
   Future<http.Response> getUserDocuments(String userId) async {
     var functionUrl = 'contractorDocuments/contractor/$userId';
 
-    final response = await http.get(Uri.parse(baseurl + functionUrl),
+    final response = await http.get(
+      Uri.parse(baseurl + functionUrl),
       headers: {
         "Content-Type": "application/json",
         'ngrok-skip-browser-warning': 'true',
@@ -785,7 +849,8 @@ class MyApIService {
   Future<http.Response> getJobCategories(String userId) async {
     var functionUrl = 'jobCategory';
 
-    final response = await http.get(Uri.parse(baseurl + functionUrl),
+    final response = await http.get(
+      Uri.parse(baseurl + functionUrl),
       headers: {
         "Content-Type": "application/json",
         'ngrok-skip-browser-warning': 'true',
@@ -803,7 +868,8 @@ class MyApIService {
   Future<http.Response> getJobPremises(String userId) async {
     var functionUrl = 'jobPremises';
 
-    final response = await http.get(Uri.parse(baseurl + functionUrl),
+    final response = await http.get(
+      Uri.parse(baseurl + functionUrl),
       headers: {
         "Content-Type": "application/json",
         'ngrok-skip-browser-warning': 'true',
@@ -843,7 +909,8 @@ class MyApIService {
 
   Future<http.Response> getRequiredSkills() async {
     var functionUrl = 'requiredSkills/';
-    final response = await http.get(Uri.parse(baseurl + functionUrl),
+    final response = await http.get(
+      Uri.parse(baseurl + functionUrl),
       headers: {
         "Content-Type": "application/json",
         'ngrok-skip-browser-warning': 'true',
@@ -852,7 +919,6 @@ class MyApIService {
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body);
       debugPrint('Response in getAllLicense: $json');
-
     } else {
       // handle error
     }
@@ -882,7 +948,8 @@ class MyApIService {
     }
   }
 
-  Future<List<JobApplicationModel>> getJobApplications(String contractorId) async {
+  Future<List<JobApplicationModel>> getJobApplications(
+      String contractorId) async {
     var functionUrl = 'jobApplication/applications/contractor/$contractorId';
     final uri = Uri.parse(baseurl + functionUrl);
 
@@ -906,7 +973,8 @@ class MyApIService {
     }
   }
 
-  Future<http.Response> updateJobStatus(String jobApplicationId, String userId, String jobId, String status) async {
+  Future<http.Response> updateJobStatus(String jobApplicationId, String userId,
+      String jobId, String status) async {
     var functionUrl = 'jobApplication/$jobApplicationId/status';
     final response = await http.patch(
       Uri.parse(baseurl + functionUrl),
@@ -935,7 +1003,8 @@ class MyApIService {
   Future<http.Response> getAllGuardsList() async {
     var functionUrl = 'users';
 
-    final response = await http.get(Uri.parse(baseurl + functionUrl),
+    final response = await http.get(
+      Uri.parse(baseurl + functionUrl),
       headers: {
         "Content-Type": "application/json",
         'ngrok-skip-browser-warning': 'true',
@@ -955,7 +1024,8 @@ class MyApIService {
   Future<List<GuardsList>> getAllGuardsListForAvailableGuards() async {
     var functionUrl = 'users';
 
-    final response = await http.get(Uri.parse(baseurl + functionUrl),
+    final response = await http.get(
+      Uri.parse(baseurl + functionUrl),
       headers: {
         "Content-Type": "application/json",
         'ngrok-skip-browser-warning': 'true',
@@ -974,7 +1044,8 @@ class MyApIService {
   Future<List<JobMinimal>> getAllJobsListForDirectHire(String userId) async {
     var functionUrl = 'jobs/contractor/jobs/$userId';
 
-    final response = await http.get(Uri.parse(baseurl + functionUrl),
+    final response = await http.get(
+      Uri.parse(baseurl + functionUrl),
       headers: {
         "Content-Type": "application/json",
         'ngrok-skip-browser-warning': 'true',
@@ -990,7 +1061,8 @@ class MyApIService {
     }
   }
 
-  Future<http.Response> directHire(String contractorId, String guardId, String jobId, List<String> shiftIds) async {
+  Future<http.Response> directHire(String contractorId, String guardId,
+      String jobId, List<String> shiftIds) async {
     var functionUrl = 'jobApplication/direct-hire';
     final response = await http.post(
       Uri.parse(baseurl + functionUrl),
@@ -1051,6 +1123,76 @@ class MyApIService {
     }
   }
 
+  // ... your existing code ...
+
+  // Get latest guard locations
+  Future<GuardLocationResponse?> getLatestGuardLocations() async {
+    var functionUrl = 'shiftAttendance/latestGuardLocations';
+
+    try {
+      final response = await http.get(
+        Uri.parse(baseurl + functionUrl),
+        headers: {
+          "Content-Type": "application/json",
+          'ngrok-skip-browser-warning': 'true',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final jsonData = jsonDecode(response.body);
+        print(
+            "✅ Guard locations fetched successfully: ${jsonData['data']?.length ?? 0} guards");
+        return GuardLocationResponse.fromJson(jsonData);
+      } else {
+        print(
+            '❌ Failed to fetch guard locations. Status code: ${response.statusCode}');
+        print('Response body: ${response.body}');
+        return null;
+      }
+    } catch (e) {
+      print('❌ Error fetching guard locations: $e');
+      return null;
+    }
+  }
+
+  // Optional: Get guard locations for specific contractor
+  Future<GuardLocationResponse?> getGuardLocationsByContractor(
+      String contractorId) async {
+    var functionUrl = 'shiftAttendance/latestGuardLocations';
+
+    try {
+      final response = await http.get(
+        Uri.parse(baseurl + functionUrl),
+        headers: {
+          "Content-Type": "application/json",
+          'ngrok-skip-browser-warning': 'true',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final jsonData = jsonDecode(response.body);
+        final responseObj = GuardLocationResponse.fromJson(jsonData);
+
+        // Filter by contractor ID
+        final filteredData = responseObj.data.where((guardLocation) {
+          return guardLocation.contractor.id == contractorId;
+        }).toList();
+
+        return GuardLocationResponse(
+          message: responseObj.message,
+          status: responseObj.status,
+          data: filteredData,
+        );
+      } else {
+        print(
+            '❌ Failed to fetch guard locations. Status code: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('❌ Error fetching guard locations: $e');
+      return null;
+    }
+  }
 
 // Future<http.Response> getData(String url, {String? controllerName}) async {
   //   String mainUrl =
@@ -1419,7 +1561,6 @@ Issue with filepath. Solve it:
   }
   */
 
-
   //  Future<List<ContractorNotification>> fetchNotifications(String contractorId) async {
   //   var functionUrl = 'notification/contractors/$contractorId';
 
@@ -1432,7 +1573,7 @@ Issue with filepath. Solve it:
 
   //   if (response.statusCode == 200) {
   //     final jsonData = jsonDecode(response.body);
-    
+
   //     final List<dynamic> dataList = jsonData['data'];
   //     return dataList.map((item) => ContractorNotification.fromJson(item)).toList();
   //   } else {
@@ -1440,7 +1581,8 @@ Issue with filepath. Solve it:
   //   }
   // }
 
- Future<List<ContractorNotification>> fetchNotifications(String contractorId) async {
+  Future<List<ContractorNotification>> fetchNotifications(
+      String contractorId) async {
     final uri = Uri.parse("${baseurl}notification/contractor/$contractorId");
 
     final response = await http.get(
@@ -1454,17 +1596,20 @@ Issue with filepath. Solve it:
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body);
       final List<dynamic> dataList = jsonData['data'];
-      return dataList.map((item) => ContractorNotification.fromJson(item)).toList();
+      return dataList
+          .map((item) => ContractorNotification.fromJson(item))
+          .toList();
     } else {
       throw Exception('Failed to load notifications');
     }
   }
- 
+
   // You would add the markAllRead method here when you are ready to call the API
 
   Future<void> markAllNotificationsAsRead(String contractorId) async {
-    final uri = Uri.parse("${baseurl}notification/contractor/$contractorId/read-all");
-    
+    final uri =
+        Uri.parse("${baseurl}notification/contractor/$contractorId/read-all");
+
     try {
       final response = await http.patch(
         uri,
@@ -1473,7 +1618,7 @@ Issue with filepath. Solve it:
           "ngrok-skip-browser-warning": "true",
         },
       );
-      
+
       print('Mark all read response status code: ${response.statusCode}');
       print('Mark all read response body: ${response.body}');
 
@@ -1481,7 +1626,8 @@ Issue with filepath. Solve it:
         // Success
         print("All notifications marked as read successfully.");
       } else {
-        throw Exception('Failed to mark notifications as read: ${response.statusCode}');
+        throw Exception(
+            'Failed to mark notifications as read: ${response.statusCode}');
       }
     } catch (e) {
       print('Error marking notifications as read: $e');
@@ -1489,4 +1635,3 @@ Issue with filepath. Solve it:
     }
   }
 }
-

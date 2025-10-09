@@ -1,107 +1,155 @@
 import 'dart:async';
 import 'dart:math';
 import 'dart:ui' as ui;
+import 'dart:typed_data';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
-
-import '../dataproviders/api_service.dart';
-import '../models/job_model.dart';
+import 'package:taccontractor/dataproviders/api_service.dart';
+import 'package:taccontractor/models/latestguard.dart';
+import 'package:taccontractor/models/nearbyjob.dart';
 
 class MapController extends GetxController {
   var markers = <Marker>{}.obs;
   var mapController = Rxn<GoogleMapController>();
   var userPath = <LatLng>[].obs;
   var jobPath = <LatLng>[].obs;
+  String? darkMapStyle;
   var isLoading = true.obs;
   final myApiService = MyApIService();
   Timer? _periodicUpdateTimer;
   LatLng? _currentUserLocation;
+  final Rx<GuardLocationData?> selectedGuard = Rx<GuardLocationData?>(null);
+
+  // Track camera position manually
+  CameraPosition? _currentCameraPosition;
+  var _isFirstLoad = true;
 
   @override
   void onInit() {
     super.onInit();
-    requestAndSaveLocation();
-    // Set up periodic updates every 30 seconds
-    // _periodicUpdateTimer = Timer.periodic(Duration(seconds: 60), (timer) {
-    //   requestAndSaveLocation();
-    // });
+    loadMapStyle();
+    _initializeApp();
+    _startPeriodicUpdates();
+  }
+
+  Future<void> _initializeApp() async {
+    await loadMapStyle();
+    await requestAndSaveLocation();
   }
 
   @override
   void onClose() {
     _periodicUpdateTimer?.cancel();
+    mapController.value?.dispose();
     super.onClose();
   }
 
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    super.dispose();
-    _periodicUpdateTimer?.cancel();
-    mapController.value?.dispose();
-    markers.clear();
-    userPath.clear();
-    jobPath.clear();
-    _currentUserLocation = null;
+  void _startPeriodicUpdates() {
+    _periodicUpdateTimer = Timer.periodic(Duration(seconds: 30), (timer) {
+      if (_currentUserLocation != null) {
+        fetchUserLocations(
+          _currentUserLocation!.latitude.toStringAsFixed(4),
+          _currentUserLocation!.longitude.toStringAsFixed(4),
+        );
+      }
+    });
+  }
 
+  void onMarkerTapped(GuardLocationData guard) {
+    selectedGuard.value = guard;
+  }
+
+  void updateCameraPosition(CameraPosition position) {
+    _currentCameraPosition = position;
+    print(
+        "📍 Camera updated: ${position.target.latitude}, ${position.target.longitude}, zoom: ${position.zoom}");
+  }
+
+  Future<void> loadMapStyle() async {
+    try {
+      darkMapStyle =
+          await rootBundle.loadString('assets/map_style/map_style.json');
+      print("✅ Map style loaded successfully");
+      _applyMapStyle();
+    } catch (e) {
+      print("❌ Failed to load map style: $e");
+    }
+  }
+
+  void _applyMapStyle() {
+    if (darkMapStyle != null && mapController.value != null) {
+      try {
+        mapController.value!.setMapStyle(darkMapStyle);
+        print("🎨 Map style applied successfully");
+      } catch (e) {
+        print("❌ Error applying map style: $e");
+      }
+    }
   }
 
   Future<double> getJobLocation(String latitude, String longitude) async {
     Location location = Location();
-    late LatLng jobLocation;
-    double jobDistance;
-    final userLocation = await location.getLocation();
-    LatLng? _UserLocation;
 
-    // Check for permission
     PermissionStatus permissionGranted = await location.hasPermission();
     if (permissionGranted == PermissionStatus.denied) {
       permissionGranted = await location.requestPermission();
-      if (permissionGranted != PermissionStatus.granted) {
-        throw Exception('Location permission denied.');
-      }
+    }
+    if (permissionGranted == PermissionStatus.deniedForever) {
+      throw Exception('Location permissions permanently denied.');
+    }
+    if (permissionGranted != PermissionStatus.granted) {
+      throw Exception('Location permission denied.');
     }
 
     try {
-      _UserLocation = LatLng(
+      final userLocation = await location.getLocation();
+      final LatLng userLatLng = LatLng(
         userLocation.latitude ?? 0.0,
         userLocation.longitude ?? 0.0,
       );
 
-      jobLocation = LatLng(
+      final LatLng jobLocation = LatLng(
         double.parse(latitude),
         double.parse(longitude),
       );
 
-      jobPath.value = [jobLocation!];
+      jobPath.value = [jobLocation];
 
-      // Make sure _calculateDistance is defined and returns double
-      jobDistance = _calculateDistance(
-        _UserLocation!.latitude,
-        _UserLocation!.longitude,
+      final double jobDistance = _calculateDistance(
+        userLatLng.latitude,
+        userLatLng.longitude,
         jobLocation.latitude,
         jobLocation.longitude,
       );
 
-      // Animate camera if mapController is defined and initialized
       if (mapController.value != null) {
-        Future.delayed(
-          Duration(milliseconds: 250),
-          () {
-            mapController.value!.animateCamera(
-              CameraUpdate.newLatLng(jobLocation),
-            );
-          },
-        );
+        await _safeAnimateCamera(CameraUpdate.newLatLng(jobLocation));
       }
 
       return jobDistance;
     } catch (e) {
       print('Error fetching location: $e');
       return -1;
-    } finally {
-      // isLoading.value = false; // Optionally reset loading state here
+    }
+  }
+
+  Future<void> _safeAnimateCamera(CameraUpdate update) async {
+    try {
+      if (mapController.value != null) {
+        await mapController.value!.animateCamera(update);
+      }
+    } catch (e) {
+      print('Camera animation failed: $e');
+      try {
+        if (mapController.value != null) {
+          await mapController.value!.moveCamera(update);
+        }
+      } catch (e2) {
+        print('Move camera also failed: $e2');
+      }
     }
   }
 
@@ -109,56 +157,44 @@ class MapController extends GetxController {
     isLoading.value = true;
     Location location = Location();
 
-    // Check if service is enabled
-    bool serviceEnabled = await location.serviceEnabled();
-    if (!serviceEnabled) {
-      serviceEnabled = await location.requestService();
-      if (!serviceEnabled) {
-        isLoading.value = false;
-        throw Exception('Location services are disabled.');
-      }
-    }
-
-    // Check for permission
-    PermissionStatus permissionGranted = await location.hasPermission();
-    if (permissionGranted == PermissionStatus.denied) {
-      permissionGranted = await location.requestPermission();
-      if (permissionGranted != PermissionStatus.granted) {
-        isLoading.value = false;
-        throw Exception('Location permission denied.');
-      }
-    }
-
-    if (permissionGranted == PermissionStatus.deniedForever) {
-      isLoading.value = false;
-      throw Exception('Location permissions are permanently denied.');
-    }
-
     try {
-      // Get current location
+      bool serviceEnabled = await location.serviceEnabled();
+      if (!serviceEnabled) {
+        serviceEnabled = await location.requestService();
+        if (!serviceEnabled) {
+          throw Exception('Location services are disabled.');
+        }
+      }
+
+      PermissionStatus permissionGranted = await location.hasPermission();
+      if (permissionGranted == PermissionStatus.denied) {
+        permissionGranted = await location.requestPermission();
+        if (permissionGranted != PermissionStatus.granted) {
+          throw Exception('Location permission denied.');
+        }
+      }
+      if (permissionGranted == PermissionStatus.deniedForever) {
+        throw Exception('Location permissions permanently denied.');
+      }
+
       final userLocation = await location.getLocation();
-      _currentUserLocation = LatLng(
-          userLocation.latitude ?? 0.0,
-          userLocation.longitude ?? 0.0
-      );
+      _currentUserLocation =
+          LatLng(userLocation.latitude ?? 0.0, userLocation.longitude ?? 0.0);
 
       userPath.value = [_currentUserLocation!];
 
-      // Move camera to user location if map controller exists
-      if (mapController.value != null) {
-        mapController.value!.animateCamera(
-          CameraUpdate.newLatLng(_currentUserLocation!),
+      if (_isFirstLoad && mapController.value != null) {
+        final double zoom = _currentCameraPosition?.zoom ?? 15.0;
+        await _safeAnimateCamera(
+          CameraUpdate.newLatLngZoom(_currentUserLocation!, zoom),
         );
+        _isFirstLoad = false;
       }
 
-      // Fetch nearby jobs using current location
       await fetchUserLocations(
-        (42.1155000).toString(),
-        (-72.5395000).toString(),
-        // (userLocation.latitude ?? 0.0).toStringAsFixed(4),
-        // (userLocation.longitude ?? 0.0).toStringAsFixed(4),
+        (userLocation.latitude ?? 0.0).toStringAsFixed(4),
+        (userLocation.longitude ?? 0.0).toStringAsFixed(4),
       );
-
     } catch (e) {
       print('Error fetching location: $e');
     } finally {
@@ -166,92 +202,127 @@ class MapController extends GetxController {
     }
   }
 
-  Future<void> fetchUserLocations(String latitude, String longitude) async {
-    final jobsResponse = await myApiService.fetchJobsLocations(latitude, longitude);
-    print('API response: ${jobsResponse?.data?.length} jobs found');
+  Future<void> updateMarkersWithoutMovingCamera(Set<Marker> newMarkers) async {
+    final CameraPosition? currentPosition = _currentCameraPosition;
 
+    print("🔄 Updating markers, current camera: ${currentPosition?.target}");
 
-    if (jobsResponse != null && jobsResponse.status == 200) {
-      markers.clear();
+    markers.value = newMarkers;
 
-      // Create a marker for the user's current location
-      if (_currentUserLocation != null) {
-        markers.add(
-          Marker(
-            markerId: MarkerId('user_location'),
-            position: _currentUserLocation!,
-            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
-            infoWindow: InfoWindow(title: 'Your Location'),
-          ),
+    if (currentPosition != null && mapController.value != null) {
+      print("🔄 Restoring camera position");
+      Future.delayed(Duration(milliseconds: 50), () {
+        _safeAnimateCamera(
+          CameraUpdate.newCameraPosition(currentPosition),
         );
-      }
-
-      List<JobData> jobsList = jobsResponse.data;
-
-      // Animate camera to the first job marker, if available
-      if (jobsList.isNotEmpty && mapController.value != null) {
-        final firstJob = jobsList[0];
-        final double lat = double.tryParse(firstJob.latitude!) ?? 0.0;
-        final double lng = double.tryParse(firstJob.longitude!) ?? 0.0;
-        final LatLng position = LatLng(lat, lng);
-
-        // Animate camera to the job location
-        mapController.value!.animateCamera(
-          CameraUpdate.newLatLngZoom(position, 0.5),
-        );
-      }
-
-      // Create markers for each job
-      for (var i = 0; i < jobsList.length; i++) {
-        final job = jobsList[i];
-        final double lat = double.tryParse(job.latitude!) ?? 0.0;
-        final double lng = double.tryParse(job.longitude!) ?? 0.0;
-        final LatLng position = LatLng(lat, lng);
-
-        // Calculate distance from user's current location
-        double distanceInKm = 0.0;
-        if (_currentUserLocation != null) {
-          distanceInKm = _calculateDistance(
-              _currentUserLocation!.latitude,
-              _currentUserLocation!.longitude,
-              lat,
-              lng
-          );
-        } else {
-          distanceInKm = job.distance!;
-        }
-
-        // Create custom marker icon with sky blue color
-        final customMarkerIcon = await _createCustomMarker(job.title, distanceInKm);
-
-        markers.add(Marker(
-          markerId: MarkerId('job_${job.id}'),
-          position: position,
-          icon: customMarkerIcon ?? BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueCyan),
-          infoWindow: InfoWindow(
-            title: job.title,
-            snippet: '${distanceInKm.toStringAsFixed(1)} Km away • £${job.payPerHour}/hr',
-          ),
-          onTap: () {
-            // Optionally, you can handle marker tap here
-            print("Marker tapped: ${job.title}");
-          },
-        ));
-      }
-    } else {
-      print("Failed to fetch job locations or empty response.");
+      });
     }
   }
 
-  // Calculate distance between two coordinates using the Haversine formula
-  double _calculateDistance(double lat1, double lon1, double lat2, double lon2) {
-    const double earthRadius = 6371; // Radius of the earth in km
+  Future<void> fetchUserLocations(String latitude, String longitude) async {
+    try {
+      final GuardLocationResponse? guardResponse =
+          await myApiService.getLatestGuardLocations();
+
+      if (guardResponse == null) {
+        print('No guard locations response received');
+        return;
+      }
+
+      print('API response: ${guardResponse.data.length} guards found');
+
+      final newMarkers = <Marker>{};
+
+      if (_currentUserLocation != null) {
+        final userIcon = await _createUserMarker("assets/a.jpg");
+        newMarkers.add(
+          Marker(
+            markerId: const MarkerId('user_location'),
+            position: _currentUserLocation!,
+            icon: userIcon,
+            infoWindow: const InfoWindow(title: 'You (Contractor)'),
+          ),
+        );
+      }
+
+      for (final guardLocation in guardResponse.data) {
+        final LatLng position = guardLocation.location.latLng;
+
+        if (position.latitude == 0.0 && position.longitude == 0.0) continue;
+
+        // COMMENTED OUT API IMAGE CODE - USING ONLY ASSET IMAGES
+        // String guardImageUrl = guardLocation.guard.images.isNotEmpty
+        //     ? guardLocation.guard.profileImageUrl
+        //     : "assets/userpicture.jpg";
+
+        // ALWAYS use asset image for guards
+        String guardImageUrl = "assets/userpicture.jpg";
+
+        final customMarkerIcon = await _createCustomMarker(
+          guardImageUrl,
+          guardLocation.guard.name,
+        );
+
+        newMarkers.add(
+          Marker(
+            markerId: MarkerId('guard_${guardLocation.guard.id}'),
+            position: position,
+            icon: customMarkerIcon ??
+                BitmapDescriptor.defaultMarkerWithHue(
+                    BitmapDescriptor.hueGreen),
+            onTap: () => onMarkerTapped(guardLocation),
+          ),
+        );
+      }
+
+      await updateMarkersWithoutMovingCamera(newMarkers);
+    } catch (e) {
+      print("❌ Error fetching guard locations: $e");
+    }
+  }
+
+  String _formatTimeAgo(DateTime dateTime) {
+    final now = DateTime.now();
+    final difference = now.difference(dateTime);
+
+    if (difference.inMinutes < 1) return 'Just now';
+    if (difference.inMinutes < 60) return '${difference.inMinutes}m ago';
+    if (difference.inHours < 24) return '${difference.inHours}h ago';
+    return '${difference.inDays}d ago';
+  }
+
+  Future<void> refreshMap() async {
+    if (_currentUserLocation != null) {
+      await fetchUserLocations(
+        _currentUserLocation!.latitude.toStringAsFixed(4),
+        _currentUserLocation!.longitude.toStringAsFixed(4),
+      );
+    }
+  }
+
+  Future<void> centerOnUserLocation() async {
+    if (_currentUserLocation != null && mapController.value != null) {
+      await _safeAnimateCamera(
+        CameraUpdate.newLatLngZoom(_currentUserLocation!, 15.0),
+      );
+    }
+  }
+
+  void clearSelectedGuard() {
+    selectedGuard.value = null;
+  }
+
+  double _calculateDistance(
+      double lat1, double lon1, double lat2, double lon2) {
+    const double earthRadius = 6371;
     final double dLat = _degreesToRadians(lat2 - lat1);
     final double dLon = _degreesToRadians(lon2 - lon1);
 
     final double a = sin(dLat / 2) * sin(dLat / 2) +
-        cos(_degreesToRadians(lat1)) * cos(_degreesToRadians(lat2)) *
-            sin(dLon / 2) * sin(dLon / 2);
+        cos(_degreesToRadians(lat1)) *
+            cos(_degreesToRadians(lat2)) *
+            sin(dLon / 2) *
+            sin(dLon / 2);
 
     final double c = 2 * atan2(sqrt(a), sqrt(1 - a));
     return earthRadius * c;
@@ -261,16 +332,172 @@ class MapController extends GetxController {
     return degrees * pi / 180;
   }
 
-  // Create a custom marker icon with BitmapDescriptor
-  Future<BitmapDescriptor?> _createCustomMarker(String title, double distanceKm) async {
-    // Using default marker with sky blue color (hueCyan)
-    // For more customization, you would need to use BitmapDescriptor.fromAssetImage
-    // or create a custom widget and use BitmapDescriptor.fromBytes with RepaintBoundary
-    return BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueCyan);
+  Future<BitmapDescriptor> _createImageMarker(
+    String imageUrl, {
+    double size = 150,
+    String? overlayText,
+  }) async {
+    ui.Image? finalImage;
+    ui.Image? frameImage;
+
+    try {
+      Uint8List imageBytes;
+
+      // COMMENTED OUT NETWORK IMAGE LOADING - USING ONLY ASSET IMAGES
+      // if (imageUrl.startsWith('http')) {
+      //   try {
+      //     imageBytes =
+      //         (await NetworkAssetBundle(Uri.parse(imageUrl)).load(imageUrl))
+      //             .buffer
+      //             .asUint8List();
+      //   } catch (e) {
+      //     print("❌ Failed to load network image: $e, falling back to asset");
+      //     imageBytes = (await rootBundle.load("assets/userpicture.jpg"))
+      //         .buffer
+      //         .asUint8List();
+      //   }
+      // } else {
+      //   try {
+      //     imageBytes = (await rootBundle.load(imageUrl)).buffer.asUint8List();
+      //   } catch (e) {
+      //     print(
+      //         "❌ Failed to load asset image: $e, falling back to default asset");
+      //     imageBytes = (await rootBundle.load("assets/userpicture.jpg"))
+      //         .buffer
+      //         .asUint8List();
+      //   }
+      // }
+
+      // ALWAYS load from assets
+      try {
+        imageBytes = (await rootBundle.load(imageUrl)).buffer.asUint8List();
+        print("✅ Loaded asset image: $imageUrl");
+      } catch (e) {
+        print(
+            "❌ Failed to load asset image: $e, falling back to default asset");
+        imageBytes = (await rootBundle.load("assets/userpicture.jpg"))
+            .buffer
+            .asUint8List();
+      }
+
+      final ui.Codec codec = await ui.instantiateImageCodec(
+        imageBytes,
+        targetWidth: size.toInt(),
+        targetHeight: size.toInt(),
+      );
+      final ui.FrameInfo frameInfo = await codec.getNextFrame();
+      frameImage = frameInfo.image;
+
+      final bool hasBadge = overlayText != null && overlayText.isNotEmpty;
+      final double badgeHeight = 35.0;
+      final double badgeWidth = size * 0.9;
+      final double totalHeight = size + (hasBadge ? badgeHeight + 8 : 0);
+      final double totalWidth = size;
+
+      final ui.PictureRecorder recorder = ui.PictureRecorder();
+      final Canvas canvas = Canvas(recorder);
+
+      final double centerX = size / 2;
+      final double imageCenterY = size / 2;
+
+      final Paint circlePaint = Paint()..color = const Color(0xFF4CAF50);
+      canvas.drawCircle(Offset(centerX, imageCenterY), size / 2, circlePaint);
+
+      final Rect imageRect = Rect.fromCircle(
+        center: Offset(centerX, imageCenterY),
+        radius: (size / 2) - 4,
+      );
+
+      canvas.save();
+      canvas.clipPath(Path()..addOval(imageRect));
+      paintImage(
+        canvas: canvas,
+        rect: imageRect,
+        image: frameImage,
+        fit: BoxFit.cover,
+      );
+      canvas.restore();
+
+      if (hasBadge) {
+        final double badgeLeft = (size - badgeWidth) / 2;
+        final double badgeTop = size + 4;
+
+        final Paint badgePaint = Paint()..color = const Color(0xFF4CAF50);
+        final Rect badgeRect =
+            Rect.fromLTWH(badgeLeft, badgeTop, badgeWidth, badgeHeight);
+        canvas.drawRRect(
+          RRect.fromRectAndRadius(badgeRect, const Radius.circular(8)),
+          badgePaint,
+        );
+
+        final textStyle = ui.TextStyle(
+          color: Color(0xFFFFFFFF),
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+        );
+
+        final paragraphBuilder = ui.ParagraphBuilder(
+          ui.ParagraphStyle(
+            textAlign: TextAlign.center,
+            maxLines: 1,
+          ),
+        )
+          ..pushStyle(textStyle)
+          ..addText(overlayText!);
+
+        final paragraph = paragraphBuilder.build();
+        paragraph.layout(ui.ParagraphConstraints(width: badgeWidth - 8));
+
+        canvas.drawParagraph(
+          paragraph,
+          Offset(
+            badgeLeft + (badgeWidth - paragraph.width) / 2,
+            badgeTop + (badgeHeight - paragraph.height) / 2,
+          ),
+        );
+      }
+
+      finalImage = await recorder
+          .endRecording()
+          .toImage(totalWidth.toInt(), totalHeight.toInt());
+      final ByteData? pngBytes =
+          await finalImage.toByteData(format: ui.ImageByteFormat.png);
+
+      if (pngBytes == null) {
+        throw Exception('Failed to convert image to bytes');
+      }
+
+      print("✅ Guard marker created with badge: $overlayText");
+      return BitmapDescriptor.fromBytes(pngBytes.buffer.asUint8List());
+    } catch (e) {
+      print("❌ Error creating guard marker: $e");
+      return BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen);
+    } finally {
+      finalImage?.dispose();
+      frameImage?.dispose();
+    }
   }
 
+  Future<BitmapDescriptor> _createUserMarker(String imageUrl) async {
+    return await _createImageMarker(imageUrl, size: 160);
+  }
+
+  Future<BitmapDescriptor?> _createCustomMarker(
+      String imageUrl, String guardName) async {
+    return await _createImageMarker(
+      imageUrl,
+      size: 160,
+      overlayText: "🛡️ $guardName",
+    );
+  }
 
   void setMapController(GoogleMapController controller) {
     mapController.value = controller;
+    _applyMapStyle();
+
+    Future.delayed(Duration(milliseconds: 100), _applyMapStyle);
+    Future.delayed(Duration(milliseconds: 500), _applyMapStyle);
   }
+
+  CameraPosition? get currentCameraPosition => _currentCameraPosition;
 }
