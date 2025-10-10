@@ -58,6 +58,8 @@ dependencies:
   socket_io_client: ^3.1.2
   google_sign_in: ^7.1.1
   flutter_launcher_icons: ^0.14.4
+  flutter_image_compress: ^2.4.0
+  
 
 dev_dependencies:
   flutter_test:

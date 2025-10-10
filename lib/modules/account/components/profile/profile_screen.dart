@@ -86,7 +86,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Display Picture',
+                              'Profile Picture',
                               style: TextStyle(
                                 color: AppColors.kWhite,
                                 fontWeight: FontWeight.bold,

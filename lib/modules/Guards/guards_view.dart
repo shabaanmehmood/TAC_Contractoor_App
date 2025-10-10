@@ -126,7 +126,7 @@
 //     // Check both categoryName and premisesTypeName for Armed jobs
 //     String categoryLower = job.categoryName.toLowerCase();
 //     String premisesLower = job.premisesTypeName?.toLowerCase() ?? '';
-    
+
 //     if (categoryLower.contains('armed') || premisesLower.contains('armed')) {
 //       return 'Armed';
 //     } else if (categoryLower.contains('event') || premisesLower.contains('event')) {
@@ -271,7 +271,8 @@ class GuardsViewController extends GetxController {
   void onInit() {
     super.onInit();
     fetchJob();
-    _refreshTimer = Timer.periodic(const Duration(seconds: 90), (_) => fetchJob(forceRefresh: false));
+    _refreshTimer = Timer.periodic(
+        const Duration(seconds: 90), (_) => fetchJob(forceRefresh: false));
   }
 
   @override
@@ -289,7 +290,8 @@ class GuardsViewController extends GetxController {
       final response = await myApiService.getJobsList();
 
       if (response.statusCode == 200) {
-        final nearbyJobsResponse = NearbyJobsResponse.fromJson(jsonDecode(response.body));
+        final nearbyJobsResponse =
+            NearbyJobsResponse.fromJson(jsonDecode(response.body));
         jobList.value = nearbyJobsResponse.data;
 
         // Calculate distances only on first load or forced refresh
@@ -298,7 +300,8 @@ class GuardsViewController extends GetxController {
           isFirstLoad.value = false;
         }
       } else {
-        errorMessage.value = 'Failed to load jobs. Status code: ${response.statusCode}';
+        errorMessage.value =
+            'Failed to load jobs. Status code: ${response.statusCode}';
       }
     } catch (e) {
       errorMessage.value = 'Error fetching jobs: $e';
@@ -311,7 +314,8 @@ class GuardsViewController extends GetxController {
     for (var job in jobList) {
       if (!cachedDistances.containsKey(job.id)) {
         try {
-          final distance = await mapController.getJobLocation(job.latitude, job.longitude);
+          final distance =
+              await mapController.getJobLocation(job.latitude, job.longitude);
           cachedDistances[job.id] = distance;
         } catch (e) {
           debugPrint('Error calculating distance for job ${job.id}: $e');
@@ -336,7 +340,9 @@ class GuardsViewController extends GetxController {
 
     // Apply category filter
     if (selectedFilter.value != 'All') {
-      jobs = jobs.where((job) => _matchesCategoryFilter(job, selectedFilter.value)).toList();
+      jobs = jobs
+          .where((job) => _matchesCategoryFilter(job, selectedFilter.value))
+          .toList();
     }
 
     return jobs;
@@ -347,16 +353,17 @@ class GuardsViewController extends GetxController {
     switch (filter) {
       case 'Armed':
         return job.categoryName.toLowerCase().contains('armed') ||
-               job.title.toLowerCase().contains('armed') ||
-               (job.premisesTypeName?.toLowerCase().contains('armed') ?? false);
+            job.title.toLowerCase().contains('armed') ||
+            (job.premisesTypeName?.toLowerCase().contains('armed') ?? false);
       case 'Event':
         return job.categoryName.toLowerCase().contains('event') ||
-               job.title.toLowerCase().contains('event') ||
-               (job.premisesTypeName?.toLowerCase().contains('event') ?? false);
+            job.title.toLowerCase().contains('event') ||
+            (job.premisesTypeName?.toLowerCase().contains('event') ?? false);
       case 'Corporate':
         return job.categoryName.toLowerCase().contains('corporate') ||
-               job.title.toLowerCase().contains('corporate') ||
-               (job.premisesTypeName?.toLowerCase().contains('corporate') ?? false);
+            job.title.toLowerCase().contains('corporate') ||
+            (job.premisesTypeName?.toLowerCase().contains('corporate') ??
+                false);
       default:
         return true;
     }
@@ -365,14 +372,14 @@ class GuardsViewController extends GetxController {
   // Helper method to determine job category/department type
   String _getCategoryType(JobData job) {
     // Map job categories to filter types
-    if (job.categoryName.toLowerCase().contains('armed') || 
+    if (job.categoryName.toLowerCase().contains('armed') ||
         job.title.toLowerCase().contains('armed')) {
       return 'Armed';
-    } else if (job.categoryName.toLowerCase().contains('event') || 
-               job.title.toLowerCase().contains('event')) {
+    } else if (job.categoryName.toLowerCase().contains('event') ||
+        job.title.toLowerCase().contains('event')) {
       return 'Event';
-    } else if (job.categoryName.toLowerCase().contains('corporate') || 
-               job.title.toLowerCase().contains('corporate')) {
+    } else if (job.categoryName.toLowerCase().contains('corporate') ||
+        job.title.toLowerCase().contains('corporate')) {
       return 'Corporate';
     } else {
       return 'Other';
@@ -397,7 +404,8 @@ class GuardsViewController extends GetxController {
     return JobCardModel(
       jobTitle: job.title,
       perHourRate: '\$${job.payPerHour}/hr',
-      companyName: job.contractorName.isNotEmpty ? job.contractorName : 'Company',
+      companyName:
+          job.contractorName.isNotEmpty ? job.contractorName : 'Company',
       rating: '4.5', // Placeholder since rating isn't in API
       hiringTag: 'Hiring Now',
       jobType: job.categoryName,
@@ -413,7 +421,8 @@ class GuardsViewController extends GetxController {
 
   // Helper to get distance in miles
   Future<String> getDistanceInMiles(String latitude, String longitude) async {
-    double calculatedDistance = await mapController.getJobLocation(latitude, longitude);
+    double calculatedDistance =
+        await mapController.getJobLocation(latitude, longitude);
     return '${calculatedDistance.truncate()} mi away';
   }
 
@@ -469,21 +478,20 @@ class GuardsView extends StatelessWidget {
       backgroundColor: AppColors.kDarkBlue,
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: AppSpacing.twentyHorizontal),
+          padding:
+              EdgeInsets.symmetric(horizontal: AppSpacing.twentyHorizontal),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _appBar(context),
               SizedBox(height: AppSpacing.tenVertical),
-              Text('Find Jobs', style: AppTypography.kBold20.copyWith(
-                  color: AppColors.kWhite
-              )),
+              Text('Find Jobs',
+                  style:
+                      AppTypography.kBold20.copyWith(color: AppColors.kWhite)),
               SizedBox(height: AppSpacing.fiveVertical),
               _buildFilterChips(controller),
               SizedBox(height: AppSpacing.tenVertical),
-              Expanded(
-                  child: _buildJobList(controller)
-              ),
+              Expanded(child: _buildJobList(controller)),
             ],
           ),
         ),
@@ -510,28 +518,27 @@ class GuardsView extends StatelessWidget {
 
   Widget _buildFilterChip(String label, GuardsViewController controller) {
     return Obx(() => FilterChip(
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-          side: BorderSide(
-              color: AppColors.kSkyBlue
-          )
-      ),
-      label: Text(label),
-      selected: controller.selectedFilter.value == label,
-      onSelected: (bool selected) {
-        if (selected) {
-          controller.selectedFilter.value = label;
-        }
-      },
-      backgroundColor: AppColors.kDarkBlue,
-      selectedColor: AppColors.kSkyBlue,
-      disabledColor: AppColors.kDarkBlue,
-      showCheckmark: false,
-      surfaceTintColor: Colors.transparent,
-      labelStyle: AppTypography.kBold14.copyWith(
-        color: controller.selectedFilter.value == label ? Colors.white : AppColors.kSkyBlue,
-      ),
-    ));
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+              side: BorderSide(color: AppColors.kSkyBlue)),
+          label: Text(label),
+          selected: controller.selectedFilter.value == label,
+          onSelected: (bool selected) {
+            if (selected) {
+              controller.selectedFilter.value = label;
+            }
+          },
+          backgroundColor: AppColors.kDarkBlue,
+          selectedColor: AppColors.kSkyBlue,
+          disabledColor: AppColors.kDarkBlue,
+          showCheckmark: false,
+          surfaceTintColor: Colors.transparent,
+          labelStyle: AppTypography.kBold14.copyWith(
+            color: controller.selectedFilter.value == label
+                ? Colors.white
+                : AppColors.kSkyBlue,
+          ),
+        ));
   }
 
   Widget _buildJobList(GuardsViewController controller) {
@@ -542,7 +549,8 @@ class GuardsView extends StatelessWidget {
         );
       }
 
-      if (controller.errorMessage.value.isNotEmpty && controller.jobList.isEmpty) {
+      if (controller.errorMessage.value.isNotEmpty &&
+          controller.jobList.isEmpty) {
         return Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -560,7 +568,8 @@ class GuardsView extends StatelessWidget {
                 ),
                 child: Text(
                   'Retry',
-                  style: AppTypography.kBold14.copyWith(color: AppColors.kDarkBlue),
+                  style: AppTypography.kBold14
+                      .copyWith(color: AppColors.kDarkBlue),
                 ),
               ),
             ],
@@ -587,7 +596,8 @@ class GuardsView extends StatelessWidget {
         child: ListView.separated(
           itemCount: filteredJobs.length,
           physics: const AlwaysScrollableScrollPhysics(),
-          separatorBuilder: (context, index) => SizedBox(height: AppSpacing.fiveVertical),
+          separatorBuilder: (context, index) =>
+              SizedBox(height: AppSpacing.fiveVertical),
           itemBuilder: (context, index) {
             final jobData = filteredJobs[index];
             return FutureBuilder<JobCardModel>(
@@ -598,7 +608,8 @@ class GuardsView extends StatelessWidget {
                 } else if (snapshot.hasError) {
                   return Text(
                     'Error: ${snapshot.error}',
-                    style: AppTypography.kBold14.copyWith(color: AppColors.kWhite),
+                    style:
+                        AppTypography.kBold14.copyWith(color: AppColors.kWhite),
                   );
                 } else if (!snapshot.hasData) {
                   return const SizedBox();
@@ -622,7 +633,6 @@ class GuardsView extends StatelessWidget {
               },
             );
           },
-
         ),
       );
     });
@@ -755,20 +765,21 @@ Widget _appBar(BuildContext context) {
                     focusColor: AppColors.kPrimary,
                     color: AppColors.kPrimary,
                     icon: SvgPicture.asset(
-                        width: 35,
-                        height: 35,
-                        AppAssets.kAlerts
-                    ),
+                        width: 35, height: 35, AppAssets.kAlerts),
                     onPressed: () {
-                      Get.to<void>(() => NotificationScreen());                    },
+                      Get.to<void>(() => NotificationScreen());
+                    },
                   ),
                 ],
               ),
             ],
           ),
-          const SizedBox(width: 10,),
+          const SizedBox(
+            width: 10,
+          ),
           Obx(() {
-            final imagePath = userController.userData.value?.profileImages?.first.imageUrl;
+            final imagePath =
+                userController.userData.value?.profileImages?.first.image;
             // userController.userData.value?.profileImages?.first.imageUrl
             final imageUrl = MyApIService.fullImageUrl(imagePath);
             return Container(
@@ -787,7 +798,9 @@ Widget _appBar(BuildContext context) {
           }),
         ],
       ),
-      SizedBox(height: AppSpacing.tenVertical,),
+      SizedBox(
+        height: AppSpacing.tenVertical,
+      ),
       SearchField(
         isBorderBlue: false,
         isIconColorBlue: false,
@@ -806,4 +819,3 @@ Widget _appBar(BuildContext context) {
     ],
   );
 }
-

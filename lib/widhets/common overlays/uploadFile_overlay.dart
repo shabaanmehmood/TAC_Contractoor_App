@@ -221,16 +221,16 @@
 //     );
 //   }
 
-
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:taccontractor/data/data/constants/app_assets.dart';
+
 import 'package:taccontractor/data/data/constants/app_colors.dart';
 import 'package:taccontractor/data/data/constants/app_spacing.dart';
 import 'package:taccontractor/data/data/constants/app_typography.dart';
@@ -240,13 +240,14 @@ import '../../controllers/user_controller.dart';
 import '../../dataproviders/api_service.dart';
 import '../../models/profileImages_model.dart';
 import '../../models/userupdate_model.dart';
-import '../../routes/app_routes.dart';
+
 import 'package:mime/mime.dart';
 
 class UploadFileController extends GetxController {
   final ImagePicker imagePicker = ImagePicker();
   final UserController userController = Get.find<UserController>();
-  final AddLicenseController addLicenseController = Get.put(AddLicenseController());
+  final AddLicenseController addLicenseController =
+      Get.put(AddLicenseController());
 
   bool _isSupportedMimeType(String? mimeType) {
     return mimeType != null &&
@@ -258,7 +259,8 @@ class UploadFileController extends GetxController {
 
   /// Picks image from gallery and returns base64 string or file path
   Future<String?> pickImageFromGallery({bool returnBase64 = false}) async {
-    final XFile? file = await imagePicker.pickImage(source: ImageSource.gallery);
+    final XFile? file =
+        await imagePicker.pickImage(source: ImageSource.gallery);
 
     if (file == null) {
       debugPrint('No file selected from gallery.');
@@ -271,18 +273,63 @@ class UploadFileController extends GetxController {
       return null;
     }
 
+    // Get original file
+    final originalFile = File(file.path);
+    final originalSizeKB =
+        (originalFile.lengthSync() / 1024).toStringAsFixed(2);
+    print('🖼️ Original image size: $originalSizeKB KB');
+
+    // ✅ Compress image before encoding to Base64
+    final compressedFile = await _compressImage(originalFile);
+
+    if (compressedFile == null) {
+      debugPrint('⚠️ Image compression failed, using original file.');
+    }
+
+    final targetFile = compressedFile ?? originalFile;
+    final compressedSizeKB =
+        (targetFile.lengthSync() / 1024).toStringAsFixed(2);
+    print('📦 Compressed image size: $compressedSizeKB KB');
+
     if (returnBase64) {
-      final bytes = await File(file.path).readAsBytes();
+      final bytes = await targetFile.readAsBytes();
       final base64Data = base64Encode(bytes);
       final base64Image = 'data:$mimeType;base64,$base64Data';
 
       if (kDebugMode) {
-        print('Gallery file base64: $base64Image');
+        print('Gallery file base64 (compressed): $base64Image');
       }
 
       return base64Image;
     } else {
-      return file.path;
+      return targetFile.path;
+    }
+  }
+
+  Future<File?> _compressImage(File file) async {
+    try {
+      // Create temporary path for compressed image
+      final tempDir = Directory.systemTemp;
+      final targetPath =
+          '${tempDir.path}/compressed_${DateTime.now().millisecondsSinceEpoch}.jpg';
+
+      // Compress image
+      final XFile? result = await FlutterImageCompress.compressAndGetFile(
+        file.path,
+        targetPath,
+        quality: 60, // adjust between 40–80 as needed
+        minWidth: 800,
+        minHeight: 800,
+      );
+
+      if (result != null) {
+        return File(result.path);
+      } else {
+        return null;
+      }
+    } catch (e) {
+      debugPrint('Image compression error: $e');
+      return null;
     }
   }
 
@@ -291,28 +338,48 @@ class UploadFileController extends GetxController {
     final XFile? file = await imagePicker.pickImage(source: ImageSource.camera);
 
     if (file == null) {
-      debugPrint('No file captured from camera.');
+      debugPrint('❌ No file captured from camera.');
       return null;
     }
 
     final mimeType = lookupMimeType(file.path);
     if (!_isSupportedMimeType(mimeType)) {
-      debugPrint('Unsupported file type captured.');
+      debugPrint('❌ Unsupported file type captured.');
       return null;
     }
 
+    // ✅ Log original image size
+    final originalFile = File(file.path);
+    final originalSizeKB = originalFile.lengthSync() / 1024;
+    print('📸 Original image size: ${originalSizeKB.toStringAsFixed(2)} KB');
+
+    // ✅ Compress the image
+    final compressedFile = await _compressImage(originalFile);
+
+    if (compressedFile == null) {
+      debugPrint('⚠️ Image compression failed, using original file.');
+    }
+
+    final targetFile = compressedFile ?? originalFile;
+
+    // ✅ Log compressed image size
+    final compressedSizeKB = targetFile.lengthSync() / 1024;
+    print(
+        '🗜️ Compressed image size: ${compressedSizeKB.toStringAsFixed(2)} KB');
+
+    // ✅ Return Base64 if requested
     if (returnBase64) {
-      final bytes = await File(file.path).readAsBytes();
+      final bytes = await targetFile.readAsBytes();
       final base64Data = base64Encode(bytes);
       final base64Image = 'data:$mimeType;base64,$base64Data';
 
       if (kDebugMode) {
-        print('Camera file base64: $base64Image');
+        print('Camera file base64 (compressed): $base64Image');
       }
 
       return base64Image;
     } else {
-      return file.path;
+      return targetFile.path;
     }
   }
 
@@ -370,11 +437,12 @@ class UploadFileController extends GetxController {
       final userModel = UserUpdateModel(
         profileImages: [
           ProfileImages(
-            imageUrl: base64Image,
+            image: base64Image,
             isMain: true,
           ),
         ],
       );
+      print(userModel.toJson());
 
       final response = await apiService.updatePersonalInfo(
         userController.userData.value!.id!,
@@ -383,7 +451,8 @@ class UploadFileController extends GetxController {
 
       if (response.statusCode == 200) {
         debugPrint("Data from API: ${response.body}");
-        final userdata = await apiService.getUserByID(userController.userData.value!.id!);
+        final userdata =
+            await apiService.getUserByID(userController.userData.value!.id!);
         debugPrint('Raw user response: ${userdata.body}');
         Get.back();
       } else {
@@ -395,7 +464,8 @@ class UploadFileController extends GetxController {
   }
 
   /// Upload document file by path
-  Future<void> uploadDocument(String filePath, {String? userId, String? fileType}) async {
+  Future<void> uploadDocument(String filePath,
+      {String? userId, String? fileType}) async {
     final apiService = MyApIService();
 
     try {
@@ -419,7 +489,8 @@ class UploadFileController extends GetxController {
   }
 
   /// Show bottom sheet to pick image and return base64 or path
-  Future<String?> showUploadFileBottomSheet(BuildContext context, {bool returnBase64 = false, bool showPickFileOption = true}) async {
+  Future<String?> showUploadFileBottomSheet(BuildContext context,
+      {bool returnBase64 = false, bool showPickFileOption = true}) async {
     final UploadFileController controller = Get.put(UploadFileController());
 
     return await showModalBottomSheet<String>(
@@ -450,13 +521,15 @@ class UploadFileController extends GetxController {
                 children: [
                   Text(
                     "Upload File",
-                    style: AppTypography.kBold18.copyWith(color: AppColors.kWhite),
+                    style:
+                        AppTypography.kBold18.copyWith(color: AppColors.kWhite),
                   ),
                   GestureDetector(
                     onTap: () => Navigator.of(context).pop(null),
                     child: Text(
                       "Close",
-                      style: AppTypography.kBold16.copyWith(color: AppColors.kSkyBlue),
+                      style: AppTypography.kBold16
+                          .copyWith(color: AppColors.kSkyBlue),
                     ),
                   ),
                 ],
@@ -464,23 +537,25 @@ class UploadFileController extends GetxController {
               SizedBox(height: AppSpacing.tenVertical),
               // Upload from Gallery option
               _buildUploadOption("Upload from Gallery", () async {
-                final result = await controller.pickImageFromGallery(returnBase64: returnBase64);
+                final result = await controller.pickImageFromGallery(
+                    returnBase64: returnBase64);
                 Navigator.of(context).pop(result);
               }),
               Divider(color: AppColors.kSkyBlue),
               // Upload from Camera option
               _buildUploadOption("Upload from Camera", () async {
-                final result = await controller.pickImageFromCamera(returnBase64: returnBase64);
+                final result = await controller.pickImageFromCamera(
+                    returnBase64: returnBase64);
                 Navigator.of(context).pop(result);
               }),
-              if(showPickFileOption == true)
-                ...[
-                  Divider(color: AppColors.kSkyBlue),
-                  _buildUploadOption("Pick a File", () async {
-                    final result = await controller.pickFile(returnBase64: returnBase64);
-                    Navigator.of(context).pop(result);
-                  }),
-                ]
+              if (showPickFileOption == true) ...[
+                Divider(color: AppColors.kSkyBlue),
+                _buildUploadOption("Pick a File", () async {
+                  final result =
+                      await controller.pickFile(returnBase64: returnBase64);
+                  Navigator.of(context).pop(result);
+                }),
+              ]
             ],
           ),
         );
