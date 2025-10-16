@@ -695,7 +695,7 @@ class AvailableGuardsScreen extends StatelessWidget {
               height: Get.height * 0.05, ),
           SizedBox(width: 4),
           Text("Guards",
-              style: AppTypography.kBold24.copyWith(color: AppColors.kWhite)),
+              style: AppTypography.kBold21.copyWith(color: AppColors.kWhite)),
         ],
       ),
       Row(
@@ -759,6 +759,7 @@ class AvailableGuardsScreen extends StatelessWidget {
           final imageUrl = g.profilePicture.isEmpty
               ? null
               : '${MyApIService.imageBaseUrl}/${g.profilePicture}';
+              print(imageUrl);
 
           return Padding(
             padding: EdgeInsets.only(bottom: Get.height * 0.015),

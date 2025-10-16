@@ -210,7 +210,8 @@ class MessagesController extends GetxController {
           lastMessageText: lastMessage['text'] ?? '',
           lastMessageTimestamp: lastMessage['timestamp'] ?? '',
           isSeen: lastMessage['isSeen'] ?? false,
-          image: AppAssets.kTacLogo,
+          // image: partner['image'] ?? AppAssets.kTacLogo,
+          image:  AppAssets.kTacLogo,
         );
       }).toList();
 

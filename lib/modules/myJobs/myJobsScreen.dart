@@ -71,15 +71,20 @@ class _MyJobsScreenState extends State<MyJobsScreen> {
               children: [
                 Row(
                   children: [
-                    Image.asset(
-                      AppAssets.kTacLogo,
-                      height: Get.height * 0.05,
-                      width: Get.width * 0.2,
-                      fit: BoxFit.contain,
-                    ),
+                    // Image.asset(
+                    //   AppAssets.kTacLogo,
+                    //   height: Get.height * 0.05,
+                    //   width: Get.width * 0.2,
+                    //   fit: BoxFit.contain,
+                    // ),
+                      SizedBox(width: Get.height * 0.02),
+                    
+                         Image.asset(AppAssets.kTacLogo,
+              height: Get.height * 0.05,fit: BoxFit.contain, ),
+          SizedBox(width: 4),
                     Text(
                       "My Jobs",
-                      style: AppTypography.kBold24.copyWith(color: AppColors.kWhite),
+                      style: AppTypography.kBold20.copyWith(color: AppColors.kWhite),
                     ),
                   ],
                 ),

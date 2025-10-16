@@ -374,7 +374,7 @@ class UploadFileController extends GetxController {
       final base64Image = 'data:$mimeType;base64,$base64Data';
 
       if (kDebugMode) {
-        print('Camera file base64 (compressed): $base64Image');
+        print('Camera file base64ser_type (compressed): $base64Image');
       }
 
       return base64Image;

@@ -57,73 +57,84 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Column(
               children: [
                 // Display Picture Section
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: AppColors.kJobCardColor,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                          width: 48,
-                          height: 48,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            image: DecorationImage(
-                              image:
-                              // imageUrl != null
-                                  // ? NetworkImage(imageUrl) :
-                              AssetImage(AppAssets.kUserPicture),
-                            // as ImageProvider,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                      const SizedBox(width: 12),
-                      const Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Profile Picture',
-                              style: TextStyle(
-                                color: AppColors.kWhite,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
-                              ),
-                            ),
-                            SizedBox(height: 4),
-                            Text(
-                              'Upload a clear and recent profile picture (JPG, PNG, max: 5MB).',
-                              style: TextStyle(
-                                  color: AppColors.ktextlight, fontSize: 12),
-                            ),
-                          ],
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () async {
-                          final UploadFileController uploadFileController = Get.put(UploadFileController());
-                          String? base64image = await uploadFileController.showUploadFileBottomSheet(context, returnBase64: true, showPickFileOption: false);
-                          if (base64image != null) {
-                            await uploadFileController.updateFile(base64image);
-                          }
-                        },
-                        // onPressed: () {
-                        //   showUploadFileBottomSheet(context, true, false);
-                        // },
-                        child: const Text(
-                          'Update',
-                          style: TextStyle(
-                            color: AppColors.kSkyBlue,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
-                ),
+              Container(
+  padding: const EdgeInsets.all(16),
+  decoration: BoxDecoration(
+    color: AppColors.kJobCardColor,
+    borderRadius: BorderRadius.circular(12),
+  ),
+  child: Row(
+    children: [
+      Builder(
+        builder: (_) {
+          final profileImages = userController.userData.value?.profileImages;
+          final mainImage = profileImages?.firstWhereOrNull((img) => img.isMain == true);
+          final imageUrl = (mainImage?.image != null && mainImage!.image!.isNotEmpty)
+              ? '${MyApIService.imageBaseUrl}/${mainImage.image}'
+              : null;
+
+          return Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              image: DecorationImage(
+                image: imageUrl != null
+                    ? NetworkImage(imageUrl)
+                    :  AssetImage(AppAssets.kUserPicture) as ImageProvider,
+                fit: BoxFit.cover,
+              ),
+            ),
+          );
+        },
+      ),
+      const SizedBox(width: 12),
+      const Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Profile Picture',
+              style: TextStyle(
+                color: AppColors.kWhite,
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
+            ),
+            SizedBox(height: 4),
+            Text(
+              'Upload a clear and recent profile picture (JPG, PNG, max: 5MB).',
+              style: TextStyle(
+                  color: AppColors.ktextlight, fontSize: 12),
+            ),
+          ],
+        ),
+      ),
+      TextButton(
+        onPressed: () async {
+          final UploadFileController uploadFileController = Get.put(UploadFileController());
+          String? base64image = await uploadFileController.showUploadFileBottomSheet(
+            context,
+            returnBase64: true,
+            showPickFileOption: false,
+          );
+          if (base64image != null) {
+            await uploadFileController.updateFile(base64image);
+            userController.getUserData(); // refresh profile after upload
+          }
+        },
+        child: const Text(
+          'Update',
+          style: TextStyle(
+            color: AppColors.kSkyBlue,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      )
+    ],
+  ),
+),
+
                 const SizedBox(height: 12),
 
                 // Documents Section

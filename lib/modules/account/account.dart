@@ -19,7 +19,8 @@ class AccountScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final userController = Get.find<UserController>().obs;
+    // final userController = Get.find<UserController>().obs;
+    final UserController userController = Get.find<UserController>();
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
@@ -92,21 +93,44 @@ class AccountScreen extends StatelessWidget {
                         //     ),
                         //   );
                         // }),
-                        Container(
-                          width: 48,
-                          height: 48,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            image: DecorationImage(
-                              image:
-                              // imageUrl != null
-                              // ? NetworkImage(imageUrl) :
-                              AssetImage(AppAssets.kUserPicture),
-                              // as ImageProvider,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
+                        // Container(
+                        //   width: 48,
+                        //   height: 48,
+                        //   decoration: BoxDecoration(
+                        //     borderRadius: BorderRadius.circular(8),
+                        //     image: DecorationImage(
+                        //       image:
+                        //       // imageUrl != null
+                        //       // ? NetworkImage(imageUrl) :
+                        //       AssetImage(AppAssets.kUserPicture),
+                        //       // as ImageProvider,
+                        //       fit: BoxFit.cover,
+                        //     ),
+                        //   ),
+                        // ),
+                          Builder(
+        builder: (_) {
+          final profileImages = userController.userData.value?.profileImages;
+          final mainImage = profileImages?.firstWhereOrNull((img) => img.isMain == true);
+          final imageUrl = (mainImage?.image != null && mainImage!.image!.isNotEmpty)
+              ? '${MyApIService.imageBaseUrl}/${mainImage.image}'
+              : null;
+
+          return Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              image: DecorationImage(
+                image: imageUrl != null
+                    ? NetworkImage(imageUrl)
+                    :  AssetImage(AppAssets.kUserPicture) as ImageProvider,
+                fit: BoxFit.cover,
+              ),
+            ),
+          );
+        },
+      ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Column(
@@ -117,7 +141,7 @@ class AccountScreen extends StatelessWidget {
                                 children: [
                                   Expanded(
                                     child: Text(
-                                      userController.value.userData.value?.name ?? '',
+                                      userController.userData.value?.name ?? '',
                                       style: const TextStyle(
                                         color: Colors.white,
                                         fontSize: 18,
@@ -213,7 +237,7 @@ class AccountScreen extends StatelessWidget {
                     Icons.person,
                     'Manage your guards job applications',
                     // onTap: () => Get.to(() => ProfileScreen(),
-                    onTap: () => Get.to(() => JobApplicationsScreen(contractorId: userController.value.userData.value!.id!)
+                    onTap: () => Get.to(() => JobApplicationsScreen(contractorId: userController.userData.value!.id!)
                     ),
                   ),
                   buildCard(

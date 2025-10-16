@@ -176,10 +176,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:taccontractor/controllers/user_controller.dart';
 import 'package:taccontractor/data/data/constants/app_typography.dart';
 import 'package:taccontractor/data/data/constants/app_colors.dart';
 import 'package:taccontractor/data/data/constants/app_spacing.dart';
 import 'package:taccontractor/data/data/constants/app_assets.dart';
+import 'package:taccontractor/dataproviders/api_service.dart';
 import 'package:taccontractor/modules/Messages/socket_file.dart';
 import 'chat_screen.dart';
 import 'messages_controller.dart';
@@ -193,6 +195,8 @@ class MessagesScreen extends StatefulWidget {
 
 class _MessagesScreenState extends State<MessagesScreen> {
   final MessagesController controller = Get.put(MessagesController());
+   final UserController userController = Get.put(UserController());
+
 
   @override
   void initState() {
@@ -211,7 +215,29 @@ class _MessagesScreenState extends State<MessagesScreen> {
         elevation: 0,
         title: Row(
           children: [
-            Image.asset(AppAssets.kUserPicture, height: 35, width: 35),
+             Builder(
+        builder: (_) {
+          final profileImages = userController.userData.value?.profileImages;
+          final mainImage = profileImages?.firstWhereOrNull((img) => img.isMain == true);
+          final imageUrl = (mainImage?.image != null && mainImage!.image!.isNotEmpty)
+              ? '${MyApIService.imageBaseUrl}/${mainImage.image}'
+              : null;
+
+          return Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              image: DecorationImage(
+                image: imageUrl != null
+                    ? NetworkImage(imageUrl)
+                    :  AssetImage(AppAssets.kUserPicture) as ImageProvider,
+                fit: BoxFit.cover,
+              ),
+            ),
+          );
+        },
+      ),
             SizedBox(width: 8),
             Text('Messages',
                 style: AppTypography.kBold18.copyWith(color: Colors.white)),
@@ -307,6 +333,8 @@ class _MessagesScreenState extends State<MessagesScreen> {
                               time: formattedTime,
                             ));
                             print("User clicked: ${chat.partnerName}");
+                            print("User image: ${chat.image}");
+
                           },
                           child: Row(
                             children: [

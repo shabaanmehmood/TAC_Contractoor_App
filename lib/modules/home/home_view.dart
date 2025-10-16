@@ -200,7 +200,7 @@ class HomeView extends StatelessWidget {
                 Row(
                   children: [
                     Image.asset(
-                      AppAssets.kTacHomeScreenLogo,
+                      AppAssets.kTacLogo,
                       height: Get.height * 0.045,
                       fit: BoxFit.contain,
                     ),
@@ -235,17 +235,29 @@ class HomeView extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(width: 10),
-                Container(
-                  width: 34,
-                  height: 34,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(4),
-                    image: DecorationImage(
-                      image: AssetImage(AppAssets.kUserPicture),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
+                   Builder(
+        builder: (_) {
+          final profileImages = userController.userData.value?.profileImages;
+          final mainImage = profileImages?.firstWhereOrNull((img) => img.isMain == true);
+          final imageUrl = (mainImage?.image != null && mainImage!.image!.isNotEmpty)
+              ? '${MyApIService.imageBaseUrl}/${mainImage.image}'
+              : null;
+
+          return Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              image: DecorationImage(
+                image: imageUrl != null
+                    ? NetworkImage(imageUrl)
+                    :  AssetImage(AppAssets.kUserPicture) as ImageProvider,
+                fit: BoxFit.cover,
+              ),
+            ),
+          );
+        },
+      ),
               ],
             ),
             SizedBox(height: AppSpacing.tenVertical),
