@@ -539,6 +539,52 @@ class MyApIService {
   //
   //   return response;
   // }
+  Future<Map<String, dynamic>> deleteJob(String jobId) async {
+    try {
+      String functionUrl = 'jobs/$jobId';
+      final response = await http.delete(
+        Uri.parse(baseurl + functionUrl),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization':
+              'Bearer your-auth-token', // Add your auth token if needed
+        },
+      );
+      print(response.statusCode);
+      print(jobId);
+      if (response.statusCode == 200) {
+        return {
+          'success': true,
+          'message': 'Job deleted successfully',
+          'data': json.decode(response.body),
+        };
+      } else if (response.statusCode == 404) {
+        return {
+          'success': false,
+          'message': 'Job not found',
+          'error': 'Job with ID $jobId does not exist',
+        };
+      } else if (response.statusCode == 401) {
+        return {
+          'success': false,
+          'message': 'Unauthorized',
+          'error': 'Please login again',
+        };
+      } else {
+        return {
+          'success': false,
+          'message': 'Failed to delete job',
+          'error': 'Status code: ${response.statusCode}',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Network error',
+        'error': e.toString(),
+      };
+    }
+  }
 
   Future<http.Response> updatePersonalInfo(
       String userId, UserUpdateModel userModel) async {
