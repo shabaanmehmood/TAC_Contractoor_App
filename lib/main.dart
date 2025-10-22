@@ -123,6 +123,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart'; 
 
 
 // ✅ Top-level background handler
@@ -185,6 +186,14 @@ class Main extends StatelessWidget {
         defaultTransition: Transition.fadeIn,
         initialRoute: AppRoutes.splashScreen,
         getPages: AppRoutes.routes,
+
+             theme: ThemeData(
+  fontFamily: GoogleFonts.outfit().fontFamily,
+  textTheme: GoogleFonts.outfitTextTheme(),
+  primaryTextTheme: GoogleFonts.outfitTextTheme(),
+  useMaterial3: true,
+),
+
       ),
     );
   }
