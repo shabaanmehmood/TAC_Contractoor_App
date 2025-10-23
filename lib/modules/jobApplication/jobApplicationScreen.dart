@@ -163,9 +163,14 @@ class _JobApplicationsScreenState extends State<JobApplicationsScreen> with Sing
 
   Widget _buildTabContent(List<JobApplicationModel> apps, String status, bool showActions) {
     final filtered = _filterByStatus(apps, status);
+
+    
     if (filtered.isEmpty) {
-      return Center(child: Text('No $status applications'));
-    }
+                    return Center(
+                        child: Text('No $status applications',
+                            style: AppTypography.kBold16.copyWith(color: AppColors.kWhite)));
+                  }
+
     return RefreshIndicator(
       displacement: Get.height * 0.2,
       onRefresh: _refresh,

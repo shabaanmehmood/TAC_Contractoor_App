@@ -84,7 +84,7 @@ class _MyJobsScreenState extends State<MyJobsScreen> {
           SizedBox(width: 4),
                     Text(
                       "My Jobs",
-                      style: AppTypography.kBold20.copyWith(color: AppColors.kWhite),
+                      style: AppTypography.kBold18.copyWith(color: AppColors.kWhite),
                     ),
                   ],
                 ),
@@ -188,7 +188,7 @@ class _MyJobsScreenState extends State<MyJobsScreen> {
                         ),
                         child: Text(
                           tabs[index],
-                          style: AppTypography.kBold16.copyWith(
+                          style: AppTypography.kBold14.copyWith(
                             color: isSelected ? AppColors.kBlack : AppColors.kWhite,
                           ),
                         ),
@@ -224,6 +224,13 @@ class _MyJobsScreenState extends State<MyJobsScreen> {
                   default:
                     filteredJobs = controller.getJobsByStatus("open");
                 }
+              
+
+                if (filteredJobs.isEmpty) {
+                    return Center(
+                        child: Text("No Jobs found",
+                            style: AppTypography.kBold16.copyWith(color: AppColors.kWhite)));
+                  }
                 return ListView.separated(
                   separatorBuilder: (context, index) => SizedBox(height: Get.height * 0.02),
                   itemCount: filteredJobs.length,

@@ -695,7 +695,7 @@ class AvailableGuardsScreen extends StatelessWidget {
               height: Get.height * 0.05, ),
           SizedBox(width: 4),
           Text("Guards",
-              style: AppTypography.kBold21.copyWith(color: AppColors.kWhite)),
+              style: AppTypography.kBold18.copyWith(color: AppColors.kWhite)),
         ],
       ),
       Row(

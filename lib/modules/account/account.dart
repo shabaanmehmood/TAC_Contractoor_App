@@ -395,7 +395,7 @@ class AccountScreen extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Image.asset(AppAssets.kTacLogo, width: 24, height: 24),
+                Image.asset(AppAssets.kTacLogo, width: 34, height: 34),
                 const SizedBox(width: 8),
                 Text(
                   'Account',
