@@ -11,77 +11,80 @@ Widget activeDetailsWidget(MyjobsModel job) {
       children: [
         SizedBox(height: Get.height * 0.02),
         // Guards Hired & Positions Open
-        Row(
-          children: [
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: Get.height * 0.02),
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: Get.width * 0.04, vertical: Get.width * 0.03),
-                decoration: BoxDecoration(
-                  color: AppColors.kinput.withOpacity(0.5),
-                  borderRadius: BorderRadius.circular(Get.width * 0.01),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          (job.noOfGuardsRequired ?? 0).toString(),
-                          style: AppTypography.kBold24.copyWith(color: AppColors.kSkyBlue),
-                        ),
-                        SizedBox(height: 4),
-                        Text('Guards Required', style: AppTypography.kBold14.copyWith(color: AppColors.kWhite)),
-                      ],
-                    ),
-                    CircleAvatar(
-                      radius: 15,
-                      backgroundColor: Colors.transparent,
-                      child: ClipOval(
-                        child: Image.asset("assets/userpicture.jpg", width: 30, height: 30, fit: BoxFit.cover),
+      SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: Get.height * 0.02),
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: Get.width * 0.04, vertical: Get.width * 0.03),
+                  decoration: BoxDecoration(
+                    color: AppColors.kinput.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(Get.width * 0.01),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            (job.noOfGuardsRequired ?? 0).toString(),
+                            style: AppTypography.kBold24.copyWith(color: AppColors.kSkyBlue),
+                          ),
+                          SizedBox(height: 4),
+                          Text('Guards Required', style: AppTypography.kBold14.copyWith(color: AppColors.kWhite)),
+                        ],
                       ),
-                    ),
-                  ],
+                      CircleAvatar(
+                        radius: 15,
+                        backgroundColor: Colors.transparent,
+                        child: ClipOval(
+                          child: Image.asset("assets/userpicture.jpg", width: 30, height: 30, fit: BoxFit.cover),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: Get.height * 0.01),
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: Get.width * 0.04, vertical: Get.width * 0.03),
-                decoration: BoxDecoration(
-                  color: AppColors.kinput.withOpacity(0.5),
-                  borderRadius: BorderRadius.circular(Get.width * 0.01),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          (job.noOfGuardsRequired ?? 0).toString(),
-                          style: AppTypography.kBold24.copyWith(color: AppColors.kalert),
-                        ),
-                        SizedBox(height: 4),
-                        Text('Positions Open', style: AppTypography.kBold14.copyWith(color: AppColors.kWhite)),
-                      ],
-                    ),
-                    CircleAvatar(
-                      radius: 15,
-                      backgroundColor: Colors.transparent,
-                      child: ClipOval(
-                        child: Image.asset("assets/userpicture.jpg", width: 30, height: 30, fit: BoxFit.cover),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: Get.height * 0.01),
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: Get.width * 0.04, vertical: Get.width * 0.03),
+                  decoration: BoxDecoration(
+                    color: AppColors.kinput.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(Get.width * 0.01),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            (job.noOfGuardsRequired ?? 0).toString(),
+                            style: AppTypography.kBold24.copyWith(color: AppColors.kalert),
+                          ),
+                          SizedBox(height: 4),
+                          Text('Positions Open', style: AppTypography.kBold14.copyWith(color: AppColors.kWhite)),
+                        ],
                       ),
-                    ),
-                  ],
+                      CircleAvatar(
+                        radius: 15,
+                        backgroundColor: Colors.transparent,
+                        child: ClipOval(
+                          child: Image.asset("assets/userpicture.jpg", width: 30, height: 30, fit: BoxFit.cover),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         SizedBox(height: Get.height * 0.02),
         // Job Description & Responsibilities
