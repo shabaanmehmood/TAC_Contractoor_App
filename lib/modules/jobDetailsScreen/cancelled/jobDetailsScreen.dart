@@ -5,6 +5,7 @@ import 'package:taccontractor/data/data/constants/app_colors.dart';
 import 'package:taccontractor/data/data/constants/app_typography.dart';
 import 'package:taccontractor/modules/jobDetailsScreen/cancelled/details.dart';
 import 'package:taccontractor/modules/jobDetailsScreen/cancelled/guards.dart';
+import 'package:taccontractor/modules/jobDetailsScreen/cancelled/invoice.dart';
 import 'package:taccontractor/modules/jobDetailsScreen/cancelled/shift.dart';
 import 'package:taccontractor/modules/jobDetailsScreen/cancelled/timelines.dart';
 
@@ -78,21 +79,79 @@ Widget build(BuildContext context) {
             color: AppColors.kgrey,
           ),
 
-          /// Job ID and Status
-          Padding(
-            padding: EdgeInsets.symmetric(
-                horizontal: Get.height * 0.02, vertical: Get.height * 0.02),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildStatusChip(
-                  widget.job.jobStatus?.toUpperCase() ?? "",
-                  AppColors.kblueCard.withOpacity(0.5),
-                  AppColors.kblueCard,
-                ),
-              ],
+          // /// Job ID and Status
+          // Padding(
+          //   padding: EdgeInsets.symmetric(
+          //       horizontal: Get.height * 0.02, vertical: Get.height * 0.02),
+          //   child: Row(
+          //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //     children: [
+          //       _buildStatusChip(
+          //         widget.job.jobStatus?.toUpperCase() ?? "",
+          //         AppColors.kblueCard.withOpacity(0.5),
+          //         AppColors.kblueCard,
+          //       ),
+          //     ],
+          //   ),
+          // ),
+
+            /// Invoice Button and Job Status
+            Padding(
+              padding: EdgeInsets.symmetric(
+                  horizontal: Get.height * 0.02, vertical: Get.height * 0.02),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Left side - Invoice Button (only show if invoices exist)
+                  if (widget.job.invoices.isNotEmpty)
+                GestureDetector(
+                   onTap: (){
+                          Get.to(() => CancelledInvoiceScreen(job: widget.job));
+                        },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: Get.width * 0.04,
+                          vertical: Get.width * 0.02,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.kSkyBlue.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(Get.width * 0.02),
+                          border: Border.all(
+                            color: AppColors.kSkyBlue,
+                            width: 1.5,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.receipt_long,
+                              color: AppColors.kSkyBlue,
+                              size: 18,
+                            ),
+                            SizedBox(width: 6),
+                            Text(
+                              'View Invoice',
+                              style: AppTypography.kBold14.copyWith(
+                                color: AppColors.kSkyBlue,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  else
+                    SizedBox.shrink(),
+
+                  // Right side - Job Status
+                  _buildStatusChip(
+                    widget.job.jobStatus?.toUpperCase() ?? "",
+                    AppColors.kblueCard.withOpacity(0.5),
+                    AppColors.kblueCard,
+                  ),
+                ],
+              ),
             ),
-          ),
 
           /// Job Title & Pay
           Padding(

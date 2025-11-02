@@ -6,6 +6,7 @@ import 'package:taccontractor/data/data/constants/app_typography.dart';
 import 'package:taccontractor/dataproviders/api_service.dart';
 import 'package:taccontractor/modules/jobDetailsScreen/active/details.dart';
 import 'package:taccontractor/modules/jobDetailsScreen/active/guards.dart';
+import 'package:taccontractor/modules/jobDetailsScreen/active/invoice.dart';
 import 'package:taccontractor/modules/jobDetailsScreen/active/shift.dart';
 import 'package:taccontractor/modules/jobDetailsScreen/active/timelines.dart';
 import '../../../models/myJobs_model.dart';
@@ -188,16 +189,74 @@ class _ContractorActiveJobDetailsScreenState
               color: AppColors.kgrey,
             ),
             // Job Status (uppercase)
+            // Padding(
+            //   padding: EdgeInsets.symmetric(
+            //       horizontal: Get.height * 0.02, vertical: Get.height * 0.02),
+            //   child: Row(
+            //     mainAxisAlignment: MainAxisAlignment.end,
+            //     children: [
+            //       _buildStatusChip(
+            //           widget.job.jobStatus?.toUpperCase() ?? "",
+            //           AppColors.kblueCard.withOpacity(0.5),
+            //           AppColors.kblueCard),
+            //     ],
+            //   ),
+            // ),
+
+              /// Invoice Button and Job Status
             Padding(
               padding: EdgeInsets.symmetric(
                   horizontal: Get.height * 0.02, vertical: Get.height * 0.02),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  // Left side - Invoice Button (only show if invoices exist)
+                  if (widget.job.invoices.isNotEmpty)
+                GestureDetector(
+                   onTap: (){
+                          Get.to(() => ActiveInvoiceScreen(job: widget.job));
+                        },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: Get.width * 0.04,
+                          vertical: Get.width * 0.02,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.kSkyBlue.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(Get.width * 0.02),
+                          border: Border.all(
+                            color: AppColors.kSkyBlue,
+                            width: 1.5,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.receipt_long,
+                              color: AppColors.kSkyBlue,
+                              size: 18,
+                            ),
+                            SizedBox(width: 6),
+                            Text(
+                              'View Invoice',
+                              style: AppTypography.kBold14.copyWith(
+                                color: AppColors.kSkyBlue,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  else
+                    SizedBox.shrink(),
+
+                  // Right side - Job Status
                   _buildStatusChip(
-                      widget.job.jobStatus?.toUpperCase() ?? "",
-                      AppColors.kblueCard.withOpacity(0.5),
-                      AppColors.kblueCard),
+                    widget.job.jobStatus?.toUpperCase() ?? "",
+                    AppColors.kblueCard.withOpacity(0.5),
+                    AppColors.kblueCard,
+                  ),
                 ],
               ),
             ),
