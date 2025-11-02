@@ -214,22 +214,98 @@ class _JobApplicationsScreenState extends State<JobApplicationsScreen> with Sing
                   ),
                   SizedBox(height: Get.height * 0.01),
 
-                  // Location & Premises Type
-                  Row(
-                    children: [
-                      Icon(Icons.location_on, color: AppColors.kgrey, size: 18),
-                      SizedBox(width: 5),
-                      Text(
-                        app.job.location,
-                        style: AppTypography.kLight14.copyWith(color: AppColors.kgrey),
-                      ),
-                      Spacer(),
-                      Text(
-                        app.job.premisesType.name,
-                        style: AppTypography.kLight14.copyWith(color: AppColors.kgrey),
-                      ),
-                    ],
-                  ),
+                  // // Location & Premises Type
+                  // Row(
+                  //   children: [
+                  //     Icon(Icons.location_on, color: AppColors.kgrey, size: 18),
+                  //     SizedBox(width: 5),
+                  //     Text(
+                  //       app.job.location,
+                  //       style: AppTypography.kLight14.copyWith(color: AppColors.kgrey),
+                  //     ),
+                  //     Spacer(),
+                  //     Text(
+                  //       app.job.premisesType.name,
+                  //       style: AppTypography.kLight14.copyWith(color: AppColors.kgrey),
+                  //     ),
+                  //   ],
+                  // ),
+
+                     /// ✅ Location & Premises Row (no overflow, scrolls horizontally)
+// Row(
+
+//   children: [
+//     const Icon(Icons.location_on, color: AppColors.kgrey, size: 18),
+//     const SizedBox(width: 5),
+
+//     // 🏠 Location text with ellipsis
+//     Expanded(
+//       child: Text(
+//         app.job.location,
+//         overflow: TextOverflow.ellipsis,
+//         maxLines: 1,
+//         style: AppTypography.kLight14.copyWith(
+//           color: AppColors.kgrey,
+          
+//         ),
+//       ),
+//     ),
+
+//     Spacer(),
+
+//     // 🏢 Premises type with ellipsis
+//     Text(
+//       app.job.premisesType.name,
+//       overflow: TextOverflow.ellipsis,
+//       maxLines: 1,
+//       style: AppTypography.kLight14.copyWith(
+//         color: AppColors.kgrey,
+//       ),
+//     ),
+//   ],
+// ),
+     /// ✅ Location & Premises Row (smart ellipsis, right-aligned premises)
+LayoutBuilder(
+  builder: (context, constraints) {
+    return Row(
+      children: [
+        const Icon(Icons.location_on, color: AppColors.kgrey, size: 18),
+        const SizedBox(width: 5),
+
+        // 🏠 Location text that truncates only when needed
+        Expanded(
+          child: Text(
+            app.job.location,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTypography.kLight14.copyWith(
+              color: AppColors.kgrey,
+            ),
+          ),
+        ),
+
+        const SizedBox(width: 8),
+
+        // 🏢 Premises type — pinned to right edge, never truncated
+        ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: constraints.maxWidth * 0.35, // up to 35% of row width
+          ),
+          child: Text(
+            app.job.premisesType.name,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.right,
+            style: AppTypography.kLight14.copyWith(
+              color: AppColors.kgrey,
+            ),
+          ),
+        ),
+      ],
+    );
+  },
+),
+
                   SizedBox(height: Get.height * 0.008),
 
                   // Date & Time

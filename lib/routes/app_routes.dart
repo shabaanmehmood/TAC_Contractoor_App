@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/routes/get_route.dart';
+import 'package:taccontractor/modules/BiometricLockScreen/biometric_lock_screen.dart';
 import 'package:taccontractor/modules/Guards/guards_view.dart';
 import 'package:taccontractor/modules/Guards/job_details/job_details_screen.dart';
 import 'package:taccontractor/modules/account/account.dart';
@@ -28,13 +29,23 @@ class AppRoutes {
   static String settings = '/settings';
   static String profile = '/profile';
   static String guards = '/guards';
-  
+  static const biometricLock = '/biometric-lock';
+
+
 
   static List<GetPage> routes = [
     GetPage<Route<dynamic>>(
       name: splashScreen,
       page: () =>SplashScreen(),
     ),
+
+    // In your routes list:
+      GetPage(
+        name: biometricLock,
+        page: () => const BiometricLockScreen(),
+      ),
+  
+  
     GetPage<Route<dynamic>>(
       name: onboarding,
       page: () =>OnboardingView(),

@@ -120,7 +120,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           );
           if (base64image != null) {
             await uploadFileController.updateFile(base64image);
-            userController.getUserData(); // refresh profile after upload
+            // userController.getUserData(); // refresh profile after upload
           }
         },
         child: const Text(

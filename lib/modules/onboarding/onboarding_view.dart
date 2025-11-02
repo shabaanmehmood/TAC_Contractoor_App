@@ -239,7 +239,7 @@ class OnboardingView extends StatelessWidget {
             Positioned(
               top: Get.height * 0.08,
               child: Image.asset(
-                AppAssets.kTacHomeScreenLogo,
+                AppAssets.kTacLogo,
                 height: Get.height * 0.07,
                 width: Get.width * 0.25,
                 fit: BoxFit.contain,

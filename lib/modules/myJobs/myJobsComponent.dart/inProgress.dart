@@ -49,21 +49,63 @@ import '../../jobDetailsScreen/inProgress/jobDetailsScreen.dart';
             SizedBox(height: Get.height * 0.01),
 
             /// Location & Radius
-            Row(
-              children: [
-                Icon(Icons.location_on, color: AppColors.kgrey, size: 18),
-                SizedBox(width: 5),
-                Text(
-                  job.jobLocation,
-                  style: AppTypography.kLight14.copyWith(color: AppColors.kgrey),
-                ),
-                Spacer(),
-                Text(
-                  job.premisesTypeName,
-                  style: AppTypography.kLight14.copyWith(color: AppColors.kgrey),
-                ),
-              ],
+            // Row(
+            //   children: [
+            //     Icon(Icons.location_on, color: AppColors.kgrey, size: 18),
+            //     SizedBox(width: 5),
+            //     Text(
+            //       job.jobLocation,
+            //       style: AppTypography.kLight14.copyWith(color: AppColors.kgrey),
+            //     ),
+            //     Spacer(),
+            //     Text(
+            //       job.premisesTypeName,
+            //       style: AppTypography.kLight14.copyWith(color: AppColors.kgrey),
+            //     ),
+            //   ],
+            // ),
+             /// ✅ Location & Premises Row (smart ellipsis, right-aligned premises)
+LayoutBuilder(
+  builder: (context, constraints) {
+    return Row(
+      children: [
+        const Icon(Icons.location_on, color: AppColors.kgrey, size: 18),
+        const SizedBox(width: 5),
+
+        // 🏠 Location text that truncates only when needed
+        Expanded(
+          child: Text(
+            job.jobLocation,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTypography.kLight14.copyWith(
+              color: AppColors.kgrey,
             ),
+          ),
+        ),
+
+        const SizedBox(width: 8),
+
+        // 🏢 Premises type — pinned to right edge, never truncated
+        ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: constraints.maxWidth * 0.35, // up to 35% of row width
+          ),
+          child: Text(
+            job.premisesTypeName,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.right,
+            style: AppTypography.kLight14.copyWith(
+              color: AppColors.kgrey,
+            ),
+          ),
+        ),
+      ],
+    );
+  },
+),
+
             SizedBox(height: Get.height * 0.008),
 
             /// Date & Time

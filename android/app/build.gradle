@@ -8,7 +8,6 @@ plugins {
     id "dev.flutter.flutter-gradle-plugin"
 }
 
-
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file("local.properties")
 if (localPropertiesFile.exists()) {
@@ -52,10 +51,10 @@ android {
     }
     signingConfigs {
         debug {
-            storeFile file("contractor.jks")
-            storePassword "12345678"
-            keyAlias "contractor"
-            keyPassword "12345678"
+            // storeFile file("contractor.jks")
+            // storePassword "12345678"
+            // keyAlias "contractor"
+            // keyPassword "12345678"
         }
     }
 

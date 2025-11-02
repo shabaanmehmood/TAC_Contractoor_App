@@ -60,6 +60,7 @@
 	</dict>
 	</array>
 
-
+    <key>NSFaceIDUsageDescription</key>
+    <string>We need to use Face ID to authenticate you</string>
 </dict>
 </plist>

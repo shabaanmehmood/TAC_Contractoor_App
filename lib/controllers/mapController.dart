@@ -501,3 +501,5 @@ class MapController extends GetxController {
 
   CameraPosition? get currentCameraPosition => _currentCameraPosition;
 }
+
+
