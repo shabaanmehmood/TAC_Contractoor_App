@@ -2,8 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>GOOGLE_MAPS_API_KEY</key>
-    <string>$(GOOGLE_MAPS_API_KEY)</string>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
@@ -22,14 +22,54 @@
 	<string>$(FLUTTER_BUILD_NAME)</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
+
+	<!-- URL Schemes for Google Sign-In -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.419940175084-tlfsj4aioparlj8n3cgnptci4lc3bvp9</string>
+			</array>
+		</dict>
+	</array>
+
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>GOOGLE_MAPS_API_KEY</key>
+	<string>AIzaSyD7lvWPdHrbB3q_1B3wZxzJiJPa083cO6I</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+
+	<!-- Location / Camera / Photo / Tracking Permissions -->
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>We use your location to provide nearby job updates even when the app is in the background.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>This app requires camera access to take photos</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>This app needs access to location when in the background to update your location on the map.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>We need your location to show nearby places</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>This app requires photo library access to select pictures</string>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>This app tracks your activity for analytics</string>
+
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>location</string>
+		<string>remote-notification</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
+
+	<!-- Supported orientations -->
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
@@ -43,24 +83,27 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>CADisableMinimumFrameDurationOnPhone</key>
-	<true/>
-	<key>UIApplicationSupportsIndirectInputEvents</key>
-	<true/>
 
-	<key>CFBundleURLTypes</key>
+	<!-- Apple Sign-In permissions -->
+	<key>ASAuthorizationAppleID</key>
+	<true/>
+	<key>CFBundleDocumentTypes</key>
 	<array>
-	<dict>
-		<key>CFBundleTypeRole</key>
-		<string>Editor</string>
-		<key>CFBundleURLSchemes</key>
-		<array>
-		 <string>com.googleusercontent.apps.129556296565-2qg4ec7s4466l2k77m51a9ig28ndhmdu</string>
-		</array>
-	</dict>
+		<dict>
+			<key>CFBundleTypeName</key>
+			<string>Sign in with Apple</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>public.data</string>
+			</array>
+		</dict>
 	</array>
+
 
     <key>NSFaceIDUsageDescription</key>
     <string>We need to use Face ID to authenticate you</string>
+
 </dict>
 </plist>

@@ -34,7 +34,6 @@
 // //   TextEditingController passwordController = TextEditingController();
 
 // //   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  
 
 // //   void togglePasswordView() {
 // //     passwordVisible.value = !passwordVisible.value;
@@ -109,7 +108,6 @@
 //   final String rememberEmailKey = AppConstants.rememberEmailKey;
 //   final String rememberPasswordKey = AppConstants.rememberPasswordKey;
 //   final String loginTimeKey = AppConstants.loginTimeKey;
-
 
 //   void togglePasswordView() {
 //     passwordVisible.value = !passwordVisible.value;
@@ -205,7 +203,7 @@
 //           await prefs.setInt(loginTimeKey, DateTime.now().millisecondsSinceEpoch);
 //           // Get.offAllNamed(AppRoutes.getLandingPageRoute());
 //           Get.offAllNamed(AppRoutes.getLandingPageRoute());
-    
+
 //           return true;
 //         }
 //       }
@@ -222,7 +220,7 @@
 
 //   Future<void> submitSignIn(BuildContext context, String? fcmToken, {bool autoLogin = false}) async {
 //     if (autoLogin || formKey.currentState!.validate()) {
-    
+
 //       final apiService = MyApIService();
 
 //       try {
@@ -271,14 +269,11 @@
 //           );
 //         }
 //       }
-      
+
 //     }
 //   }
 
-
 // }
-
-
 
 // class SignInView extends StatelessWidget {
 //   final SignInViewController controller = Get.put(SignInViewController());
@@ -386,7 +381,7 @@
 //                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
 //                         children: [
 //                           Flexible(
-//                             child: 
+//                             child:
 //                             // CheckboxListTile(
 //                             //   value: false,
 //                             //   onChanged: (value) {
@@ -434,7 +429,6 @@
 //                         text: 'Login',
 //                       ),
 
-                         
 //                       SizedBox(height: AppSpacing.twentyVertical,),
 //                       Center(
 //                         child: Text(
@@ -525,7 +519,7 @@
 //                       ),
 //                         ],
 //                       ),
-                     
+
 //                     ],
 //                   ),
 //                 ),
@@ -537,7 +531,6 @@
 //     );
 //   }
 // }
-
 
 import 'dart:convert';
 import 'dart:ffi';
@@ -553,6 +546,7 @@ import 'package:taccontractor/data/data/constants/constants.dart';
 import 'package:taccontractor/modules/Jobs/Create%20Jobs/setJobDetailsScreen.dart';
 import 'package:taccontractor/modules/account/components/logoutConstant.dart';
 import 'package:taccontractor/modules/account/components/session_logout_controller.dart';
+import 'package:taccontractor/modules/auth/auth_controller/appld_signin_controller.dart';
 import 'package:taccontractor/modules/auth/auth_controller/google_signin_controller.dart';
 import 'package:taccontractor/modules/auth/forget_password.dart';
 import 'package:taccontractor/routes/app_routes.dart';
@@ -627,7 +621,8 @@ class SignInViewController extends GetxController {
     final loginTimestamp = prefs.getInt(loginTimeKey);
     final now = DateTime.now().millisecondsSinceEpoch;
 
-    if (loginTimestamp != null && (now  - loginTimestamp <= 7 * 24 * 60 * 60 * 1000)) {
+    if (loginTimestamp != null &&
+        (now - loginTimestamp <= 7 * 24 * 60 * 60 * 1000)) {
       final rememberedEmail = prefs.getString(rememberEmailKey);
       final rememberedPassword = prefs.getString(rememberPasswordKey);
 
@@ -635,7 +630,7 @@ class SignInViewController extends GetxController {
         emailController.text = rememberedEmail;
         passwordController.text = rememberedPassword;
 
-        await submitSignIn(Get.context!, fcmToken,  autoLogin: true);
+        await submitSignIn(Get.context!, fcmToken, autoLogin: true);
       }
     } else {
       await prefs.remove(rememberEmailKey);
@@ -650,50 +645,52 @@ class SignInViewController extends GetxController {
   }
 
 // in SignInViewController class
-Future<bool> checkAutoLoginAndRedirect() async {
-  final prefs = await SharedPreferences.getInstance();
-  final loginTimestamp = prefs.getInt(loginTimeKey);
-  final now = DateTime.now().millisecondsSinceEpoch;
+  Future<bool> checkAutoLoginAndRedirect() async {
+    final prefs = await SharedPreferences.getInstance();
+    final loginTimestamp = prefs.getInt(loginTimeKey);
+    final now = DateTime.now().millisecondsSinceEpoch;
 
-  if (loginTimestamp != null && (now - loginTimestamp <= 7 * 24 * 60 * 60 * 1000)) {
-    final rememberedEmail = prefs.getString(rememberEmailKey);
-    final rememberedPassword = prefs.getString(rememberPasswordKey);
+    if (loginTimestamp != null &&
+        (now - loginTimestamp <= 7 * 24 * 60 * 60 * 1000)) {
+      final rememberedEmail = prefs.getString(rememberEmailKey);
+      final rememberedPassword = prefs.getString(rememberPasswordKey);
 
-    if (rememberedEmail != null && rememberedPassword != null) {
-      // Ensure FCM token is fetched before proceeding
-      if (fcmToken == null) {
-        await _initFCM();
-      }
+      if (rememberedEmail != null && rememberedPassword != null) {
+        // Ensure FCM token is fetched before proceeding
+        if (fcmToken == null) {
+          await _initFCM();
+        }
 
-      if (fcmToken != null) {
-        final response = await MyApIService().login(
-          rememberedEmail.trim(),
-          rememberedPassword.trim(),
-          fcmToken!, // Use a non-null fcmToken here
-        );
+        if (fcmToken != null) {
+          final response = await MyApIService().login(
+            rememberedEmail.trim(),
+            rememberedPassword.trim(),
+            fcmToken!, // Use a non-null fcmToken here
+          );
 
-        if (response.statusCode == 200) {
-          await prefs.setInt(loginTimeKey, DateTime.now().millisecondsSinceEpoch);
-          // Get.offAllNamed(AppRoutes.getLandingPageRoute());
-          Get.offAllNamed(AppRoutes.getLandingPageRoute());
-    
-          return true;
+          if (response.statusCode == 200) {
+            await prefs.setInt(
+                loginTimeKey, DateTime.now().millisecondsSinceEpoch);
+            // Get.offAllNamed(AppRoutes.getLandingPageRoute());
+            Get.offAllNamed(AppRoutes.getLandingPageRoute());
+
+            return true;
+          }
         }
       }
     }
+
+    // Clear stale data and return false
+    await prefs.remove(rememberEmailKey);
+    await prefs.remove(rememberPasswordKey);
+    await prefs.remove(loginTimeKey);
+
+    return false;
   }
 
-  // Clear stale data and return false
-  await prefs.remove(rememberEmailKey);
-  await prefs.remove(rememberPasswordKey);
-  await prefs.remove(loginTimeKey);
-
-  return false;
-}
-
-  Future<void> submitSignIn(BuildContext context, String? fcmToken, {bool autoLogin = false}) async {
+  Future<void> submitSignIn(BuildContext context, String? fcmToken,
+      {bool autoLogin = false}) async {
     if (autoLogin || formKey.currentState!.validate()) {
-    
       final apiService = MyApIService();
 
       try {
@@ -706,9 +703,12 @@ Future<bool> checkAutoLoginAndRedirect() async {
         if (response.statusCode == 200) {
           if (rememberMe.value || autoLogin) {
             final prefs = await SharedPreferences.getInstance();
-            await prefs.setString(rememberEmailKey, emailController.text.trim());
-            await prefs.setString(rememberPasswordKey, passwordController.text.trim());
-            await prefs.setInt(loginTimeKey, DateTime.now().millisecondsSinceEpoch);
+            await prefs.setString(
+                rememberEmailKey, emailController.text.trim());
+            await prefs.setString(
+                rememberPasswordKey, passwordController.text.trim());
+            await prefs.setInt(
+                loginTimeKey, DateTime.now().millisecondsSinceEpoch);
           }
 
           // Get.offAndToNamed(AppRoutes.getLandingPageRoute());
@@ -717,7 +717,8 @@ Future<bool> checkAutoLoginAndRedirect() async {
           debugPrint("data from API ${response.body}");
           debugPrint("data from API ${response.body}");
           final Map<String, dynamic> responseBody = jsonDecode(response.body);
-          final String errorMessage = responseBody['message'] ?? 'Unknown error';
+          final String errorMessage =
+              responseBody['message'] ?? 'Unknown error';
 
           if (!autoLogin) {
             await AdaptiveAlertDialogWidget.show(
@@ -728,7 +729,7 @@ Future<bool> checkAutoLoginAndRedirect() async {
               showNoButton: false,
             );
           }
-           debugPrint('Error login failed: ${response.body}');
+          debugPrint('Error login failed: ${response.body}');
         }
       } catch (e) {
         debugPrint('Network error: ${e.toString()}');
@@ -742,10 +743,8 @@ Future<bool> checkAutoLoginAndRedirect() async {
           );
         }
       }
-      
     }
   }
-
 }
 
 class SignInView extends StatelessWidget {
@@ -754,18 +753,23 @@ class SignInView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false, // Prevent layout changes when keyboard appears
+      resizeToAvoidBottomInset:
+          false, // Prevent layout changes when keyboard appears
       backgroundColor: AppColors.kDarkBlue,
-      body: SafeArea( // Use SafeArea to respect device safe areas
+      body: SafeArea(
+        // Use SafeArea to respect device safe areas
         child: Column(
           children: [
             // Main scrollable content
             Expanded(
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: AppSpacing.twentyHorizontal),
+                padding: EdgeInsets.symmetric(
+                    horizontal: AppSpacing.twentyHorizontal),
                 child: SingleChildScrollView(
                   padding: EdgeInsets.only(
-                    bottom: MediaQuery.of(context).viewInsets.bottom, // Adjust for keyboard
+                    bottom: MediaQuery.of(context)
+                        .viewInsets
+                        .bottom, // Adjust for keyboard
                   ),
                   child: Column(
                     children: [
@@ -782,25 +786,19 @@ class SignInView extends StatelessWidget {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                "Login",
-                                style: AppTypography.customkBold24.copyWith(
-                                  color: AppColors.kWhite
-                                )
-                              ),
-                              Text(
-                                "Welcome Back!",
-                                style: AppTypography.customkLight14.copyWith(
-                                  color: Colors.grey
-                                )
-                              ),
+                              Text("Login",
+                                  style: AppTypography.customkBold24
+                                      .copyWith(color: AppColors.kWhite)),
+                              Text("Welcome Back!",
+                                  style: AppTypography.customkLight14
+                                      .copyWith(color: Colors.grey)),
                             ],
                           ),
                         ],
                       ),
-                      
+
                       SizedBox(height: Get.height * 0.05),
-                      
+
                       // Form section
                       Form(
                         key: controller.formKey,
@@ -817,11 +815,12 @@ class SignInView extends StatelessWidget {
                               onChanged: (value) {
                                 controller.formKey.currentState!.validate();
                               },
-                              validator: (value){
+                              validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return 'Email is required';
                                 }
-                                if (!RegExp(r"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$").hasMatch(value)) {
+                                if (!RegExp(r"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$")
+                                    .hasMatch(value)) {
                                   return 'Enter a valid email';
                                 }
                                 return null;
@@ -829,31 +828,33 @@ class SignInView extends StatelessWidget {
                             ),
                             SizedBox(height: AppSpacing.fifteenVertical),
                             Obx(() => CustomPasswordField(
-                              keyboardType: TextInputType.visiblePassword,
-                              controller: controller.passwordController,
-                              obscureText: !controller.passwordVisible.value,
-                              hintText: '*********',
-                              iconPath: AppAssets.kPassword,
-                              inputFormatters: [
-                                LengthLimitingTextInputFormatter(64)
-                              ],
-                              passwordVisible: controller.passwordVisible.value,
-                              onPressed: (){
-                                controller.togglePasswordView();
-                              },
-                              validator: (value){
-                                if (value == null || value.isEmpty) {
-                                  return 'Password is required';
-                                }
-                                if (value.length < 8) {
-                                  return 'Password must be at least 8 characters';
-                                }
-                                return null;
-                              },
-                              onChanged: (value) {
-                                controller.formKey.currentState!.validate();
-                              },
-                            )),
+                                  keyboardType: TextInputType.visiblePassword,
+                                  controller: controller.passwordController,
+                                  obscureText:
+                                      !controller.passwordVisible.value,
+                                  hintText: '*********',
+                                  iconPath: AppAssets.kPassword,
+                                  inputFormatters: [
+                                    LengthLimitingTextInputFormatter(64)
+                                  ],
+                                  passwordVisible:
+                                      controller.passwordVisible.value,
+                                  onPressed: () {
+                                    controller.togglePasswordView();
+                                  },
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Password is required';
+                                    }
+                                    if (value.length < 8) {
+                                      return 'Password must be at least 8 characters';
+                                    }
+                                    return null;
+                                  },
+                                  onChanged: (value) {
+                                    controller.formKey.currentState!.validate();
+                                  },
+                                )),
                             SizedBox(height: AppSpacing.tenVertical),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -863,37 +864,44 @@ class SignInView extends StatelessWidget {
                                         value: controller.rememberMe.value,
                                         onChanged: controller.toggleRememberMe,
                                         contentPadding: EdgeInsets.zero,
-                                        controlAffinity: ListTileControlAffinity.leading,
+                                        controlAffinity:
+                                            ListTileControlAffinity.leading,
                                         title: Text(
                                           'Remember me',
-                                          style: AppTypography.customkLight14.copyWith(color: AppColors.kWhite),
+                                          style: AppTypography.customkLight14
+                                              .copyWith(
+                                                  color: AppColors.kWhite),
                                         ),
                                       )),
                                 ),
                                 Flexible(
                                   child: TextButton(
-                                      onPressed: (){
+                                      onPressed: () {
                                         Get.to(() => ForgetPasswordView());
                                       },
                                       child: Text(
                                         'Forget Password?',
-                                        style: AppTypography.customkBold16.copyWith(
-                                            color: AppColors.kSkyBlue
-                                        ),)),
+                                        style: AppTypography.customkBold16
+                                            .copyWith(
+                                                color: AppColors.kSkyBlue),
+                                      )),
                                 ),
                               ],
                             ),
-                            SizedBox(height: AppSpacing.fifteenVertical,),
+                            SizedBox(
+                              height: AppSpacing.fifteenVertical,
+                            ),
                             PrimaryButton(
                               color: AppColors.kSkyBlue,
                               onTap: () async {
-                                await controller.submitSignIn(context, controller.fcmToken);
+                                await controller.submitSignIn(
+                                    context, controller.fcmToken);
                               },
                               text: 'Login',
                             ),
-
-                               
-                            SizedBox(height: AppSpacing.twentyVertical,),
+                            SizedBox(
+                              height: AppSpacing.twentyVertical,
+                            ),
                             Center(
                               child: Text(
                                 'OR',
@@ -902,7 +910,9 @@ class SignInView extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            SizedBox(height: AppSpacing.twentyVertical,),
+                            SizedBox(
+                              height: AppSpacing.twentyVertical,
+                            ),
                             PrimaryContainer(
                                 width: double.maxFinite,
                                 color: Colors.transparent,
@@ -913,62 +923,80 @@ class SignInView extends StatelessWidget {
                                       AppAssets.kGoogleLogo,
                                       fit: BoxFit.contain,
                                     ),
-                                    SizedBox(width: AppSpacing.twentyHorizontal,),
+                                    SizedBox(
+                                      width: AppSpacing.twentyHorizontal,
+                                    ),
                                     GestureDetector(
                                       onTap: () async {
-                                        final googleAuthService = GoogleAuthService();
-                                        await googleAuthService.signInWithGoogle();
-                                        },
+                                        final googleAuthService =
+                                            GoogleAuthService();
+                                        await googleAuthService
+                                            .signInWithGoogle();
+                                      },
                                       child: Text(
                                         'Continue with Google',
-                                        style: AppTypography.kBold18.copyWith(
-                                            color: AppColors.kWhite
-                                        ),
+                                        style: AppTypography.kBold18
+                                            .copyWith(color: AppColors.kWhite),
                                       ),
                                     )
                                   ],
-                                )
+                                )),
+                            SizedBox(
+                              height: AppSpacing.twentyVertical,
                             ),
-                            SizedBox(height: AppSpacing.twentyVertical,),
                             PrimaryContainer(
                                 width: double.maxFinite,
                                 color: Colors.black,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Image.asset(
-                                      AppAssets.kAppleLogo,
-                                      fit: BoxFit.contain,
-                                    ),
-                                    SizedBox(width: AppSpacing.twentyHorizontal,),
-                                    Text(
-                                      'Continue with Apple',
-                                      style: AppTypography.kBold18.copyWith(
-                                          color: AppColors.kWhite
+                                child: GestureDetector(
+                                  onTap: () async {
+                                    final isAvailable = await AppleAuthService()
+                                        .isAppleSignInAvailable();
+
+                                    if (!isAvailable) {
+                                      Get.snackbar("Not Available",
+                                          "Apple Sign-In is not available on this device.");
+                                      return;
+                                    }
+
+                                    await AppleAuthService().signInWithApple();
+                                  },
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Image.asset(
+                                        AppAssets.kAppleLogo,
+                                        fit: BoxFit.contain,
                                       ),
-                                    )
-                                  ],
-                                )
+                                      SizedBox(
+                                        width: AppSpacing.twentyHorizontal,
+                                      ),
+                                      Text(
+                                        'Continue with Apple',
+                                        style: AppTypography.kBold18
+                                            .copyWith(color: AppColors.kWhite),
+                                      )
+                                    ],
+                                  ),
+                                )),
+                            SizedBox(
+                              height: AppSpacing.thirtyVertical,
                             ),
-                            SizedBox(height: AppSpacing.thirtyVertical,),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
                                   'Don\'t have an account?',
-                                  style: AppTypography.customkBold16.copyWith(
-                                      color: Colors.grey
-                                  ),
+                                  style: AppTypography.customkBold16
+                                      .copyWith(color: Colors.grey),
                                 ),
                                 TextButton(
-                                  onPressed: (){
+                                  onPressed: () {
                                     Get.toNamed(AppRoutes.getSelectRoute());
                                   },
                                   child: Text(
                                     'Create Account',
-                                    style: AppTypography.customkBold16.copyWith(
-                                        color: AppColors.kSkyBlue
-                                    ),
+                                    style: AppTypography.customkBold16
+                                        .copyWith(color: AppColors.kSkyBlue),
                                   ),
                                 )
                               ],
@@ -982,7 +1010,7 @@ class SignInView extends StatelessWidget {
                 ),
               ),
             ),
-            
+
             // "Powered by TAC Solutions" - Fixed at bottom of safe area
             Container(
               width: double.infinity,
@@ -993,9 +1021,8 @@ class SignInView extends StatelessWidget {
               child: Center(
                 child: Text(
                   'Powered by TAC Solutions',
-                  style: AppTypography.customkLight14.copyWith(
-                    color: Colors.grey
-                  ),
+                  style:
+                      AppTypography.customkLight14.copyWith(color: Colors.grey),
                 ),
               ),
             ),

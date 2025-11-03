@@ -38,7 +38,6 @@ import 'modules/Jobs/Create Jobs/company_info_controller.dart';
 //   }
 // }
 
-
 // Future bg_notification(RemoteMessage message)async{
 //   if(message.notification!=null){
 //     print("message received in background");
@@ -55,7 +54,7 @@ import 'modules/Jobs/Create Jobs/company_info_controller.dart';
 //   await SystemChrome.setPreferredOrientations(
 //     [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown],
 //   );
- 
+
 //   String? devToken=await FirebaseMessaging.instance.getToken();
 //   print("Device Token: $devToken");
 
@@ -68,10 +67,9 @@ import 'modules/Jobs/Create Jobs/company_info_controller.dart';
 //   NotificationHandlerController.initializeFCMHandlers();
 //   await NotificationHandlerController.handleTerminatedState();
 
-
 //   Get.put(UserController(), permanent: true);
 //   Get.put(SetJobDetailsController());
-//   // Get.put(SessionManagerController()); 
+//   // Get.put(SessionManagerController());
 //   Get.put(GoogleSignInController()); // Register the controller
 
 //   // final initialRoute = await getInitialRoute();
@@ -116,6 +114,7 @@ import 'modules/Jobs/Create Jobs/company_info_controller.dart';
 //     );
 //   }
 // }
+
 
 
 // import 'package:flutter/material.dart';
@@ -325,6 +324,7 @@ import 'modules/Jobs/Create Jobs/company_info_controller.dart';
 //   }
 // }
 
+
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -358,7 +358,8 @@ void main() async {
     DeviceOrientation.portraitDown,
   ]);
 
-  // ✅ Initialize Notifications
+
+
   NotificationServices.requestNotificationPermission();
   NotificationServices.localNotiInit();
 
@@ -369,7 +370,12 @@ void main() async {
   // ✅ Dependency Injection
   Get.put(UserController(), permanent: true);
   Get.put(SetJobDetailsController());
-  
+
+
+  Get.put(MapController(), permanent: true); // <-- Add this line here
+  // Get.put(GuardsViewController());
+  // Get.put(SessionManagerController());
+
 
   // ✅ Check SharedPreferences
   SharedPreferences prefs = await SharedPreferences.getInstance();
