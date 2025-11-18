@@ -293,10 +293,18 @@ class _SetPasswordScreenState extends State<SetPasswordScreen> {
                             }),
                           ),
                           validator: (value) {
+                            // if (value == null || value.isEmpty) {
+                            //   return "Please enter password";
+                            // }
+                            // return null;
+
                             if (value == null || value.isEmpty) {
-                              return "Please enter password";
-                            }
-                            return null;
+                                      return 'Password is required';
+                                    }
+                                    if (value.length < 8) {
+                                      return 'Password must be at least 8 characters';
+                                    }
+                                    return null;
                           },
                           onChanged: (value) {
                             _formKey.currentState!.validate();
@@ -316,10 +324,16 @@ class _SetPasswordScreenState extends State<SetPasswordScreen> {
                             }),
                           ),
                           validator: (value) {
-                            if (value != passwordController.text) {
-                              return "Passwords do not match";
-                            }
-                            return null;
+                            
+                            // return null;
+                      
+                            if (value == null || value.isEmpty) {
+                                    return 'Confirm Password is required';
+                                  }
+                                  if (value != passwordController.text) {
+                                    return "Passwords do not match";
+                                  }
+                                  return null;
                           },
                           onChanged: (value) {
                             _formKey.currentState!.validate();

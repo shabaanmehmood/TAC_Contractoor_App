@@ -1,4 +1,5 @@
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:taccontractor/controllers/user_controller.dart';
 import 'package:taccontractor/data/data/constants/app_colors.dart';
@@ -31,37 +32,88 @@ class NotificationController extends GetxController {
       isLoading.value = false;
     }
   }
+ 
+ Future<void> markAllRead() async {
+  try {
+    final user = userController.userData.value;
+    final contractorId = user?.id;
 
-  Future<void> markAllRead() async {
-    try {
-      final user = userController.userData.value;
-      final contractorId = user?.id;
-
-      if (contractorId == null) {
-        Get.snackbar("Error", "User ID is null");
-        return;
-      }
-
-      await _notificationService.markAllNotificationsAsRead(contractorId);
-      notifications.clear();
-
-      Get.snackbar(
-        "Success",
-        "All notifications have been marked as read.",
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppColors.kGreenS,
-        colorText: AppColors.kWhite,
-      );
-    } catch (e) {
-      Get.snackbar(
-        "Error",
-        e.toString(),
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppColors.kACardCancelled,
-        colorText: AppColors.kWhite,
-      );
+    if (contractorId == null) {
+      return;
     }
+
+    // 👉 FIX #1: If no notifications, do nothing and show no toast
+    if (notifications.isEmpty) {
+      return; 
+    }
+
+    await _notificationService.markAllNotificationsAsRead(contractorId);
+
+    // Clear list so next tap does nothing
+    notifications.clear();
+
+    // 👉 FIX #2: Show toast ONLY once
+    if (Get.isSnackbarOpen) {
+      Get.closeAllSnackbars();
+    }
+
+    Get.snackbar(
+      "Success",
+      "All notifications have been marked as read.",
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: AppColors.kGreenS,
+      colorText: Colors.white,
+      duration: const Duration(seconds: 2),
+    );
+  } catch (e) {
+
+    if (Get.isSnackbarOpen) {
+      Get.closeAllSnackbars();
+    }
+
+    Get.snackbar(
+      "Error",
+      e.toString(),
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: AppColors.kACardCancelled,
+      colorText: Colors.white,
+      duration: const Duration(seconds: 2),
+    );
   }
+}
+
+
+
+  // Future<void> markAllRead() async {
+  //   try {
+  //     final user = userController.userData.value;
+  //     final contractorId = user?.id;
+
+  //     if (contractorId == null) {
+  //       Get.snackbar("Error", "User ID is null");
+  //       return;
+  //     }
+
+  //     await _notificationService.markAllNotificationsAsRead(contractorId);
+  //     notifications.clear();
+
+  //     Get.snackbar(
+  //       "Success",
+  //       "All notifications have been marked as read.",
+  //       snackPosition: SnackPosition.BOTTOM,
+  //       backgroundColor: AppColors.kGreenS,
+  //       colorText: AppColors.kWhite,
+  //     );
+  //   } catch (e) {
+  //     Get.snackbar(
+  //       "Error",
+  //       e.toString(),
+  //       snackPosition: SnackPosition.BOTTOM,
+  //       backgroundColor: AppColors.kACardCancelled,
+  //       colorText: AppColors.kWhite,
+  //     );
+  //   }
+  // }
 }
 
 
