@@ -72,6 +72,7 @@ class GuardInfo {
   factory GuardInfo.fromJson(Map<String, dynamic> json) {
     return GuardInfo(
       id: json['id'] ?? '',
+
       name: json['name'] ?? '',
       email: json['email'] ?? '',
       images: json['images'] != null ? List<String>.from(json['images']) : [],
@@ -84,7 +85,7 @@ class GuardInfo {
     if (images.isEmpty) return 'assets/userpicture.jpg';
     final imagePath = images.first;
     if (imagePath.startsWith('http')) return imagePath;
-    return '${MyApIService.imageBaseUrl}$imagePath';
+    return '${MyApIService.imageBaseUrlMap}$imagePath';
   }
 }
 

@@ -7,6 +7,7 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
+import 'package:taccontractor/controllers/user_controller.dart';
 import 'package:taccontractor/dataproviders/api_service.dart';
 import 'package:taccontractor/models/latestguard.dart';
 import 'package:taccontractor/models/nearbyjob.dart';
@@ -22,7 +23,7 @@ class MapController extends GetxController {
   Timer? _periodicUpdateTimer;
   LatLng? _currentUserLocation;
   final Rx<GuardLocationData?> selectedGuard = Rx<GuardLocationData?>(null);
-
+  final userController = Get.find<UserController>();
   // Track camera position manually
   CameraPosition? _currentCameraPosition;
   var _isFirstLoad = true;
@@ -232,9 +233,17 @@ class MapController extends GetxController {
       print('API response: ${guardResponse.data.length} guards found');
 
       final newMarkers = <Marker>{};
-
+      String imgurl = 'assets/a.jpg';
       if (_currentUserLocation != null) {
-        final userIcon = await _createUserMarker("assets/a.jpg");
+        if (userController.userData.value != null) {
+          final userData = userController.userData.value!;
+
+          imgurl = userData.profileImages?.isNotEmpty == true
+              ? MyApIService.imageBaseUrlMap +
+                  userController.userData.value!.profileImages!.last.image!
+              : "assets/a.jpg";
+        }
+        final userIcon = await _createUserMarker(imgurl);
         newMarkers.add(
           Marker(
             markerId: const MarkerId('user_location'),
@@ -251,12 +260,12 @@ class MapController extends GetxController {
         if (position.latitude == 0.0 && position.longitude == 0.0) continue;
 
         // COMMENTED OUT API IMAGE CODE - USING ONLY ASSET IMAGES
-        // String guardImageUrl = guardLocation.guard.images.isNotEmpty
-        //     ? guardLocation.guard.profileImageUrl
-        //     : "assets/userpicture.jpg";
+        String guardImageUrl = guardLocation.guard.images.isNotEmpty
+            ? guardLocation.guard.profileImageUrl
+            : "assets/userpicture.jpg";
 
         // ALWAYS use asset image for guards
-        String guardImageUrl = "assets/userpicture.jpg";
+        // String guardImageUrl = "assets/userpicture.jpg";
 
         final customMarkerIcon = await _createCustomMarker(
           guardImageUrl,
@@ -332,6 +341,151 @@ class MapController extends GetxController {
     return degrees * pi / 180;
   }
 
+  // Future<BitmapDescriptor> _createImageMarker(
+  //   String imageUrl, {
+  //   double size = 150,
+  //   String? overlayText,
+  // }) async {
+  //   ui.Image? finalImage;
+  //   ui.Image? frameImage;
+
+  //   try {
+  //     Uint8List imageBytes;
+
+  //     // COMMENTED OUT NETWORK IMAGE LOADING - USING ONLY ASSET IMAGES
+  //     // if (imageUrl.startsWith('http')) {
+  //     //   try {
+  //     //     imageBytes =
+  //     //         (await NetworkAssetBundle(Uri.parse(imageUrl)).load(imageUrl))
+  //     //             .buffer
+  //     //             .asUint8List();
+  //     //   } catch (e) {
+  //     //     print("❌ Failed to load network image: $e, falling back to asset");
+  //     //     imageBytes = (await rootBundle.load("assets/userpicture.jpg"))
+  //     //         .buffer
+  //     //         .asUint8List();
+  //     //   }
+  //     // } else {
+  //     //   try {
+  //     //     imageBytes = (await rootBundle.load(imageUrl)).buffer.asUint8List();
+  //     //   } catch (e) {
+  //     //     print(
+  //     //         "❌ Failed to load asset image: $e, falling back to default asset");
+  //     //     imageBytes = (await rootBundle.load("assets/userpicture.jpg"))
+  //     //         .buffer
+  //     //         .asUint8List();
+  //     //   }
+  //     // }
+
+  //     // ALWAYS load from assets
+  //     try {
+  //       imageBytes = (await rootBundle.load(imageUrl)).buffer.asUint8List();
+  //       print("✅ Loaded asset image: $imageUrl");
+  //     } catch (e) {
+  //       print(
+  //           "❌ Failed to load asset image: $e, falling back to default asset");
+  //       imageBytes = (await rootBundle.load("assets/userpicture.jpg"))
+  //           .buffer
+  //           .asUint8List();
+  //     }
+
+  //     final ui.Codec codec = await ui.instantiateImageCodec(
+  //       imageBytes,
+  //       targetWidth: size.toInt(),
+  //       targetHeight: size.toInt(),
+  //     );
+  //     final ui.FrameInfo frameInfo = await codec.getNextFrame();
+  //     frameImage = frameInfo.image;
+
+  //     final bool hasBadge = overlayText != null && overlayText.isNotEmpty;
+  //     final double badgeHeight = 35.0;
+  //     final double badgeWidth = size * 0.9;
+  //     final double totalHeight = size + (hasBadge ? badgeHeight + 8 : 0);
+  //     final double totalWidth = size;
+
+  //     final ui.PictureRecorder recorder = ui.PictureRecorder();
+  //     final Canvas canvas = Canvas(recorder);
+
+  //     final double centerX = size / 2;
+  //     final double imageCenterY = size / 2;
+
+  //     final Paint circlePaint = Paint()..color = const Color(0xFF4CAF50);
+  //     canvas.drawCircle(Offset(centerX, imageCenterY), size / 2, circlePaint);
+
+  //     final Rect imageRect = Rect.fromCircle(
+  //       center: Offset(centerX, imageCenterY),
+  //       radius: (size / 2) - 4,
+  //     );
+
+  //     canvas.save();
+  //     canvas.clipPath(Path()..addOval(imageRect));
+  //     paintImage(
+  //       canvas: canvas,
+  //       rect: imageRect,
+  //       image: frameImage,
+  //       fit: BoxFit.cover,
+  //     );
+  //     canvas.restore();
+
+  //     if (hasBadge) {
+  //       final double badgeLeft = (size - badgeWidth) / 2;
+  //       final double badgeTop = size + 4;
+
+  //       final Paint badgePaint = Paint()..color = const Color(0xFF4CAF50);
+  //       final Rect badgeRect =
+  //           Rect.fromLTWH(badgeLeft, badgeTop, badgeWidth, badgeHeight);
+  //       canvas.drawRRect(
+  //         RRect.fromRectAndRadius(badgeRect, const Radius.circular(8)),
+  //         badgePaint,
+  //       );
+
+  //       final textStyle = ui.TextStyle(
+  //         color: Color(0xFFFFFFFF),
+  //         fontSize: 16,
+  //         fontWeight: FontWeight.bold,
+  //       );
+
+  //       final paragraphBuilder = ui.ParagraphBuilder(
+  //         ui.ParagraphStyle(
+  //           textAlign: TextAlign.center,
+  //           maxLines: 1,
+  //         ),
+  //       )
+  //         ..pushStyle(textStyle)
+  //         ..addText(overlayText!);
+
+  //       final paragraph = paragraphBuilder.build();
+  //       paragraph.layout(ui.ParagraphConstraints(width: badgeWidth - 8));
+
+  //       canvas.drawParagraph(
+  //         paragraph,
+  //         Offset(
+  //           badgeLeft + (badgeWidth - paragraph.width) / 2,
+  //           badgeTop + (badgeHeight - paragraph.height) / 2,
+  //         ),
+  //       );
+  //     }
+
+  //     finalImage = await recorder
+  //         .endRecording()
+  //         .toImage(totalWidth.toInt(), totalHeight.toInt());
+  //     final ByteData? pngBytes =
+  //         await finalImage.toByteData(format: ui.ImageByteFormat.png);
+
+  //     if (pngBytes == null) {
+  //       throw Exception('Failed to convert image to bytes');
+  //     }
+
+  //     print("✅ Guard marker created with badge: $overlayText");
+  //     return BitmapDescriptor.fromBytes(pngBytes.buffer.asUint8List());
+  //   } catch (e) {
+  //     print("❌ Error creating guard marker: $e");
+  //     return BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen);
+  //   } finally {
+  //     finalImage?.dispose();
+  //     frameImage?.dispose();
+  //   }
+  // }
   Future<BitmapDescriptor> _createImageMarker(
     String imageUrl, {
     double size = 150,
@@ -343,43 +497,37 @@ class MapController extends GetxController {
     try {
       Uint8List imageBytes;
 
-      // COMMENTED OUT NETWORK IMAGE LOADING - USING ONLY ASSET IMAGES
-      // if (imageUrl.startsWith('http')) {
-      //   try {
-      //     imageBytes =
-      //         (await NetworkAssetBundle(Uri.parse(imageUrl)).load(imageUrl))
-      //             .buffer
-      //             .asUint8List();
-      //   } catch (e) {
-      //     print("❌ Failed to load network image: $e, falling back to asset");
-      //     imageBytes = (await rootBundle.load("assets/userpicture.jpg"))
-      //         .buffer
-      //         .asUint8List();
-      //   }
-      // } else {
-      //   try {
-      //     imageBytes = (await rootBundle.load(imageUrl)).buffer.asUint8List();
-      //   } catch (e) {
-      //     print(
-      //         "❌ Failed to load asset image: $e, falling back to default asset");
-      //     imageBytes = (await rootBundle.load("assets/userpicture.jpg"))
-      //         .buffer
-      //         .asUint8List();
-      //   }
-      // }
-
-      // ALWAYS load from assets
-      try {
-        imageBytes = (await rootBundle.load(imageUrl)).buffer.asUint8List();
-        print("✅ Loaded asset image: $imageUrl");
-      } catch (e) {
-        print(
-            "❌ Failed to load asset image: $e, falling back to default asset");
-        imageBytes = (await rootBundle.load("assets/userpicture.jpg"))
-            .buffer
-            .asUint8List();
+      // Check if image is from API (HTTP URL) and try to load it
+      if (imageUrl.startsWith('http')) {
+        try {
+          print("🔄 Loading API image: $imageUrl");
+          imageBytes =
+              (await NetworkAssetBundle(Uri.parse(imageUrl)).load(imageUrl))
+                  .buffer
+                  .asUint8List();
+          print("✅ Successfully loaded API image");
+        } catch (e) {
+          print("❌ Failed to load API image: $e, falling back to asset");
+          // Fall back to asset image if API image fails
+          imageBytes = (await rootBundle.load("assets/userpicture.jpg"))
+              .buffer
+              .asUint8List();
+        }
+      } else {
+        // Load from assets (local image)
+        try {
+          imageBytes = (await rootBundle.load(imageUrl)).buffer.asUint8List();
+          print("✅ Loaded asset image: $imageUrl");
+        } catch (e) {
+          print(
+              "❌ Failed to load asset image: $e, falling back to default asset");
+          imageBytes = (await rootBundle.load("assets/userpicture.jpg"))
+              .buffer
+              .asUint8List();
+        }
       }
 
+      // Rest of your existing image processing code...
       final ui.Codec codec = await ui.instantiateImageCodec(
         imageBytes,
         targetWidth: size.toInt(),
@@ -501,5 +649,3 @@ class MapController extends GetxController {
 
   CameraPosition? get currentCameraPosition => _currentCameraPosition;
 }
-
-

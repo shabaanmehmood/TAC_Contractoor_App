@@ -20,7 +20,6 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-
   final UserController userController = Get.put(UserController());
 
   @override
@@ -38,102 +37,107 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
-      backgroundColor: AppColors.kDarkestBlue,
-      appBar: AppBar(
         backgroundColor: AppColors.kDarkestBlue,
-        title: const Text("Profile",
-            style: TextStyle(color: AppColors.kWhite, fontSize: 20)),
-        // centerTitle: false,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.kWhite),
-          onPressed: () => Get.back(),
+        appBar: AppBar(
+          backgroundColor: AppColors.kDarkestBlue,
+          title: const Text("Profile",
+              style: TextStyle(color: AppColors.kWhite, fontSize: 20)),
+          // centerTitle: false,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.kWhite),
+            onPressed: () => Get.back(),
+          ),
         ),
-      ),
-      body: Obx(
+        body: Obx(
           () => SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
                 // Display Picture Section
-              Container(
-  padding: const EdgeInsets.all(16),
-  decoration: BoxDecoration(
-    color: AppColors.kJobCardColor,
-    borderRadius: BorderRadius.circular(12),
-  ),
-  child: Row(
-    children: [
-      Builder(
-        builder: (_) {
-          final profileImages = userController.userData.value?.profileImages;
-          final mainImage = profileImages?.firstWhereOrNull((img) => img.isMain == true);
-          final imageUrl = (mainImage?.image != null && mainImage!.image!.isNotEmpty)
-              ? '${MyApIService.imageBaseUrl}/${mainImage.image}'
-              : null;
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppColors.kJobCardColor,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      Builder(
+                        builder: (_) {
+                          final profileImages =
+                              userController.userData.value?.profileImages;
+                          final mainImage = profileImages
+                              ?.firstWhereOrNull((img) => img.isMain == true);
+                          final imageUrl = (mainImage?.image != null &&
+                                  mainImage!.image!.isNotEmpty)
+                              ? '${MyApIService.imageBaseUrl}/${mainImage.image}'
+                              : null;
 
-          return Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              image: DecorationImage(
-                image: imageUrl != null
-                    ? NetworkImage(imageUrl)
-                    :  AssetImage(AppAssets.kUserPicture) as ImageProvider,
-                fit: BoxFit.cover,
-              ),
-            ),
-          );
-        },
-      ),
-      const SizedBox(width: 12),
-      const Expanded(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Profile Picture',
-              style: TextStyle(
-                color: AppColors.kWhite,
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-              ),
-            ),
-            SizedBox(height: 4),
-            Text(
-              'Upload a clear and recent profile picture (JPG, PNG, max: 5MB).',
-              style: TextStyle(
-                  color: AppColors.ktextlight, fontSize: 12),
-            ),
-          ],
-        ),
-      ),
-      TextButton(
-        onPressed: () async {
-          final UploadFileController uploadFileController = Get.put(UploadFileController());
-          String? base64image = await uploadFileController.showUploadFileBottomSheet(
-            context,
-            returnBase64: true,
-            showPickFileOption: false,
-          );
-          if (base64image != null) {
-            await uploadFileController.updateFile(base64image);
-            // userController.getUserData(); // refresh profile after upload
-          }
-        },
-        child: const Text(
-          'Update',
-          style: TextStyle(
-            color: AppColors.kSkyBlue,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      )
-    ],
-  ),
-),
+                          return Container(
+                            width: 48,
+                            height: 48,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              image: DecorationImage(
+                                image: imageUrl != null
+                                    ? NetworkImage(imageUrl)
+                                    : AssetImage(AppAssets.kUserPicture)
+                                        as ImageProvider,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(width: 12),
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Profile Picture',
+                              style: TextStyle(
+                                color: AppColors.kWhite,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              'Upload a clear and recent profile picture (JPG, PNG, max: 5MB).',
+                              style: TextStyle(
+                                  color: AppColors.ktextlight, fontSize: 12),
+                            ),
+                          ],
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () async {
+                          final UploadFileController uploadFileController =
+                              Get.put(UploadFileController());
+                          String? base64image = await uploadFileController
+                              .showUploadFileBottomSheet(
+                            context,
+                            returnBase64: true,
+                            showPickFileOption: false,
+                          );
+                          if (base64image != null) {
+                            await uploadFileController.updateFile(base64image);
+                            // userController.getUserData(); // refresh profile after upload
+                          }
+                        },
+                        child: const Text(
+                          'Update',
+                          style: TextStyle(
+                            color: AppColors.kSkyBlue,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
 
                 const SizedBox(height: 12),
 
@@ -141,8 +145,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 GestureDetector(
                   onTap: () => Get.to(() => DocumentScreen()),
                   child: Container(
-                    padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
                       color: AppColors.kJobCardColor,
                       borderRadius: BorderRadius.circular(12),
@@ -178,19 +182,42 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 const SizedBox(height: 12),
 
-                if(userController.userData.value!.registeringAs == "contractor")
-                ...[
+                if (userController.userData.value!.registeringAs ==
+                    "contractor") ...[
                   // Personal Info Section
                   buildDualColumnInfoSection(
                     title: "Personal Information",
                     info: [
-                      {"label": "Full Name", "value": userController.userData.value?.name ?? "-"},
-                      {"label": "Email Address", "value": userController.userData.value?.email ?? "-"},
-                      {"label": "Gender", "value": userController.userData.value?.gender ?? "-"},
-                      {"label": "Date of Birth", "value": userController.userData.value?.dob ?? "-"},
-                      {"label": "Contact Number", "value": userController.userData.value?.phone ?? "-"},
-                      {"label": "Postal Code", "value": userController.userData.value?.postalCode ?? "-"},
-                      {"label": "Residential Address", "value": userController.userData.value?.postalAddress ?? "-"},
+                      {
+                        "label": "Full Name",
+                        "value": userController.userData.value?.name ?? "-"
+                      },
+                      {
+                        "label": "Email Address",
+                        "value": userController.userData.value?.email ?? "-"
+                      },
+                      {
+                        "label": "Gender",
+                        "value": userController.userData.value?.gender ?? "-"
+                      },
+                      {
+                        "label": "Date of Birth",
+                        "value": userController.userData.value?.dob ?? "-"
+                      },
+                      {
+                        "label": "Contact Number",
+                        "value": userController.userData.value?.phone ?? "-"
+                      },
+                      {
+                        "label": "Postal Code",
+                        "value":
+                            userController.userData.value?.postalCode ?? "-"
+                      },
+                      {
+                        "label": "Residential Address",
+                        "value":
+                            userController.userData.value?.postalAddress ?? "-"
+                      },
                     ],
                     onEdit: () {
                       Get.to(() => const EditPersonalInfoScreen())?.then((_) {
@@ -204,60 +231,88 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   buildDualColumnInfoSection(
                     title: "Professional Information",
                     info: [
-                      {"label": "ABN", "value":  userController.userData.value?.australianBusinessNumber ?? "-"},
+                      {
+                        "label": "ABN",
+                        "value": userController
+                                .userData.value?.australianBusinessNumber ??
+                            "-"
+                      },
                       // {"label": "Licence Expiry Date", "value":  "-"},
                     ],
                     // onEdit: () => Get.to(() => const EditProfessionalInfoScreen()),
                     onEdit: () {
-                      Get.to(() => const EditProfessionalInfoScreen())?.then((_) {
+                      Get.to(() => const EditProfessionalInfoScreen())
+                          ?.then((_) {
                         userController.getUserData(); // Refresh user data
                       });
                     },
                   ),
                 ],
 
-                if(userController.userData.value!.registeringAs == "Company")
-                  ...[
-                    // Personal Info Section
-                    buildDualColumnInfoSection(
-                      title: "Company Information",
-                      info: [
-                        {"label": "Company Name", "value": userController.userData.value?.name ?? "-"},
-                        {"label": "Email Address", "value": userController.userData.value?.email ?? "-"},
-                        {"label": "Contact Number", "value": userController.userData.value?.phone ?? "-"},
-                        {"label": "Postal Code", "value": userController.userData.value?.postalAddress ?? "-"},
-                        {"label": "Residential Address", "value": userController.userData.value?.postalAddress ?? "-"},
-                      ],
-                      onEdit: () {
-                        Get.to(() => const EditPersonalInfoScreen())?.then((_) {
-                          userController.getUserData(); // Refresh user data
-                        });
+                if (userController.userData.value!.registeringAs ==
+                    "Company") ...[
+                  // Personal Info Section
+                  buildDualColumnInfoSection(
+                    title: "Company Information",
+                    info: [
+                      {
+                        "label": "Company Name",
+                        "value": userController.userData.value?.name ?? "-"
                       },
-                    ),
-                    const SizedBox(height: 20),
+                      {
+                        "label": "Email Address",
+                        "value": userController.userData.value?.email ?? "-"
+                      },
+                      {
+                        "label": "Contact Number",
+                        "value": userController.userData.value?.phone ?? "-"
+                      },
+                      {
+                        "label": "Postal Code",
+                        "value":
+                            userController.userData.value?.postalAddress ?? "-"
+                      },
+                      {
+                        "label": "Residential Address",
+                        "value":
+                            userController.userData.value?.postalAddress ?? "-"
+                      },
+                    ],
+                    onEdit: () {
+                      Get.to(() => const EditPersonalInfoScreen())?.then((_) {
+                        userController.getUserData(); // Refresh user data
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 20),
 
-                    // Professional Info Section
-                    buildDualColumnInfoSection(
-                      title: "Professional Information",
-                      info: [
-                        {"label": "Master Security License", "value":  userController.userData.value?.australianBusinessNumber ?? "-"},
-                        {"label": "Licence Expiry Date", "value":  "-"},
-                        {"label": "ABN", "value": "-"},
-                        {"label": "Australian Company Number", "value": "-"},
-                      ],
-                      // onEdit: () => Get.to(() => const EditProfessionalInfoScreen()),
-                      onEdit: () {
-                        Get.to(() => const EditProfessionalInfoScreen())?.then((_) {
-                          userController.getUserData(); // Refresh user data
-                        });
+                  // Professional Info Section
+                  buildDualColumnInfoSection(
+                    title: "Professional Information",
+                    info: [
+                      {
+                        "label": "Master Security License",
+                        "value": userController
+                                .userData.value?.australianBusinessNumber ??
+                            "-"
                       },
-                    ),
-                  ]
+                      {"label": "Licence Expiry Date", "value": "-"},
+                      {"label": "ABN", "value": "-"},
+                      {"label": "Australian Company Number", "value": "-"},
+                    ],
+                    // onEdit: () => Get.to(() => const EditProfessionalInfoScreen()),
+                    onEdit: () {
+                      Get.to(() => const EditProfessionalInfoScreen())
+                          ?.then((_) {
+                        userController.getUserData(); // Refresh user data
+                      });
+                    },
+                  ),
+                ]
               ],
             ),
           ),
-      )
-    );
+        ));
   }
 
   Widget buildDualColumnInfoSection({

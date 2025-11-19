@@ -454,7 +454,7 @@ class UploadFileController extends GetxController {
         final userdata =
             await apiService.getUserByID(userController.userData.value!.id!);
         debugPrint('Raw user response: ${userdata.body}');
-        Get.back();
+        //  Get.back();
       } else {
         debugPrint("Error response: ${response.body}");
       }
@@ -478,7 +478,7 @@ class UploadFileController extends GetxController {
       if (response.statusCode == 201) {
         debugPrint("Document uploaded successfully");
         await apiService.getUserByID(userController.userData.value!.id!);
-        Get.back();
+        // Get.back();
       } else {
         final responseBody = await response.stream.bytesToString();
         debugPrint("Upload failed: $responseBody");

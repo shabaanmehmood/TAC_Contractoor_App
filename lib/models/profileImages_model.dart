@@ -10,7 +10,7 @@ class ProfileImages {
   });
 
   ProfileImages.fromJson(Map<String, dynamic> json) {
-    image = json['image'];
+    image = json['imageUrl'];
     isMain = json['isMain'];
     // createdDate = json['createdDate'];
   }
