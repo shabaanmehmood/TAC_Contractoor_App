@@ -106,10 +106,19 @@ class HomeView extends StatelessWidget {
                                 height: 60,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(30),
-                                  image: DecorationImage(
-                                    image: AssetImage("assets/userpicture.jpg"),
-                                    fit: BoxFit.cover,
-                                  ),
+                                  image: guard.guard.profileImageUrl != null &&
+                                          guard
+                                              .guard.profileImageUrl!.isNotEmpty
+                                      ? DecorationImage(
+                                          image: NetworkImage(
+                                              '${guard.guard.profileImageUrl}'),
+                                          fit: BoxFit.cover,
+                                        )
+                                      : DecorationImage(
+                                          image: AssetImage(
+                                              "assets/userpicture.jpg"),
+                                          fit: BoxFit.cover,
+                                        ),
                                 ),
                               ),
 
@@ -235,29 +244,33 @@ class HomeView extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(width: 10),
-                   Builder(
-        builder: (_) {
-          final profileImages = userController.userData.value?.profileImages;
-          final mainImage = profileImages?.firstWhereOrNull((img) => img.isMain == true);
-          final imageUrl = (mainImage?.image != null && mainImage!.image!.isNotEmpty)
-              ? '${MyApIService.imageBaseUrl}/${mainImage.image}'
-              : null;
+                Builder(
+                  builder: (_) {
+                    final profileImages =
+                        userController.userData.value?.profileImages;
+                    final mainImage = profileImages
+                        ?.firstWhereOrNull((img) => img.isMain == true);
+                    final imageUrl = (mainImage?.image != null &&
+                            mainImage!.image!.isNotEmpty)
+                        ? '${MyApIService.imageBaseUrl}/${mainImage.image}'
+                        : null;
 
-          return Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              image: DecorationImage(
-                image: imageUrl != null
-                    ? NetworkImage(imageUrl)
-                    :  AssetImage(AppAssets.kUserPicture) as ImageProvider,
-                fit: BoxFit.cover,
-              ),
-            ),
-          );
-        },
-      ),
+                    return Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        image: DecorationImage(
+                          image: imageUrl != null
+                              ? NetworkImage(imageUrl)
+                              : AssetImage(AppAssets.kUserPicture)
+                                  as ImageProvider,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    );
+                  },
+                ),
               ],
             ),
             SizedBox(height: AppSpacing.tenVertical),
