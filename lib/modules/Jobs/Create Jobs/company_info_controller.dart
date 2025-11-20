@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:taccontractor/controllers/user_controller.dart';
 import 'package:taccontractor/data/data/constants/app_colors.dart';
+import 'package:taccontractor/dataproviders/location_services.dart';
 import 'package:taccontractor/models/jobCategoriesModel.dart';
 import 'package:taccontractor/models/jobPremisesModel.dart';
 
@@ -119,6 +120,101 @@ class SetJobDetailsController extends GetxController {
     selectedCategory.value = ''; // Or to an initial default value
     selectedPremises.value = ""; // Or to an initial default value
     jobType.value = "recurring"; // Or to an initial default value
+  }
+
+// Add these observables
+  var locationSuggestions = <dynamic>[].obs;
+  var isSearchingLocation = false.obs;
+  var selectedPlaceName = ''.obs;
+
+// Method to get location suggestions
+  Future<void> getLocationSuggestions(String query) async {
+    if (query.length < 2) {
+      locationSuggestions.clear();
+      return;
+    }
+
+    isSearchingLocation.value = true;
+    try {
+      final suggestions =
+          await LocationService.getAutocompleteSuggestions(query);
+      locationSuggestions.value = suggestions;
+      print(locationSuggestions);
+    } catch (e) {
+      Get.snackbar(
+        "Error",
+        "Failed to fetch location suggestions",
+        backgroundColor: AppColors.kDarkBlue,
+        colorText: Colors.white,
+      );
+    } finally {
+      isSearchingLocation.value = false;
+    }
+  }
+
+// Method to select a location from suggestions
+  Future<void> selectLocation(Map<String, dynamic> prediction) async {
+    try {
+      final placeId = prediction['place_id'];
+      final placeDetails = await LocationService.getPlaceDetails(placeId);
+
+      if (placeDetails != null) {
+        // Update the site location text field
+        siteLocation.text = prediction['description'];
+        selectedPlaceName.value = prediction['description'];
+
+        // Extract and store latitude/longitude
+        final geometry = placeDetails['geometry'];
+        if (geometry != null && geometry['location'] != null) {
+          final location = geometry['location'];
+          latitude.value = location['lat'].toDouble();
+          longitude.value = location['lng'].toDouble();
+
+          debugPrint(
+              "Selected Location - Lat: ${latitude.value}, Lng: ${longitude.value}");
+          debugPrint("Selected Place: ${prediction['description']}");
+        }
+
+        // Clear suggestions
+        locationSuggestions.clear();
+      }
+    } catch (e) {
+      // Fallback: try to get coordinates from address
+      final coordinates = await LocationService.getCoordinatesFromAddress(
+          prediction['description']);
+      if (coordinates != null) {
+        latitude.value = coordinates['lat']!;
+        longitude.value = coordinates['lng']!;
+        siteLocation.text = prediction['description'];
+        locationSuggestions.clear();
+      } else {
+        Get.snackbar(
+          "Error",
+          "Failed to get location details",
+          backgroundColor: AppColors.kDarkBlue,
+          colorText: Colors.white,
+        );
+      }
+    }
+  }
+
+// Clear suggestions
+  void clearLocationSuggestions() {
+    locationSuggestions.clear();
+  }
+
+// Manual location entry fallback
+  void onLocationManualEntry(String address) async {
+    if (address.length > 3) {
+      final coordinates =
+          await LocationService.getCoordinatesFromAddress(address);
+      if (coordinates != null) {
+        latitude.value = coordinates['lat']!;
+        longitude.value = coordinates['lng']!;
+        debugPrint(
+            "Manual Location - Lat: ${latitude.value}, Lng: ${longitude.value}");
+      }
+    }
   }
 
   Future<void> getDeviceLocation() async {

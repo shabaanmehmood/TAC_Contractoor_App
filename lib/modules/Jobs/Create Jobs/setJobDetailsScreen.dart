@@ -6,6 +6,7 @@ import 'package:taccontractor/data/data/constants/app_colors.dart';
 import 'package:taccontractor/data/data/constants/app_spacing.dart';
 import 'package:taccontractor/data/data/constants/app_typography.dart';
 import 'package:taccontractor/models/jobCategoriesModel.dart';
+import 'package:taccontractor/modules/Jobs/components/location_search_widget.dart';
 import 'package:taccontractor/widhets/common%20widgets/buttons/tappableInputTile.dart';
 import '../../../models/jobPremisesModel.dart';
 import '../../../models/shift_model.dart';
@@ -16,13 +17,11 @@ import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
 class SetJobDetailsScreen extends StatefulWidget {
-
   @override
   State<SetJobDetailsScreen> createState() => _SetJobDetailsScreenState();
 }
 
 class _SetJobDetailsScreenState extends State<SetJobDetailsScreen> {
-
   InputDecoration _inputDecoration(String hintText, String iconPath) {
     return InputDecoration(
       filled: true,
@@ -50,11 +49,20 @@ class _SetJobDetailsScreenState extends State<SetJobDetailsScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    controller.fetchJobCategories(controller.userController.userData.value!.id!);
+    controller
+        .fetchJobCategories(controller.userController.userData.value!.id!);
     controller.fetchJobPremises(controller.userController.userData.value!.id!);
   }
 
-  final List<String> allDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  final List<String> allDays = [
+    'Mon',
+    'Tue',
+    'Wed',
+    'Thu',
+    'Fri',
+    'Sat',
+    'Sun'
+  ];
 
   final Map<String, String> dayAbbreviationToFull = {
     'Mon': 'Monday',
@@ -86,7 +94,6 @@ class _SetJobDetailsScreenState extends State<SetJobDetailsScreen> {
     return hour < 12 ? "AM" : "PM";
   }
 
-
   void _showAddShiftDialog(BuildContext context) {
     final formKey = GlobalKey<FormState>();
     final startDateController = TextEditingController();
@@ -107,205 +114,216 @@ class _SetJobDetailsScreenState extends State<SetJobDetailsScreen> {
           child: Form(
             key: formKey,
             child: Obx(() => Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (controller.jobType.value == 'recurring') ...[
-                  TextFormField(
-                    style: const TextStyle(color: AppColors.kWhite),
-                    controller: startDateController,
-                    validator: controller.validateRequired,
-                    decoration: _inputDecoration("Start Date", AppAssets.kCal),
-                    readOnly: true,
-                    onTap: () async {
-                      final picked = await showDatePicker(
-                        context: context,
-                        initialDate: DateTime.now(),
-                        firstDate: DateTime(1900),
-                        lastDate: DateTime(2200),
-                        builder: (context, child) => Theme(
-                          data: Theme.of(context).copyWith(
-                            dialogBackgroundColor: AppColors.kDarkestBlue,
-                            colorScheme: ColorScheme.dark(
-                              primary: AppColors.kSkyBlue,
-                              onPrimary: Colors.black,
-                              surface: AppColors.kDarkestBlue,
-                              onSurface: Colors.white,
-                            ),
-                            textButtonTheme: TextButtonThemeData(
-                              style: TextButton.styleFrom(
-                                foregroundColor: AppColors.kSkyBlue,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (controller.jobType.value == 'recurring') ...[
+                      TextFormField(
+                        style: const TextStyle(color: AppColors.kWhite),
+                        controller: startDateController,
+                        validator: controller.validateRequired,
+                        decoration:
+                            _inputDecoration("Start Date", AppAssets.kCal),
+                        readOnly: true,
+                        onTap: () async {
+                          final picked = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime(1900),
+                            lastDate: DateTime(2200),
+                            builder: (context, child) => Theme(
+                              data: Theme.of(context).copyWith(
+                                dialogBackgroundColor: AppColors.kDarkestBlue,
+                                colorScheme: ColorScheme.dark(
+                                  primary: AppColors.kSkyBlue,
+                                  onPrimary: Colors.black,
+                                  surface: AppColors.kDarkestBlue,
+                                  onSurface: Colors.white,
+                                ),
+                                textButtonTheme: TextButtonThemeData(
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: AppColors.kSkyBlue,
+                                  ),
+                                ),
                               ),
+                              child: child!,
                             ),
-                          ),
-                          child: child!,
-                        ),
-                      );
-                      if (picked != null) {
-                        pickedStartDate = picked;
-                        startDateController.text = picked.toIso8601String().split('T').first;
-                      }
-                    },
-                  ),
-                  SizedBox(height: AppSpacing.tenVertical),
-                  TextFormField(
-                    style: const TextStyle(color: AppColors.kWhite),
-                    controller: endDateController,
-                    validator: controller.validateRequired,
-                    decoration: _inputDecoration("End Date", AppAssets.kCal),
-                    readOnly: true,
-                    onTap: () async {
-                      final picked = await showDatePicker(
-                        context: context,
-                        initialDate: DateTime.now(),
-                        firstDate: DateTime(1900),
-                        lastDate: DateTime(2200),
-                        builder: (context, child) => Theme(
-                          data: Theme.of(context).copyWith(
-                            dialogBackgroundColor: AppColors.kDarkestBlue,
-                            colorScheme: ColorScheme.dark(
-                              primary: AppColors.kSkyBlue,
-                              onPrimary: Colors.black,
-                              surface: AppColors.kDarkestBlue,
-                              onSurface: Colors.white,
-                            ),
-                            textButtonTheme: TextButtonThemeData(
-                              style: TextButton.styleFrom(
-                                foregroundColor: AppColors.kSkyBlue,
-                              ),
-                            ),
-                          ),
-                          child: child!,
-                        ),
-                      );
-                      if (picked != null) {
-                        pickedEndDate = picked;
-                        endDateController.text = picked.toIso8601String().split('T').first;
-                      }
-                    },
-                  ),
-                ],
-                if (controller.jobType.value == 'onetime') ...[
-                  TextFormField(
-                    style: const TextStyle(color: AppColors.kWhite),
-                    controller: startDateController,
-                    validator: controller.validateRequired,
-                    decoration: _inputDecoration("Start Date", AppAssets.kCal),
-                    readOnly: true,
-                    onTap: () async {
-                      final picked = await showDatePicker(
-                        context: context,
-                        initialDate: DateTime.now(),
-                        firstDate: DateTime(1900),
-                        lastDate: DateTime(2200),
-                        builder: (context, child) => Theme(
-                          data: Theme.of(context).copyWith(
-                            dialogBackgroundColor: AppColors.kDarkestBlue,
-                            colorScheme: ColorScheme.dark(
-                              primary: AppColors.kSkyBlue,
-                              onPrimary: Colors.black,
-                              surface: AppColors.kDarkestBlue,
-                              onSurface: Colors.white,
-                            ),
-                            textButtonTheme: TextButtonThemeData(
-                              style: TextButton.styleFrom(
-                                foregroundColor: AppColors.kSkyBlue,
-                              ),
-                            ),
-                          ),
-                          child: child!,
-                        ),
-                      );
-                      if (picked != null) {
-                        pickedStartDate = picked;
-                        startDateController.text = picked.toIso8601String().split('T').first;
-                      }
-                    },
-                  ),
-                ],
-                SizedBox(height: AppSpacing.fifteenVertical),
-                TextFormField(
-                  style: const TextStyle(color: AppColors.kWhite),
-                  controller: startTimeController,
-                  validator: controller.validateRequired,
-                  decoration: _inputDecoration("Start Time", AppAssets.kCal),
-                  readOnly: true,
-                  onTap: () async {
-                    final picked = await showTimePicker(
-                      context: context,
-                      initialTime: TimeOfDay.now(),
-                      builder: (context, child) => MediaQuery(
-                        data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
-                        child: Theme(
-                          data: Theme.of(context).copyWith(
-                            dialogBackgroundColor: AppColors.kDarkestBlue,
-                            colorScheme: ColorScheme.dark(
-                              primary: AppColors.kSkyBlue,
-                              onPrimary: Colors.black,
-                              surface: AppColors.kDarkestBlue,
-                              onSurface: Colors.white,
-                            ),
-                            textButtonTheme: TextButtonThemeData(
-                              style: TextButton.styleFrom(
-                                foregroundColor: AppColors.kSkyBlue,
-                              ),
-                            ),
-                          ),
-                          child: child!,
-                        ),
+                          );
+                          if (picked != null) {
+                            pickedStartDate = picked;
+                            startDateController.text =
+                                picked.toIso8601String().split('T').first;
+                          }
+                        },
                       ),
-                    );
-                    if (picked != null) {
-                      startTimeController.text =
-                      '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
-                    }
-                  },
-                ),
-                SizedBox(height: AppSpacing.tenVertical),
-                TextFormField(
-                  style: const TextStyle(color: AppColors.kWhite),
-                  controller: endTimeController,
-                  validator: controller.validateRequired,
-                  decoration: _inputDecoration("End Time", AppAssets.kCal),
-                  readOnly: true,
-                  onTap: () async {
-                    final picked = await showTimePicker(
-                      context: context,
-                      initialTime: TimeOfDay.now(),
-                      builder: (context, child) => MediaQuery(
-                        data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
-                        child: Theme(
-                          data: Theme.of(context).copyWith(
-                            dialogBackgroundColor: AppColors.kDarkestBlue,
-                            colorScheme: ColorScheme.dark(
-                              primary: AppColors.kSkyBlue,
-                              onPrimary: Colors.black,
-                              surface: AppColors.kDarkestBlue,
-                              onSurface: Colors.white,
-                            ),
-                            textButtonTheme: TextButtonThemeData(
-                              style: TextButton.styleFrom(
-                                foregroundColor: AppColors.kSkyBlue,
+                      SizedBox(height: AppSpacing.tenVertical),
+                      TextFormField(
+                        style: const TextStyle(color: AppColors.kWhite),
+                        controller: endDateController,
+                        validator: controller.validateRequired,
+                        decoration:
+                            _inputDecoration("End Date", AppAssets.kCal),
+                        readOnly: true,
+                        onTap: () async {
+                          final picked = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime(1900),
+                            lastDate: DateTime(2200),
+                            builder: (context, child) => Theme(
+                              data: Theme.of(context).copyWith(
+                                dialogBackgroundColor: AppColors.kDarkestBlue,
+                                colorScheme: ColorScheme.dark(
+                                  primary: AppColors.kSkyBlue,
+                                  onPrimary: Colors.black,
+                                  surface: AppColors.kDarkestBlue,
+                                  onSurface: Colors.white,
+                                ),
+                                textButtonTheme: TextButtonThemeData(
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: AppColors.kSkyBlue,
+                                  ),
+                                ),
                               ),
+                              child: child!,
+                            ),
+                          );
+                          if (picked != null) {
+                            pickedEndDate = picked;
+                            endDateController.text =
+                                picked.toIso8601String().split('T').first;
+                          }
+                        },
+                      ),
+                    ],
+                    if (controller.jobType.value == 'onetime') ...[
+                      TextFormField(
+                        style: const TextStyle(color: AppColors.kWhite),
+                        controller: startDateController,
+                        validator: controller.validateRequired,
+                        decoration:
+                            _inputDecoration("Start Date", AppAssets.kCal),
+                        readOnly: true,
+                        onTap: () async {
+                          final picked = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime(1900),
+                            lastDate: DateTime(2200),
+                            builder: (context, child) => Theme(
+                              data: Theme.of(context).copyWith(
+                                dialogBackgroundColor: AppColors.kDarkestBlue,
+                                colorScheme: ColorScheme.dark(
+                                  primary: AppColors.kSkyBlue,
+                                  onPrimary: Colors.black,
+                                  surface: AppColors.kDarkestBlue,
+                                  onSurface: Colors.white,
+                                ),
+                                textButtonTheme: TextButtonThemeData(
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: AppColors.kSkyBlue,
+                                  ),
+                                ),
+                              ),
+                              child: child!,
+                            ),
+                          );
+                          if (picked != null) {
+                            pickedStartDate = picked;
+                            startDateController.text =
+                                picked.toIso8601String().split('T').first;
+                          }
+                        },
+                      ),
+                    ],
+                    SizedBox(height: AppSpacing.fifteenVertical),
+                    TextFormField(
+                      style: const TextStyle(color: AppColors.kWhite),
+                      controller: startTimeController,
+                      validator: controller.validateRequired,
+                      decoration:
+                          _inputDecoration("Start Time", AppAssets.kCal),
+                      readOnly: true,
+                      onTap: () async {
+                        final picked = await showTimePicker(
+                          context: context,
+                          initialTime: TimeOfDay.now(),
+                          builder: (context, child) => MediaQuery(
+                            data: MediaQuery.of(context)
+                                .copyWith(alwaysUse24HourFormat: true),
+                            child: Theme(
+                              data: Theme.of(context).copyWith(
+                                dialogBackgroundColor: AppColors.kDarkestBlue,
+                                colorScheme: ColorScheme.dark(
+                                  primary: AppColors.kSkyBlue,
+                                  onPrimary: Colors.black,
+                                  surface: AppColors.kDarkestBlue,
+                                  onSurface: Colors.white,
+                                ),
+                                textButtonTheme: TextButtonThemeData(
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: AppColors.kSkyBlue,
+                                  ),
+                                ),
+                              ),
+                              child: child!,
                             ),
                           ),
-                          child: child!,
-                        ),
-                      ),
-                    );
-                    if (picked != null) {
-                      endTimeController.text =
-                      '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
-                    }
-                  },
-                ),
-              ],
-            )),
+                        );
+                        if (picked != null) {
+                          startTimeController.text =
+                              '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
+                        }
+                      },
+                    ),
+                    SizedBox(height: AppSpacing.tenVertical),
+                    TextFormField(
+                      style: const TextStyle(color: AppColors.kWhite),
+                      controller: endTimeController,
+                      validator: controller.validateRequired,
+                      decoration: _inputDecoration("End Time", AppAssets.kCal),
+                      readOnly: true,
+                      onTap: () async {
+                        final picked = await showTimePicker(
+                          context: context,
+                          initialTime: TimeOfDay.now(),
+                          builder: (context, child) => MediaQuery(
+                            data: MediaQuery.of(context)
+                                .copyWith(alwaysUse24HourFormat: true),
+                            child: Theme(
+                              data: Theme.of(context).copyWith(
+                                dialogBackgroundColor: AppColors.kDarkestBlue,
+                                colorScheme: ColorScheme.dark(
+                                  primary: AppColors.kSkyBlue,
+                                  onPrimary: Colors.black,
+                                  surface: AppColors.kDarkestBlue,
+                                  onSurface: Colors.white,
+                                ),
+                                textButtonTheme: TextButtonThemeData(
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: AppColors.kSkyBlue,
+                                  ),
+                                ),
+                              ),
+                              child: child!,
+                            ),
+                          ),
+                        );
+                        if (picked != null) {
+                          endTimeController.text =
+                              '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
+                        }
+                      },
+                    ),
+                  ],
+                )),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: Text("Cancel", style: AppTypography.kBold16.copyWith(color: AppColors.kSkyBlue)),
+            child: Text("Cancel",
+                style:
+                    AppTypography.kBold16.copyWith(color: AppColors.kSkyBlue)),
           ),
           TextButton(
             onPressed: () {
@@ -314,28 +332,31 @@ class _SetJobDetailsScreenState extends State<SetJobDetailsScreen> {
                 DateTime? endDate;
 
                 try {
-                  startDate = pickedStartDate ?? DateTime.parse(startDateController.text);
+                  startDate = pickedStartDate ??
+                      DateTime.parse(startDateController.text);
                   if (controller.jobType.value == 'recurring') {
-                    endDate = pickedEndDate ?? DateTime.parse(endDateController.text);
+                    endDate =
+                        pickedEndDate ?? DateTime.parse(endDateController.text);
                   }
                 } catch (e) {
-                  Get.snackbar('Error', 'Please select valid start and end dates.');
+                  Get.snackbar(
+                      'Error', 'Please select valid start and end dates.');
                   return;
                 }
 
                 // FIX 2: Only validate endDate for recurring jobs
                 if (controller.jobType.value == 'recurring') {
                   if (endDate == null) {
-                    Get.snackbar('Error', 'End date required for recurring jobs');
+                    Get.snackbar(
+                        'Error', 'End date required for recurring jobs');
                     return;
                   }
                   if (startDate.isAfter(endDate)) {
-                    Get.snackbar('Error', 'Start date cannot be after end date');
+                    Get.snackbar(
+                        'Error', 'Start date cannot be after end date');
                     return;
                   }
                 }
-
-
 
                 // Generate days between
                 List<Shift> shiftsList = [];
@@ -348,7 +369,9 @@ class _SetJobDetailsScreenState extends State<SetJobDetailsScreen> {
                     endTime: endTimeController.text,
                   );
                 } else {
-                  if (startDate != null && endDate != null && !endDate.isBefore(startDate)) {
+                  if (startDate != null &&
+                      endDate != null &&
+                      !endDate.isBefore(startDate)) {
                     shiftsList = generateShiftsPerDay(
                       startDate: startDate,
                       endDate: endDate,
@@ -365,7 +388,9 @@ class _SetJobDetailsScreenState extends State<SetJobDetailsScreen> {
                 Get.back();
               }
             },
-            child: Text("Add", style: AppTypography.kBold16.copyWith(color: AppColors.kSkyBlue)),
+            child: Text("Add",
+                style:
+                    AppTypography.kBold16.copyWith(color: AppColors.kSkyBlue)),
           ),
         ],
       ),
@@ -380,14 +405,14 @@ class _SetJobDetailsScreenState extends State<SetJobDetailsScreen> {
           ...controller.shifts.asMap().entries.map((entry) {
             final index = entry.key;
             final shift = entry.value;
-            final dayWords = shift.days
-                .map((d) => dayAbbreviationToFull[d] ?? d)
-                .join(', ');
+            final dayWords =
+                shift.days.map((d) => dayAbbreviationToFull[d] ?? d).join(', ');
             return ListTile(
               style: ListTileStyle.drawer,
               title: Text(
                 dayWords,
-                style: AppTypography.kBold16.copyWith(color: AppColors.kSkyBlue),
+                style:
+                    AppTypography.kBold16.copyWith(color: AppColors.kSkyBlue),
               ),
               trailing: IconButton(
                 icon: Icon(Icons.delete),
@@ -400,7 +425,8 @@ class _SetJobDetailsScreenState extends State<SetJobDetailsScreen> {
               onPressed: () => _showAddShiftDialog(Get.context!),
               child: Text(
                 "Add Shift +",
-                style: AppTypography.kBold16.copyWith(color: AppColors.kSkyBlue),
+                style:
+                    AppTypography.kBold16.copyWith(color: AppColors.kSkyBlue),
               ),
             ),
         ],
@@ -414,7 +440,7 @@ class _SetJobDetailsScreenState extends State<SetJobDetailsScreen> {
     required DateTime startDate,
     required DateTime endDate,
     required String startTime, // In HH:MM 24-hour
-    required String endTime,   // In HH:MM 24-hour
+    required String endTime, // In HH:MM 24-hour
     bool? isOvernight,
   }) {
     List<Shift> shifts = [];
@@ -422,8 +448,10 @@ class _SetJobDetailsScreenState extends State<SetJobDetailsScreen> {
 
     while (!current.isAfter(endDate)) {
       String dayName = DateFormat('EEEE').format(current);
-      String dateIso = current.toIso8601String().split('T').first + "T00:00:00.000Z";
-      String timePeriod = getTimePeriod(startTime); // "AM" or "PM" based on startTime
+      String dateIso =
+          current.toIso8601String().split('T').first + "T00:00:00.000Z";
+      String timePeriod =
+          getTimePeriod(startTime); // "AM" or "PM" based on startTime
 
       // Convert to 12-hour without AM/PM
       String startTime12 = convertTo12HourNoAmPm(startTime);
@@ -436,7 +464,7 @@ class _SetJobDetailsScreenState extends State<SetJobDetailsScreen> {
           days: [dayName],
           timePeriod: timePeriod,
           startTime: startTime12, // Now in 12-hour without AM/PM
-          endTime: endTime12,     // Now in 12-hour without AM/PM
+          endTime: endTime12, // Now in 12-hour without AM/PM
           isOvernight: isOvernight,
         ),
       );
@@ -452,8 +480,6 @@ class _SetJobDetailsScreenState extends State<SetJobDetailsScreen> {
     hour = hour == 0 ? 12 : hour; // 0 becomes 12 in 12-hour
     return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
   }
-
-
 
   void showJobCategoryBottomSheet(BuildContext context, controller) {
     showModalBottomSheet(
@@ -486,18 +512,22 @@ class _SetJobDetailsScreenState extends State<SetJobDetailsScreen> {
                   children: [
                     Text(
                       "Job Category",
-                      style: AppTypography.kBold18.copyWith(color: AppColors.kWhite),
+                      style: AppTypography.kBold18
+                          .copyWith(color: AppColors.kWhite),
                     ),
                     GestureDetector(
                       onTap: () => Get.back(),
-                      child: Text("Done", style: AppTypography.kBold16.copyWith(color: AppColors.kSkyBlue)),
+                      child: Text("Done",
+                          style: AppTypography.kBold16
+                              .copyWith(color: AppColors.kSkyBlue)),
                     ),
                   ],
                 ),
                 SizedBox(height: AppSpacing.tenVertical),
-                ...controller.availableCategories.map((category) =>
-                    _buildJobCategoryOption(controller, category)
-                ).toList(),
+                ...controller.availableCategories
+                    .map((category) =>
+                        _buildJobCategoryOption(controller, category))
+                    .toList(),
               ],
             );
           }),
@@ -551,21 +581,24 @@ class _SetJobDetailsScreenState extends State<SetJobDetailsScreen> {
                   children: [
                     Text(
                       "Job Premises",
-                      style: AppTypography.kBold18.copyWith(color: AppColors.kWhite),
+                      style: AppTypography.kBold18
+                          .copyWith(color: AppColors.kWhite),
                     ),
                     GestureDetector(
                       onTap: () => Get.back(),
                       child: Text(
                         "Done",
-                        style: AppTypography.kBold16.copyWith(color: AppColors.kSkyBlue),
+                        style: AppTypography.kBold16
+                            .copyWith(color: AppColors.kSkyBlue),
                       ),
                     ),
                   ],
                 ),
                 SizedBox(height: AppSpacing.tenVertical),
-                ...controller.availablePremises.map((premise) =>
-                    _buildJobPremisesOption(controller, premise)
-                ).toList(),
+                ...controller.availablePremises
+                    .map((premise) =>
+                        _buildJobPremisesOption(controller, premise))
+                    .toList(),
               ],
             );
           }),
@@ -586,7 +619,6 @@ class _SetJobDetailsScreenState extends State<SetJobDetailsScreen> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -601,13 +633,15 @@ class _SetJobDetailsScreenState extends State<SetJobDetailsScreen> {
                 children: [
                   GestureDetector(
                       // onTap: () => Get.back(),
-                      onTap: (){
-                      controller.clearAllFields(); 
-                      Get.back();
-                    }, 
-                      child: Image.asset(AppAssets.kArrowBackward)
-                  ),                  const SizedBox(width: 10),
-                  Text("Create New Job", style: AppTypography.kBold24.copyWith(color: Colors.white)),
+                      onTap: () {
+                        controller.clearAllFields();
+                        Get.back();
+                      },
+                      child: Image.asset(AppAssets.kArrowBackward)),
+                  const SizedBox(width: 10),
+                  Text("Create New Job",
+                      style:
+                          AppTypography.kBold24.copyWith(color: Colors.white)),
                 ],
               ),
               const SizedBox(height: 20),
@@ -634,7 +668,7 @@ class _SetJobDetailsScreenState extends State<SetJobDetailsScreen> {
                           decoration:
                               _inputDecoration("Set Job Title", AppAssets.kPer),
                           validator: controller.validateRequired,
-                          onChanged: (value){
+                          onChanged: (value) {
                             controller.formKey.currentState?.validate();
                           },
                         ),
@@ -649,23 +683,29 @@ class _SetJobDetailsScreenState extends State<SetJobDetailsScreen> {
                           decoration: _inputDecoration(
                               "Set Pay Per Hour", AppAssets.kMail),
                           validator: controller.validateRequired,
-                          onChanged: (value){
+                          onChanged: (value) {
                             controller.formKey.currentState?.validate();
                           },
                         ),
                         SizedBox(height: AppSpacing.fifteenVertical),
                         Obx(() {
-                          final selectedName = controller.selectedCategory.value.isEmpty
-                              ? "Job Category"
-                              : controller.availableCategories
-                              .firstWhere(
-                                (cat) => cat.id == controller.selectedCategory.value,
-                            orElse: () => JobCategoryModel(id: '', name: 'Unknown'),
-                          ).name;
+                          final selectedName =
+                              controller.selectedCategory.value.isEmpty
+                                  ? "Job Category"
+                                  : controller.availableCategories
+                                      .firstWhere(
+                                        (cat) =>
+                                            cat.id ==
+                                            controller.selectedCategory.value,
+                                        orElse: () => JobCategoryModel(
+                                            id: '', name: 'Unknown'),
+                                      )
+                                      .name;
 
                           return TappableInputTile(
                             title: "Job Category",
-                            controller: TextEditingController(text: selectedName),
+                            controller:
+                                TextEditingController(text: selectedName),
                             onTap: () {
                               showJobCategoryBottomSheet(context, controller);
                             },
@@ -678,7 +718,7 @@ class _SetJobDetailsScreenState extends State<SetJobDetailsScreen> {
                           decoration: _inputDecoration(
                               "Job Responsibilities", AppAssets.kCal),
                           validator: controller.validateRequired,
-                          onChanged: (value){
+                          onChanged: (value) {
                             controller.formKey.currentState?.validate();
                           },
                         ),
@@ -686,10 +726,10 @@ class _SetJobDetailsScreenState extends State<SetJobDetailsScreen> {
                         TextFormField(
                           style: const TextStyle(color: AppColors.kWhite),
                           controller: controller.jobSOPs,
-                          decoration: _inputDecoration(
-                              "Job SOP", AppAssets.kCal),
+                          decoration:
+                              _inputDecoration("Job SOP", AppAssets.kCal),
                           validator: controller.validateRequired,
-                          onChanged: (value){
+                          onChanged: (value) {
                             controller.formKey.currentState?.validate();
                           },
                         ),
@@ -701,7 +741,7 @@ class _SetJobDetailsScreenState extends State<SetJobDetailsScreen> {
                           decoration: _inputDecoration(
                               "No. Required Guards", AppAssets.kCal),
                           validator: controller.validateRequired,
-                          onChanged: (value){
+                          onChanged: (value) {
                             controller.formKey.currentState?.validate();
                           },
                           maxLength: 3,
@@ -709,60 +749,87 @@ class _SetJobDetailsScreenState extends State<SetJobDetailsScreen> {
                         SizedBox(height: AppSpacing.fifteenVertical),
                         Text(
                           "Leader Required",
-                          style: AppTypography.kBold16.copyWith(
-                              color: AppColors.kWhite),
+                          style: AppTypography.kBold16
+                              .copyWith(color: AppColors.kWhite),
                         ),
                         SizedBox(height: AppSpacing.fiveVertical),
                         Obx(() => Row(
-                          children: [
-                            Row(
                               children: [
-                                Radio<bool>(
-                                  activeColor: AppColors.kSkyBlue,
-                                  value: true,
-                                  groupValue: controller.leaderRequired.value,
-                                  onChanged: (value) => controller.leaderRequired.value = value!,
+                                Row(
+                                  children: [
+                                    Radio<bool>(
+                                      activeColor: AppColors.kSkyBlue,
+                                      value: true,
+                                      groupValue:
+                                          controller.leaderRequired.value,
+                                      onChanged: (value) => controller
+                                          .leaderRequired.value = value!,
+                                    ),
+                                    Text('Yes',
+                                        style: AppTypography.kBold16
+                                            .copyWith(color: AppColors.kWhite)),
+                                  ],
                                 ),
-                                Text('Yes', style: AppTypography.kBold16.copyWith(color: AppColors.kWhite)),
-                              ],
-                            ),
-                            SizedBox(width: 20),
-                            Row(
-                              children: [
-                                Radio<bool>(
-                                  activeColor: AppColors.kSkyBlue,
-                                  value: false,
-                                  groupValue: controller.leaderRequired.value,
-                                  onChanged: (value) => controller.leaderRequired.value = value!,
+                                SizedBox(width: 20),
+                                Row(
+                                  children: [
+                                    Radio<bool>(
+                                      activeColor: AppColors.kSkyBlue,
+                                      value: false,
+                                      groupValue:
+                                          controller.leaderRequired.value,
+                                      onChanged: (value) => controller
+                                          .leaderRequired.value = value!,
+                                    ),
+                                    Text('No',
+                                        style: AppTypography.kBold16
+                                            .copyWith(color: AppColors.kWhite)),
+                                  ],
                                 ),
-                                Text('No', style: AppTypography.kBold16.copyWith(color: AppColors.kWhite)),
                               ],
-                            ),
-                          ],
-                        )),
-                        TextFormField(
-                          style: const TextStyle(color: AppColors.kWhite),
+                            )),
+                        // TextFormField(
+                        //   style: const TextStyle(color: AppColors.kWhite),
+                        //   controller: controller.siteLocation,
+                        //   decoration:
+                        //       _inputDecoration("Site Location", AppAssets.kCal),
+                        //   validator: controller.validateRequired,
+                        //   onChanged: (value) {
+                        //     controller.formKey.currentState?.validate();
+                        //   },
+                        // ),
+                        // Replace the existing Site Location TextFormField with this:
+                        LocationSearchField(
                           controller: controller.siteLocation,
-                          decoration: _inputDecoration(
-                              "Site Location", AppAssets.kCal),
-                          validator: controller.validateRequired,
-                          onChanged: (value){
-                            controller.formKey.currentState?.validate();
+                          onLocationSelected: (prediction) {
+                            controller.selectLocation(prediction);
                           },
+                          onSearchChanged: (query) {
+                            controller.getLocationSuggestions(query);
+                          },
+                          suggestions: controller.locationSuggestions,
+                          isSearching: controller.isSearchingLocation,
+                          hintText: "Site Location",
                         ),
                         SizedBox(height: AppSpacing.fifteenVertical),
                         Obx(() {
-                          final selectedName = controller.selectedPremises.value.isEmpty
-                              ? "Job Premises"
-                              : controller.availablePremises
-                              .firstWhere(
-                                (cat) => cat.id == controller.selectedPremises.value,
-                            orElse: () => JobPremisesModel(id: '', name: 'Unknown'),
-                          ).name;
+                          final selectedName =
+                              controller.selectedPremises.value.isEmpty
+                                  ? "Job Premises"
+                                  : controller.availablePremises
+                                      .firstWhere(
+                                        (cat) =>
+                                            cat.id ==
+                                            controller.selectedPremises.value,
+                                        orElse: () => JobPremisesModel(
+                                            id: '', name: 'Unknown'),
+                                      )
+                                      .name;
 
                           return TappableInputTile(
                             title: "Job Premises",
-                            controller: TextEditingController(text: selectedName),
+                            controller:
+                                TextEditingController(text: selectedName),
                             onTap: () {
                               showJobPremisesBottomSheet(context, controller);
                             },
@@ -775,7 +842,7 @@ class _SetJobDetailsScreenState extends State<SetJobDetailsScreen> {
                           decoration: _inputDecoration(
                               "Reporting Manager", AppAssets.kCal),
                           validator: controller.validateRequired,
-                          onChanged: (value){
+                          onChanged: (value) {
                             controller.formKey.currentState?.validate();
                           },
                           maxLength: 9,
@@ -788,7 +855,7 @@ class _SetJobDetailsScreenState extends State<SetJobDetailsScreen> {
                               "Reporting Manager Number", AppAssets.kCal),
                           validator: controller.validatePhone,
                           keyboardType: TextInputType.phone,
-                          onChanged: (value){
+                          onChanged: (value) {
                             controller.formKey.currentState?.validate();
                           },
                           maxLength: 10,
@@ -796,36 +863,46 @@ class _SetJobDetailsScreenState extends State<SetJobDetailsScreen> {
                         SizedBox(height: AppSpacing.fifteenVertical),
                         Text(
                           "Job",
-                          style: AppTypography.kBold16.copyWith(
-                              color: AppColors.kWhite),
+                          style: AppTypography.kBold16
+                              .copyWith(color: AppColors.kWhite),
                         ),
                         Obx(() => Row(
-                          children: [
-                            Row(
                               children: [
-                                Radio<String>(
-                                  activeColor: AppColors.kSkyBlue,
-                                  value: 'recurring',
-                                  groupValue: controller.jobType.value,
-                                  onChanged: (value) => controller.jobType.value = value!,
+                                Row(
+                                  children: [
+                                    Radio<String>(
+                                      activeColor: AppColors.kSkyBlue,
+                                      value: 'recurring',
+                                      groupValue: controller.jobType.value,
+                                      onChanged: (value) =>
+                                          controller.jobType.value = value!,
+                                    ),
+                                    Text(
+                                      'Recurring',
+                                      style: AppTypography.kBold16
+                                          .copyWith(color: AppColors.kWhite),
+                                    ),
+                                  ],
                                 ),
-                                Text('Recurring',style: AppTypography.kBold16.copyWith(color: AppColors.kWhite),),
-                              ],
-                            ),
-                            SizedBox(width: 20),
-                            Row(
-                              children: [
-                                Radio<String>(
-                                  activeColor: AppColors.kSkyBlue,
-                                  value: 'onetime',
-                                  groupValue: controller.jobType.value,
-                                  onChanged: (value) => controller.jobType.value = value!,
+                                SizedBox(width: 20),
+                                Row(
+                                  children: [
+                                    Radio<String>(
+                                      activeColor: AppColors.kSkyBlue,
+                                      value: 'onetime',
+                                      groupValue: controller.jobType.value,
+                                      onChanged: (value) =>
+                                          controller.jobType.value = value!,
+                                    ),
+                                    Text(
+                                      'One Time',
+                                      style: AppTypography.kBold16
+                                          .copyWith(color: AppColors.kWhite),
+                                    ),
+                                  ],
                                 ),
-                                Text('One Time', style: AppTypography.kBold16.copyWith(color: AppColors.kWhite),),
                               ],
-                            ),
-                          ],
-                        )),
+                            )),
                         _buildShiftList(),
                         SizedBox(height: AppSpacing.fifteenVertical),
                       ],
@@ -840,10 +917,10 @@ class _SetJobDetailsScreenState extends State<SetJobDetailsScreen> {
                 children: [
                   OutlinedButton(
                     // onPressed: () => Get.back(),
-                    onPressed: (){
-                      controller.clearAllFields(); 
+                    onPressed: () {
+                      controller.clearAllFields();
                       Get.back();
-                    }, 
+                    },
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(
                           color: AppColors.kSkyBlue, width: 1.5),
@@ -880,8 +957,6 @@ class _SetJobDetailsScreenState extends State<SetJobDetailsScreen> {
     );
   }
 }
-
-
 
 class StepTab extends StatelessWidget {
   final String title;
