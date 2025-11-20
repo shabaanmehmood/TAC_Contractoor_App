@@ -62,18 +62,7 @@ class HomeView extends StatelessWidget {
                     );
                   }),
 
-                  // Loading indicator
-                  // Obx(() {
-                  //   return controller.isLoading.value
-                  //       ? Center(
-                  //           child: CircularProgressIndicator(
-                  //             color: AppColors.kPrimary,
-                  //           ),
-                  //         )
-                  //       : const SizedBox.shrink();
-                  // }),
-
-                  // Selected GUARD overlay - ONLY NAME, IMAGE, RATING
+         
                   Obx(() {
                     final guard = controller.selectedGuard.value;
                     if (guard == null) return const SizedBox.shrink();

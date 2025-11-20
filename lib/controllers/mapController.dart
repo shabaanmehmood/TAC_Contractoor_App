@@ -203,23 +203,13 @@ class MapController extends GetxController {
     }
   }
 
+  // Remove this complex method entirely and replace with:
   Future<void> updateMarkersWithoutMovingCamera(Set<Marker> newMarkers) async {
-    final CameraPosition? currentPosition = _currentCameraPosition;
-
-    print("🔄 Updating markers, current camera: ${currentPosition?.target}");
-
+    // Simply update markers without camera manipulation
     markers.value = newMarkers;
-
-    if (currentPosition != null && mapController.value != null) {
-      print("🔄 Restoring camera position");
-      Future.delayed(Duration(milliseconds: 50), () {
-        _safeAnimateCamera(
-          CameraUpdate.newCameraPosition(currentPosition),
-        );
-      });
-    }
   }
 
+// Also modify the fetchUserLocations method to remove camera restoration:
   Future<void> fetchUserLocations(String latitude, String longitude) async {
     try {
       final GuardLocationResponse? guardResponse =
@@ -234,15 +224,16 @@ class MapController extends GetxController {
 
       final newMarkers = <Marker>{};
       String imgurl = 'assets/a.jpg';
+
       if (_currentUserLocation != null) {
         if (userController.userData.value != null) {
           final userData = userController.userData.value!;
-
           imgurl = userData.profileImages?.isNotEmpty == true
               ? MyApIService.imageBaseUrlMap +
                   userController.userData.value!.profileImages!.last.image!
               : "assets/a.jpg";
         }
+
         final userIcon = await _createUserMarker(imgurl);
         newMarkers.add(
           Marker(
@@ -259,13 +250,9 @@ class MapController extends GetxController {
 
         if (position.latitude == 0.0 && position.longitude == 0.0) continue;
 
-        // COMMENTED OUT API IMAGE CODE - USING ONLY ASSET IMAGES
         String guardImageUrl = guardLocation.guard.images.isNotEmpty
             ? guardLocation.guard.profileImageUrl
             : "assets/userpicture.jpg";
-
-        // ALWAYS use asset image for guards
-        // String guardImageUrl = "assets/userpicture.jpg";
 
         final customMarkerIcon = await _createCustomMarker(
           guardImageUrl,
@@ -284,7 +271,8 @@ class MapController extends GetxController {
         );
       }
 
-      await updateMarkersWithoutMovingCamera(newMarkers);
+      // SIMPLIFIED: Just update markers without camera manipulation
+      markers.value = newMarkers;
     } catch (e) {
       print("❌ Error fetching guard locations: $e");
     }
@@ -643,8 +631,8 @@ class MapController extends GetxController {
     mapController.value = controller;
     _applyMapStyle();
 
-    Future.delayed(Duration(milliseconds: 100), _applyMapStyle);
-    Future.delayed(Duration(milliseconds: 500), _applyMapStyle);
+    // Future.delayed(Duration(milliseconds: 100), _applyMapStyle);
+    // Future.delayed(Duration(milliseconds: 500), _applyMapStyle);
   }
 
   CameraPosition? get currentCameraPosition => _currentCameraPosition;
