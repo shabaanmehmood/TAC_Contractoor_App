@@ -33,8 +33,8 @@ class _LandingPageState extends State<LandingPage> {
 
   final List<Widget> _pages = [
     HomeView(),
-    const GuardsView(),
-    MyJobsView1(),
+    AvailableGuardsScreen(),
+    MyJobsScreen(),
     MessagesScreen(),
     const AccountScreen(),
   ];

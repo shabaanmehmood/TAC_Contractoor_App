@@ -349,11 +349,11 @@ class MyApIService {
   }
 
   static const String imageBaseUrl = 'http://148.66.158.113:3006/uploads';
-    static const String imageBaseUrlMap = 'http://148.66.158.113:3006/uploads/';
+  static const String imageBaseUrlMap = 'http://148.66.158.113:3006/uploads/';
 
   static String? fullImageUrl(String? imagePath) {
     if (imagePath == null || imagePath.isEmpty) return null;
-    return '$imageBaseUrl$imagePath';
+    return '$imageBaseUrlMap$imagePath';
   }
 
   Future<http.Response> addBankDetails(

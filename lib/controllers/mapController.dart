@@ -228,10 +228,17 @@ class MapController extends GetxController {
       if (_currentUserLocation != null) {
         if (userController.userData.value != null) {
           final userData = userController.userData.value!;
-          imgurl = userData.profileImages?.isNotEmpty == true
-              ? MyApIService.imageBaseUrlMap +
-                  userController.userData.value!.profileImages!.last.image!
-              : "assets/a.jpg";
+          final profileImages = userData.profileImages;
+
+          final mainImage =
+              profileImages?.firstWhereOrNull((img) => img.isMain == true);
+          final imageToUse = mainImage ?? profileImages?.firstOrNull;
+
+          if (imageToUse != null && imageToUse.image != null) {
+            imgurl = MyApIService.imageBaseUrlMap + imageToUse.image!;
+          } else {
+            imgurl = "assets/a.jpg";
+          }
         }
 
         final userIcon = await _createUserMarker(imgurl);
