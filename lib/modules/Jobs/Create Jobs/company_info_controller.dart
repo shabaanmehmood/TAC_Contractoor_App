@@ -465,10 +465,46 @@ class SetJobDetailsController extends GetxController {
     return null;
   }
 
-  void onContinue() {
-    if (formKey.currentState!.validate()) {
-      Get.to(PreferencesScreen());
+  String? validateShifts() {
+    if (shifts.isEmpty) {
+      return 'At least one shift is required';
     }
+
+    for (var shift in shifts) {
+      if (shift.startTime == null || shift.startTime!.isEmpty) {
+        return 'Shift start time is required';
+      }
+      if (shift.endTime == null || shift.endTime!.isEmpty) {
+        return 'Shift end time is required';
+      }
+
+      // Simple format validation (HH:mm)
+    }
+
+    return null;
+  }
+
+  void onContinue() {
+    // First validate the form
+    if (!formKey.currentState!.validate()) {
+      return;
+    }
+
+    // Then validate shifts
+    final shiftError = validateShifts();
+    if (shiftError != null) {
+      // Show error for shifts
+      Get.snackbar(
+        'Validation Error',
+        shiftError,
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    Get.to(PreferencesScreen());
   }
 
   // @override

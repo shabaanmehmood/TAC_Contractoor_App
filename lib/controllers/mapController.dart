@@ -27,7 +27,10 @@ class MapController extends GetxController {
   // Track camera position manually
   CameraPosition? _currentCameraPosition;
   var _isFirstLoad = true;
-
+  PermissionStatus? _cachedPermissionStatus;
+  bool _hasCheckedService = false;
+  bool _serviceEnabled = false;
+  bool _hasRequestedPermission = false;
   @override
   void onInit() {
     super.onInit();
@@ -154,50 +157,78 @@ class MapController extends GetxController {
     }
   }
 
-  Future<void> requestAndSaveLocation() async {
+  Future<void> requestAndSaveLocation({bool forceRefresh = false}) async {
+    // Don't run multiple instances simultaneously
+
     isLoading.value = true;
     Location location = Location();
 
     try {
-      bool serviceEnabled = await location.serviceEnabled();
-      if (!serviceEnabled) {
-        serviceEnabled = await location.requestService();
-        if (!serviceEnabled) {
-          throw Exception('Location services are disabled.');
+      // 1. CHECK SERVICE - Only check once and cache the result
+      if (!_hasCheckedService || forceRefresh) {
+        _serviceEnabled = await location.serviceEnabled();
+        _hasCheckedService = true;
+      }
+
+      if (!_serviceEnabled) {
+        // Request service only if not already enabled
+        _serviceEnabled = await location.requestService();
+        if (!_serviceEnabled) {
+          // Don't throw exception, just return gracefully
+          print('Location services are disabled.');
+          return;
         }
       }
 
-      PermissionStatus permissionGranted = await location.hasPermission();
-      if (permissionGranted == PermissionStatus.denied) {
-        permissionGranted = await location.requestPermission();
-        if (permissionGranted != PermissionStatus.granted) {
-          throw Exception('Location permission denied.');
+      // 2. CHECK PERMISSION - Cache the permission status
+      if (_cachedPermissionStatus == null || forceRefresh) {
+        _cachedPermissionStatus = await location.hasPermission();
+      }
+
+      // Handle different permission states without throwing exceptions
+      if (_cachedPermissionStatus == PermissionStatus.deniedForever) {
+        // Permission permanently denied - just return without error
+        print('Location permissions permanently denied.');
+        return;
+      }
+
+      // NEW: Only request permission if we haven't requested before
+      if (_cachedPermissionStatus == PermissionStatus.denied &&
+          !_hasRequestedPermission) {
+        _hasRequestedPermission = true; // Mark that we've requested
+        _cachedPermissionStatus = await location.requestPermission();
+
+        if (_cachedPermissionStatus != PermissionStatus.granted) {
+          // Permission not granted - just return without error
+          print('Location permission not granted.');
+          return;
         }
       }
-      if (permissionGranted == PermissionStatus.deniedForever) {
-        throw Exception('Location permissions permanently denied.');
-      }
 
-      final userLocation = await location.getLocation();
-      _currentUserLocation =
-          LatLng(userLocation.latitude ?? 0.0, userLocation.longitude ?? 0.0);
+      // 3. ONLY FETCH LOCATION IF WE HAVE PERMISSION
+      if (_cachedPermissionStatus == PermissionStatus.granted) {
+        final userLocation = await location.getLocation();
+        _currentUserLocation =
+            LatLng(userLocation.latitude ?? 0.0, userLocation.longitude ?? 0.0);
 
-      userPath.value = [_currentUserLocation!];
+        userPath.value = [_currentUserLocation!];
 
-      if (_isFirstLoad && mapController.value != null) {
-        final double zoom = _currentCameraPosition?.zoom ?? 15.0;
-        await _safeAnimateCamera(
-          CameraUpdate.newLatLngZoom(_currentUserLocation!, zoom),
+        if (_isFirstLoad && mapController.value != null) {
+          final double zoom = _currentCameraPosition?.zoom ?? 15.0;
+          await _safeAnimateCamera(
+            CameraUpdate.newLatLngZoom(_currentUserLocation!, zoom),
+          );
+          _isFirstLoad = false;
+        }
+
+        await fetchUserLocations(
+          (userLocation.latitude ?? 0.0).toStringAsFixed(4),
+          (userLocation.longitude ?? 0.0).toStringAsFixed(4),
         );
-        _isFirstLoad = false;
       }
-
-      await fetchUserLocations(
-        (userLocation.latitude ?? 0.0).toStringAsFixed(4),
-        (userLocation.longitude ?? 0.0).toStringAsFixed(4),
-      );
     } catch (e) {
       print('Error fetching location: $e');
+      // Only print error, don't show alerts
     } finally {
       isLoading.value = false;
     }

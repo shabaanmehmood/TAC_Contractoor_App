@@ -214,7 +214,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             userController.userData.value?.postalCode ?? "-"
                       },
                       {
-                        "label": "Residential Address",
+                        "label": "Address",
                         "value":
                             userController.userData.value?.postalAddress ?? "-"
                       },
@@ -273,7 +273,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             userController.userData.value?.postalAddress ?? "-"
                       },
                       {
-                        "label": "Residential Address",
+                        "label": "Address",
                         "value":
                             userController.userData.value?.postalAddress ?? "-"
                       },

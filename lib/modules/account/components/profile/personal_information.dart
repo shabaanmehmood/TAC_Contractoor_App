@@ -30,7 +30,7 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
   final TextEditingController contactController = TextEditingController();
   final TextEditingController postalCodeController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
-  List<String> genderOptions = ['Male', 'Female', 'Other'];
+  List<String> genderOptions = ['male', 'female', 'other'];
   String? selectedGender;
 
   @override
@@ -38,7 +38,7 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
     super.initState();
     final user = userController.userData.value;
     final isContractor = user!.registeringAs == 'contractor';
-    if(isContractor){
+    if (isContractor) {
       nameController.text = user.name ?? '';
       emailController.text = user.email ?? '';
       selectedGender = genderOptions.contains(user.gender) ? user.gender : null;
@@ -46,8 +46,7 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
       contactController.text = user.phone ?? '';
       postalCodeController.text = user.postalCode ?? '';
       addressController.text = user.postalAddress ?? '';
-    }
-    else if(user!.registeringAs == 'Company') {
+    } else if (user!.registeringAs == 'Company') {
       nameController.text = user.name ?? '';
       emailController.text = user.email ?? '';
       contactController.text = user.phone ?? '';
@@ -108,133 +107,133 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
                         ),
                       ),
                       const SizedBox(height: 10),
-                      if(userController.userData.value!.registeringAs == 'contractor')
-                        ...[
-                          buildTextField(
+                      if (userController.userData.value!.registeringAs ==
+                          'contractor') ...[
+                        buildTextField(
                           controller: nameController,
                           label: "Full Name",
                           iconPath: AppAssets.kPer,
                           maxLength: 180,
                         ),
-                          buildTextField(
-                            controller: emailController,
-                            label: "Email",
-                            iconPath: AppAssets.kMail,
-                            keyboardType: TextInputType.emailAddress,
-                            maxLength: 180,
-                          ),
-                          buildDropdownField(
-                            label: "Gender",
-                            icon: Icons.person_outline,
-                            value: selectedGender,
-                            onChanged: (val) {
-                              setState(() {
-                                selectedGender = val!;
-                              });
-                            },
-                          ),
-                          buildTextField(
-                            controller: dobController,
-                            label: "Date of Birth",
-                            iconPath: AppAssets.kCal,
-                            readOnly: true,
-                            onTap: () async {
-                              final picked = await showDatePicker(
-                                context: context,
-                                initialDate: DateTime.now(),
-                                firstDate: DateTime(1900),
-                                lastDate: DateTime.now(),
-                                builder: (context, child) {
-                                  return Theme(
-                                    data: Theme.of(context).copyWith(
-                                      dialogBackgroundColor: AppColors.kDarkestBlue,
-                                      colorScheme: ColorScheme.dark(
-                                        primary: AppColors.kSkyBlue,
-                                        onPrimary: Colors.black,
-                                        surface: AppColors.kDarkestBlue,
-                                        onSurface: Colors.white,
-                                      ),
-                                      textButtonTheme: TextButtonThemeData(
-                                        style: TextButton.styleFrom(
-                                          foregroundColor: AppColors
-                                              .kSkyBlue, // Button text color
-                                        ),
+                        buildTextField(
+                          controller: emailController,
+                          label: "Email",
+                          iconPath: AppAssets.kMail,
+                          keyboardType: TextInputType.emailAddress,
+                          maxLength: 180,
+                        ),
+                        buildDropdownField(
+                          label: "Gender",
+                          icon: Icons.person_outline,
+                          value: selectedGender,
+                          onChanged: (val) {
+                            setState(() {
+                              selectedGender = val!;
+                            });
+                          },
+                        ),
+                        buildTextField(
+                          controller: dobController,
+                          label: "Date of Birth",
+                          iconPath: AppAssets.kCal,
+                          readOnly: true,
+                          onTap: () async {
+                            final picked = await showDatePicker(
+                              context: context,
+                              initialDate: DateTime.now(),
+                              firstDate: DateTime(1900),
+                              lastDate: DateTime.now(),
+                              builder: (context, child) {
+                                return Theme(
+                                  data: Theme.of(context).copyWith(
+                                    dialogBackgroundColor:
+                                        AppColors.kDarkestBlue,
+                                    colorScheme: ColorScheme.dark(
+                                      primary: AppColors.kSkyBlue,
+                                      onPrimary: Colors.black,
+                                      surface: AppColors.kDarkestBlue,
+                                      onSurface: Colors.white,
+                                    ),
+                                    textButtonTheme: TextButtonThemeData(
+                                      style: TextButton.styleFrom(
+                                        foregroundColor: AppColors
+                                            .kSkyBlue, // Button text color
                                       ),
                                     ),
-                                    child: child!,
-                                  );
-                                },
-                              );
-                              if (picked != null) {
-                                setState(() {
-                                  dobController.text =
-                                      picked.toIso8601String().split('T').first;
-                                });
-                              }
-                            },
-                          ),
-                          buildTextField(
-                            controller: contactController,
-                            label: "Contact Number",
-                            iconPath: AppAssets.kNum,
-                            keyboardType: TextInputType.phone,
-                            maxLength: 11,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly
-                            ],
-                          ),
-                          buildTextField(
-                            maxLength: 6,
-                            controller: postalCodeController,
-                            label: "Postal Code",
-                            iconPath: AppAssets.kLoc,
-                            keyboardType: TextInputType.number,
-                          ),
-                          buildTextField(
-                            controller: addressController,
-                            label: "Address",
-                            iconPath: AppAssets.kLoc,
-                          ),
-                        ],
-
-                      if(userController.userData.value!.registeringAs == 'Company')
-                        ...[
-                          buildTextField(
-                            controller: nameController,
-                            label: "Company Name",
-                            iconPath: AppAssets.kPer,
-                            maxLength: 180,
-                          ),
-                          buildTextField(
-                            controller: emailController,
-                            label: "Email Address",
-                            iconPath: AppAssets.kMail,
-                            keyboardType: TextInputType.emailAddress,
-                            maxLength: 180,
-                          ),
-                          buildTextField(
-                            controller: contactController,
-                            label: "Contact Number",
-                            iconPath: AppAssets.kNum,
-                            keyboardType: TextInputType.phone,
-                            maxLength: 11,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly
-                            ],
-                          ),
-                          buildTextField(
-                            maxLength: 6,
-                            controller: postalCodeController,
-                            label: "Postal Code",
-                            iconPath: AppAssets.kLoc,
-                            keyboardType: TextInputType.number,
-                          ),
-                          buildTextField(
-                            controller: addressController,
-                            label: "Residential Address",
-                            iconPath: AppAssets.kLoc,
-                          ),
-                        ]
+                                  ),
+                                  child: child!,
+                                );
+                              },
+                            );
+                            if (picked != null) {
+                              setState(() {
+                                dobController.text =
+                                    picked.toIso8601String().split('T').first;
+                              });
+                            }
+                          },
+                        ),
+                        buildTextField(
+                          controller: contactController,
+                          label: "Contact Number",
+                          iconPath: AppAssets.kNum,
+                          keyboardType: TextInputType.phone,
+                          maxLength: 11,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly
+                          ],
+                        ),
+                        buildTextField(
+                          maxLength: 6,
+                          controller: postalCodeController,
+                          label: "Postal Code",
+                          iconPath: AppAssets.kLoc,
+                          keyboardType: TextInputType.number,
+                        ),
+                        buildTextField(
+                          controller: addressController,
+                          label: "Address",
+                          iconPath: AppAssets.kLoc,
+                        ),
+                      ],
+                      if (userController.userData.value!.registeringAs ==
+                          'Company') ...[
+                        buildTextField(
+                          controller: nameController,
+                          label: "Company Name",
+                          iconPath: AppAssets.kPer,
+                          maxLength: 180,
+                        ),
+                        buildTextField(
+                          controller: emailController,
+                          label: "Email Address",
+                          iconPath: AppAssets.kMail,
+                          keyboardType: TextInputType.emailAddress,
+                          maxLength: 180,
+                        ),
+                        buildTextField(
+                          controller: contactController,
+                          label: "Contact Number",
+                          iconPath: AppAssets.kNum,
+                          keyboardType: TextInputType.phone,
+                          maxLength: 11,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly
+                          ],
+                        ),
+                        buildTextField(
+                          maxLength: 6,
+                          controller: postalCodeController,
+                          label: "Postal Code",
+                          iconPath: AppAssets.kLoc,
+                          keyboardType: TextInputType.number,
+                        ),
+                        buildTextField(
+                          controller: addressController,
+                          label: "Address",
+                          iconPath: AppAssets.kLoc,
+                        ),
+                      ]
                     ],
                   ),
                 ),
@@ -304,7 +303,7 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
 
   Future<void> updatePersonalInfo() async {
     final apiService = MyApIService();
-    if(userController.userData.value!.registeringAs == 'contractor') {
+    if (userController.userData.value!.registeringAs == 'contractor') {
       if (selectedGender == null) {
         Get.snackbar(
           "Missing Information",
@@ -347,7 +346,8 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
           Get.back(result: true);
         } else {
           final Map<String, dynamic> responseBody = jsonDecode(response.body);
-          final String errorMessage = responseBody['message'] ?? 'Unknown error';
+          final String errorMessage =
+              responseBody['message'] ?? 'Unknown error';
 
           // Show dialog with one line call
           await AdaptiveAlertDialogWidget.show(
@@ -366,8 +366,7 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
       } catch (e) {
         debugPrint('Error Network error: ${e.toString()}');
       }
-    }
-    else if(userController.userData.value!.registeringAs == 'Company') {
+    } else if (userController.userData.value!.registeringAs == 'Company') {
       try {
         final userModel = UserUpdateModel(
           fullName: nameController.text,
@@ -388,7 +387,8 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
           Get.back(result: true);
         } else {
           final Map<String, dynamic> responseBody = jsonDecode(response.body);
-          final String errorMessage = responseBody['message'] ?? 'Unknown error';
+          final String errorMessage =
+              responseBody['message'] ?? 'Unknown error';
 
           // Show dialog with one line call
           await AdaptiveAlertDialogWidget.show(
@@ -462,8 +462,11 @@ class _EditPersonalInfoScreenState extends State<EditPersonalInfoScreen> {
     required String? value,
     required void Function(String?) onChanged,
   }) {
-    final genderOptions = ['Male', 'Female', 'Other'];
-
+    final genderOptions = ['male', 'female', 'other'];
+    print('Dropdown value: $value');
+    print('Gender options: $genderOptions');
+    print(
+        'Number of items with value $value: ${genderOptions.where((g) => g == value).length}');
     return DropdownButtonFormField<String>(
       value: value,
       items: genderOptions.map((gender) {
