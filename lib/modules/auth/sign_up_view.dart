@@ -39,11 +39,10 @@ class SignUpViewController extends GetxController {
 
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final GlobalKey<FormState> passwordFormKey = GlobalKey<FormState>();
-  
 
   String imageBase64 = '';
 
-  var isLoading = false.obs;  // RxBool to track loading state
+  var isLoading = false.obs; // RxBool to track loading state
 
   var setPasswordVisible = false.obs;
   var setConfirmPasswordVisible = false.obs;
@@ -51,6 +50,7 @@ class SignUpViewController extends GetxController {
   void togglePasswordView() {
     setPasswordVisible.value = !setPasswordVisible.value;
   }
+
   void toggleConfirmPasswordView() {
     setConfirmPasswordVisible.value = !setConfirmPasswordVisible.value;
   }
@@ -115,7 +115,7 @@ class SignUpViewController extends GetxController {
 
 class SignUpView extends StatelessWidget {
   final SignUpViewController controller = Get.put(SignUpViewController());
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -138,25 +138,20 @@ class SignUpView extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        "Create Account",
-                          style: AppTypography.kBold24.copyWith(
-                              color: AppColors.kWhite
-                          )
-                      ),
-                      Text(
-                        "Get Yourself Registered",
-                          style: AppTypography.kLight14.copyWith(
-                              color: Colors.grey
-                          )
-                      ),
+                      Text("Create Account",
+                          style: AppTypography.kBold24
+                              .copyWith(color: AppColors.kWhite)),
+                      Text("Get Yourself Registered",
+                          style: AppTypography.kLight14
+                              .copyWith(color: Colors.grey)),
                     ],
                   ),
                 ],
               ),
             ),
             Padding(
-              padding: EdgeInsets.only(top: Get.height * 0.18, bottom: AppSpacing.twentyVertical),
+              padding: EdgeInsets.only(
+                  top: Get.height * 0.18, bottom: AppSpacing.twentyVertical),
               child: SingleChildScrollView(
                 child: Form(
                   key: controller.formKey,
@@ -167,7 +162,9 @@ class SignUpView extends StatelessWidget {
                         controller: controller.fullNameController,
                         iconPath: AppAssets.kPerson,
                         hintText: "Full Name",
-                        inputFormatters: [LengthLimitingTextInputFormatter(320)],
+                        inputFormatters: [
+                          LengthLimitingTextInputFormatter(320)
+                        ],
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
                             return 'Full name is required';
@@ -184,12 +181,15 @@ class SignUpView extends StatelessWidget {
                         iconPath: AppAssets.kEmail,
                         controller: controller.emailController,
                         keyboardType: TextInputType.emailAddress,
-                        inputFormatters: [LengthLimitingTextInputFormatter(320)],
+                        inputFormatters: [
+                          LengthLimitingTextInputFormatter(320)
+                        ],
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Email is required';
                           }
-                          if (!RegExp(r"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$").hasMatch(value)) {
+                          if (!RegExp(r"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$")
+                              .hasMatch(value)) {
                             return 'Enter a valid email';
                           }
                           return null;
@@ -206,7 +206,9 @@ class SignUpView extends StatelessWidget {
                         keyboardType: TextInputType.number,
                         inputFormatters: [LengthLimitingTextInputFormatter(10)],
                         validator: (value) {
-                          if (value == null || value.trim().isEmpty || value.length < 10) {
+                          if (value == null ||
+                              value.trim().isEmpty ||
+                              value.length < 10) {
                             return 'Please enter 10 digit phone number';
                           }
                           return null;
@@ -221,7 +223,9 @@ class SignUpView extends StatelessWidget {
                         iconPath: AppAssets.kLocation,
                         controller: controller.postalAddressController,
                         keyboardType: TextInputType.streetAddress,
-                        inputFormatters: [LengthLimitingTextInputFormatter(500)],
+                        inputFormatters: [
+                          LengthLimitingTextInputFormatter(500)
+                        ],
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
                             return 'Postal Address is required';
@@ -240,7 +244,9 @@ class SignUpView extends StatelessWidget {
                         keyboardType: TextInputType.number,
                         inputFormatters: [LengthLimitingTextInputFormatter(14)],
                         validator: (value) {
-                          if (value == null || value.trim().isEmpty || value.length < 14) {
+                          if (value == null ||
+                              value.trim().isEmpty ||
+                              value.length < 14) {
                             return 'Please enter 14 digit master security license #';
                           }
                           return null;
@@ -273,11 +279,16 @@ class SignUpView extends StatelessWidget {
                           //     controller.photoIdController.text = 'No image selected';
                           //   }
                           // });
-                          final UploadFileController uploadFileController = Get.put(UploadFileController());
-                          String? base64image = await uploadFileController.showUploadFileBottomSheet(context, returnBase64: true, showPickFileOption: false);
+                          final UploadFileController uploadFileController =
+                              Get.put(UploadFileController());
+                          String? base64image = await uploadFileController
+                              .showUploadFileBottomSheet(context,
+                                  returnBase64: true,
+                                  showPickFileOption: false);
                           if (base64image != null) {
                             controller.imageBase64 = base64image;
-                            controller.photoIdController.text = 'Photo ID uploaded';
+                            controller.photoIdController.text =
+                                'Photo ID uploaded';
                           } else {
                             controller.formKey.currentState!.validate();
                           }
@@ -287,7 +298,7 @@ class SignUpView extends StatelessWidget {
                       SizedBox(height: AppSpacing.thirtyVertical),
                       PrimaryButton(
                         color: AppColors.kSkyBlue,
-                        onTap: ()async  {
+                        onTap: () async {
                           //  await _sessionManagerController.saveLoginSession(); // <--- CALL IT HERE too
                           controller.savePersonalInfoAndGoNext();
                         },
@@ -299,23 +310,27 @@ class SignUpView extends StatelessWidget {
                         children: [
                           Text(
                             'Already have an account?',
-                            style: AppTypography.kBold16.copyWith(color: Colors.grey),
+                            style: AppTypography.kBold16
+                                .copyWith(color: Colors.grey),
                           ),
                           TextButton(
                             onPressed: () {
-                              Get.offAllNamed<dynamic>(AppRoutes.getSignInRoute());
+                              Get.offAllNamed<dynamic>(
+                                  AppRoutes.getSignInRoute());
                             },
                             child: Text(
                               'Login',
-                              style: AppTypography.kBold18.copyWith(color: AppColors.kSkyBlue),
+                              style: AppTypography.kBold18
+                                  .copyWith(color: AppColors.kSkyBlue),
                             ),
                           ),
                         ],
                       ),
                       SizedBox(height: AppSpacing.twentyVertical),
                       Text(
-                        'Powered by TAC Solutions',
-                        style: AppTypography.kLight14.copyWith(color: Colors.grey),
+                        'Powered by Control1 Security',
+                        style:
+                            AppTypography.kLight14.copyWith(color: Colors.grey),
                       ),
                     ],
                   ),

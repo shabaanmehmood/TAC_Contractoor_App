@@ -12,7 +12,6 @@ class ActiveGuardProfileScreen extends StatelessWidget {
       backgroundColor: AppColors.kDarkBlue,
       body: SafeArea(
         child: SingleChildScrollView(
-          
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -20,16 +19,20 @@ class ActiveGuardProfileScreen extends StatelessWidget {
 
               /// Header
               Padding(
-               padding: EdgeInsets.symmetric(horizontal: Get.width * 0.04),
+                padding: EdgeInsets.symmetric(horizontal: Get.width * 0.04),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Guard Profile", style: AppTypography.kBold18.copyWith(color: AppColors.kWhite)),
+                    Text("Guard Profile",
+                        style: AppTypography.kBold18
+                            .copyWith(color: AppColors.kWhite)),
                     GestureDetector(
-                       onTap: () {
-                        Navigator.pop(context);
-                },
-                      child: Text("View Profile", style: AppTypography.kBold14.copyWith(color: AppColors.kSkyBlue))),
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        child: Text("Back to Jobs",
+                            style: AppTypography.kBold14
+                                .copyWith(color: AppColors.kSkyBlue))),
                   ],
                 ),
               ),
@@ -79,13 +82,17 @@ class ActiveGuardProfileScreen extends StatelessWidget {
                                 ),
                                 decoration: BoxDecoration(
                                   color: AppColors.kGuardsCard,
-                                  borderRadius: BorderRadius.circular(Get.width * 0.02),
+                                  borderRadius:
+                                      BorderRadius.circular(Get.width * 0.02),
                                 ),
                                 child: Row(
                                   children: [
-                                    Image.asset("assets/icon/Layer 2.png", width: Get.width * 0.035),
+                                    Image.asset("assets/icon/Layer 2.png",
+                                        width: Get.width * 0.035),
                                     SizedBox(width: Get.width * 0.01),
-                                    Text('Leader Guard', style: AppTypography.kBold10.copyWith(color: Colors.white)),
+                                    Text('Leader Guard',
+                                        style: AppTypography.kBold10
+                                            .copyWith(color: Colors.white)),
                                   ],
                                 ),
                               ),
@@ -93,20 +100,30 @@ class ActiveGuardProfileScreen extends StatelessWidget {
                               CircleAvatar(
                                 radius: Get.width * 0.03,
                                 backgroundColor: AppColors.kGuardsCard,
-                                child: Icon(Icons.verified, size: Get.width * 0.04, color: Colors.white),
+                                child: Icon(Icons.verified,
+                                    size: Get.width * 0.04,
+                                    color: Colors.white),
                               ),
                             ],
                           ),
                           SizedBox(height: Get.height * 0.005),
-                          Text('Johsan Bill', style: AppTypography.kBold18.copyWith(color: AppColors.kWhite)),
+                          Text('Johsan Bill',
+                              style: AppTypography.kBold18
+                                  .copyWith(color: AppColors.kWhite)),
                           SizedBox(height: Get.height * 0.003),
                           Row(
                             children: [
-                              Text('Level 2', style: AppTypography.kLight12.copyWith(color: Colors.grey.shade400)),
+                              Text('Level 2',
+                                  style: AppTypography.kLight12
+                                      .copyWith(color: Colors.grey.shade400)),
                               SizedBox(width: Get.width * 0.02),
-                              Icon(Icons.star, size: Get.width * 0.06, color: Colors.cyanAccent),
+                              Icon(Icons.star,
+                                  size: Get.width * 0.06,
+                                  color: Colors.cyanAccent),
                               SizedBox(width: Get.width * 0.01),
-                              Text('5.0', style: AppTypography.kBold12.copyWith(color: AppColors.kWhite)),
+                              Text('5.0',
+                                  style: AppTypography.kBold12
+                                      .copyWith(color: AppColors.kWhite)),
                             ],
                           ),
                         ],
@@ -120,7 +137,7 @@ class ActiveGuardProfileScreen extends StatelessWidget {
 
               /// Assigned Location
               Container(
-                 margin: EdgeInsets.symmetric(horizontal: Get.width * 0.04),
+                margin: EdgeInsets.symmetric(horizontal: Get.width * 0.04),
                 width: double.infinity,
                 padding: EdgeInsets.all(Get.width * 0.04),
                 decoration: BoxDecoration(
@@ -130,16 +147,20 @@ class ActiveGuardProfileScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Assigned Location", style: AppTypography.kBold14.copyWith(color: AppColors.kWhite)),
+                    Text("Assigned Location",
+                        style: AppTypography.kBold14
+                            .copyWith(color: AppColors.kWhite)),
                     SizedBox(height: Get.height * 0.01),
                     Row(
                       children: [
-                        Icon(Icons.location_on, color: AppColors.kgrey, size: Get.width * 0.05),
+                        Icon(Icons.location_on,
+                            color: AppColors.kgrey, size: Get.width * 0.05),
                         SizedBox(width: Get.width * 0.02),
                         Expanded(
                           child: Text(
                             "2972 Westheimer Rd. Santa Ana, Illinois 85486",
-                            style: AppTypography.kLight12.copyWith(color: AppColors.kgrey),
+                            style: AppTypography.kLight12
+                                .copyWith(color: AppColors.kgrey),
                           ),
                         ),
                       ],
@@ -152,7 +173,7 @@ class ActiveGuardProfileScreen extends StatelessWidget {
 
               /// Performance Stats
               Container(
-                 margin: EdgeInsets.symmetric(horizontal: Get.width * 0.04),
+                margin: EdgeInsets.symmetric(horizontal: Get.width * 0.04),
                 width: double.infinity,
                 padding: EdgeInsets.all(Get.width * 0.04),
                 decoration: BoxDecoration(
@@ -162,7 +183,9 @@ class ActiveGuardProfileScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Performance Stats", style: AppTypography.kBold14.copyWith(color: AppColors.kWhite)),
+                    Text("Performance Stats",
+                        style: AppTypography.kBold14
+                            .copyWith(color: AppColors.kWhite)),
                     SizedBox(height: Get.height * 0.02),
                     GridView.count(
                       crossAxisCount: 2,
@@ -194,16 +217,20 @@ class ActiveGuardProfileScreen extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(Get.width * 0.035),
       decoration: BoxDecoration(
-        border: Border.all(width: Get.width * 0.001, color: AppColors.kWhite.withOpacity(0.3)),
+        border: Border.all(
+            width: Get.width * 0.001, color: AppColors.kWhite.withOpacity(0.3)),
         borderRadius: BorderRadius.circular(Get.width * 0.02),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center, // Add this to avoid overflow in child
+        mainAxisAlignment:
+            MainAxisAlignment.center, // Add this to avoid overflow in child
         children: [
-          Text(title, style: AppTypography.kLight11.copyWith(color: AppColors.kWhite)),
+          Text(title,
+              style: AppTypography.kLight11.copyWith(color: AppColors.kWhite)),
           SizedBox(height: Get.height * 0.008),
-          Text(value, style: AppTypography.kBold16.copyWith(color: AppColors.kWhite)),
+          Text(value,
+              style: AppTypography.kBold16.copyWith(color: AppColors.kWhite)),
         ],
       ),
     );

@@ -29,7 +29,7 @@ class InProgressGuardProfileScreen extends StatelessWidget {
                        onTap: () {
                         Navigator.pop(context);
                 },
-                      child: Text("View Profile", style: AppTypography.kBold14.copyWith(color: AppColors.kSkyBlue))),
+                      child: Text("Back to Jobs", style: AppTypography.kBold14.copyWith(color: AppColors.kSkyBlue))),
                   ],
                 ),
               ),

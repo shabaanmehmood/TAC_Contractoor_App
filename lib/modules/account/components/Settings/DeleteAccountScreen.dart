@@ -18,7 +18,7 @@ class DeleteAccountController extends GetxController {
 
   Future<void> deleteAccount() async {
     final apiService = MyApIService(); // create instance
-    try{
+    try {
       final response = await apiService.deleteAccount(
         userController.userData.value!.id!,
       );
@@ -30,8 +30,7 @@ class DeleteAccountController extends GetxController {
       } else {
         debugPrint('Error delete API failed: ${response.body}');
       }
-    }
-    catch(e){
+    } catch (e) {
       debugPrint('Error Network error: ${e.toString()}');
     }
   }
@@ -105,7 +104,7 @@ class DeleteAccountScreen extends StatelessWidget {
                             child: Text(
                               "This action is irreversible. All your data, including account information, preferences, and history, will be permanently deleted.",
                               style: TextStyle(
-                                  color: AppColors.kRed, fontSize: 12),
+                                  color: AppColors.kWhite, fontSize: 12),
                             ),
                           ),
                         ],
@@ -236,7 +235,7 @@ class DeleteAccountScreen extends StatelessWidget {
                       ),
                       child: const Text(
                         "Delete Account",
-                        style: TextStyle(color: AppColors.kRed),
+                        style: TextStyle(color: AppColors.kWhite),
                       ),
                     ),
                   ),
