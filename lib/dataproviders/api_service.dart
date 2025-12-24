@@ -52,27 +52,8 @@ class MyApIService {
           'ngrok-skip-browser-warning': 'true',
         },
         body: jsonEncode(SignUpModelForCompany.toJson()));
-    //   body: jsonEncode({
-    //     'registeringAs': registeringAs,
-    //     'email': email,
-    //     'Name': Name,
-    //     'phone': phone,
-    //     'postalAddress': postalAddress,
-    //     'masterSecurityLicense': masterLicense,
-    //     'austraLianBusinessNumber': austraLianBusinessNumber,
-    //     'australianCompanyNumber': australianCompanyNumber,
-    //     'password': password,
-    //     'confirmPassword': confirmPassword,
-    //     'passport': passport,
-    //     'securityLicense': securityLicense,
-    //     'visaWorkingRights': visaWorkingRights,
-    //     'abn': abn,
-    //     'nationalCrimeCheck': nationalCrimeCheck,
-    //     'whiteCard': whiteCard,
-    //   }),
-    // );
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == 200 || response.statusCode == 201) {
       final jsonData = jsonDecode(response.body);
       debugPrint('Response in signUp: $jsonData');
       final userDataModel = UserDataModel.fromJson(jsonData);
@@ -135,33 +116,12 @@ class MyApIService {
         'Content-Type': 'application/json',
         'ngrok-skip-browser-warning': 'true',
       },
-      // body: jsonEncode({
-      //   'registeringAs': registeringAs,
-      //   'email': email,
-      //   'Name': Name,
-      //   'phone': phone,
-      //   'postalAddress': postalAddress,
-      //   // 'masterSecurityLicense': masterLicense,
-      //   'austraLianBusinessNumber': austraLianBusinessNumber,
-      //   // 'australianCompanyNumber': australianCompanyNumber,
-      //   'password': password,
-      //   'confirmPassword': confirmPassword,
-      //   // 'role': role,
-      //   'dob' : dob,
-      //   'gender' : gender,
-      //   'passport': passport,
-      //   'securityLicense': securityLicense,
-      //   'visaWorkingRights': visaWorkingRights,
-      //   'abn': abn,
-      //   'nationalCrimeCheck': nationalCrimeCheck,
-      //   'whiteCard': whiteCard,
-      // }),
       body: jsonEncode(
           SignUpModelForIndividual.toJson() // Encode body as JSON string
           ),
     );
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == 200 || response.statusCode == 201) {
       final jsonData = jsonDecode(response.body);
       debugPrint('Response in signUp: $jsonData');
       final userDataModel = UserDataModel.fromJson(jsonData);

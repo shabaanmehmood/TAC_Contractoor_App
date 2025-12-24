@@ -23,10 +23,13 @@ class SetPasswordScreen extends StatefulWidget {
 class _SetPasswordScreenState extends State<SetPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
 
-  final CompanyInfoController companyInfoController = Get.put(CompanyInfoController());
-  final DocumentInfoController documentInfoController = Get.put(DocumentInfoController());
+  final CompanyInfoController companyInfoController =
+      Get.put(CompanyInfoController());
+  final DocumentInfoController documentInfoController =
+      Get.put(DocumentInfoController());
 
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
@@ -75,7 +78,7 @@ class _SetPasswordScreenState extends State<SetPasswordScreen> {
       }
 
       final apiService = MyApIService(); // create instance
-      try{
+      try {
         final signUpModelForCompany = SignUpModelForCompany(
           registeringAs: companyInfoController.registeringAs.value,
           name: companyInfoController.companyName.text,
@@ -88,68 +91,69 @@ class _SetPasswordScreenState extends State<SetPasswordScreen> {
           password: passwordController.text,
           confirmPassword: confirmPasswordController.text,
           passport: documentInfoController.passportFile.value,
-          whiteCard: (documentInfoController.whiteCardFile.value?.isNotEmpty ?? false)
-              ? documentInfoController.whiteCardFile.value
-              : null,
-          visaWorkingRights: documentInfoController.visaForWorkingRightsFile.value,
+          whiteCard:
+              (documentInfoController.whiteCardFile.value?.isNotEmpty ?? false)
+                  ? documentInfoController.whiteCardFile.value
+                  : null,
+          visaWorkingRights:
+              documentInfoController.visaForWorkingRightsFile.value,
           securityLicense: documentInfoController.securityLicenseFile.value,
           abn: (documentInfoController.abnFile.value?.isNotEmpty ?? false)
               ? documentInfoController.abnFile.value
               : null,
-          nationalCrimeCheck: documentInfoController.nationalCrimePoliceCheckFile.value,
+          nationalCrimeCheck:
+              documentInfoController.nationalCrimePoliceCheckFile.value,
         );
 
         final response = await apiService.signUpForCompany(
-            SignUpModelForCompany: signUpModelForCompany
-        );
+            SignUpModelForCompany: signUpModelForCompany);
 
+        // final response = await apiService.signUpForCompany(
+        //   registeringAs: companyInfoController.registeringAs.value,
+        //   email: companyInfoController.companyEmail.text,
+        //   Name: companyInfoController.companyName.text,
+        //   phone: companyInfoController.phone.text,
+        //   postalAddress: companyInfoController.postalAddress.text,
+        //   masterLicense: companyInfoController.license.text,
+        //   austraLianBusinessNumber: companyInfoController.abn.text,
+        //   australianCompanyNumber: companyInfoController.acn.text,
+        //   password: passwordController.text,
+        //   confirmPassword: confirmPasswordController.text,
+        //   // dob: companyInfoController.dob.text,
+        //   role: companyInfoController.role.text ,
+        //   // gender: companyInfoController.genderController.text,
+        //   passport: documentInfoController.passportFile.value,
+        //   whiteCard: documentInfoController.whiteCardFile.value,
+        //   visaWorkingRights: documentInfoController.visaForWorkingRightsFile.value,
+        //   securityLicense: documentInfoController.securityLicenseFile.value,
+        //   nationalCrimeCheck: documentInfoController.nationalCrimePoliceCheckFile.value,
+        //   abn: documentInfoController.abnFile.value,
+        // );
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          debugPrint("data from API ${response.body}");
+          Get.offAndToNamed(AppRoutes.getLandingPageRoute());
+          // await saveLoginSession();
+        } else {
+          debugPrint('Error Signup failed: ${response.body}');
+          debugPrint("data from API ${response.body}");
+          final Map<String, dynamic> responseBody = jsonDecode(response.body);
+          final String errorMessage =
+              responseBody['message'] ?? 'Unknown error';
 
-          // final response = await apiService.signUpForCompany(
-          //   registeringAs: companyInfoController.registeringAs.value,
-          //   email: companyInfoController.companyEmail.text,
-          //   Name: companyInfoController.companyName.text,
-          //   phone: companyInfoController.phone.text,
-          //   postalAddress: companyInfoController.postalAddress.text,
-          //   masterLicense: companyInfoController.license.text,
-          //   austraLianBusinessNumber: companyInfoController.abn.text,
-          //   australianCompanyNumber: companyInfoController.acn.text,
-          //   password: passwordController.text,
-          //   confirmPassword: confirmPasswordController.text,
-          //   // dob: companyInfoController.dob.text,
-          //   role: companyInfoController.role.text ,
-          //   // gender: companyInfoController.genderController.text,
-          //   passport: documentInfoController.passportFile.value,
-          //   whiteCard: documentInfoController.whiteCardFile.value,
-          //   visaWorkingRights: documentInfoController.visaForWorkingRightsFile.value,
-          //   securityLicense: documentInfoController.securityLicenseFile.value,
-          //   nationalCrimeCheck: documentInfoController.nationalCrimePoliceCheckFile.value,
-          //   abn: documentInfoController.abnFile.value,
-          // );
-          if (response.statusCode == 200) {
-            debugPrint("data from API ${response.body}");
-            Get.offAndToNamed(AppRoutes.getLandingPageRoute());
-            // await saveLoginSession();
-          } else {
-            debugPrint('Error Signup failed: ${response.body}');
-            debugPrint("data from API ${response.body}");
-            final Map<String, dynamic> responseBody = jsonDecode(response.body);
-            final String errorMessage = responseBody['message'] ?? 'Unknown error';
-
-            // Show dialog with one line call
-            await AdaptiveAlertDialogWidget.show(
-              context,
-              title: 'Signup Failed',
-              content: errorMessage,
-              yesText: 'OK',
-              showNoButton: false,
-              onYes: () {
-                // Optional: do something on OK pressed
-              },
-            );
-            debugPrint('Error signup failed: ${response.body}');
-          }
-      }
-      catch(e){
+          // Show dialog with one line call
+          await AdaptiveAlertDialogWidget.show(
+            context,
+            title: 'Signup Failed',
+            content: errorMessage,
+            yesText: 'OK',
+            showNoButton: false,
+            onYes: () {
+              // Optional: do something on OK pressed
+            },
+          );
+          debugPrint('Error signup failed: ${response.body}');
+        }
+      } catch (e) {
         debugPrint('Error Network error: ${e.toString()}');
         await AdaptiveAlertDialogWidget.show(
           context,
@@ -172,65 +176,68 @@ class _SetPasswordScreenState extends State<SetPasswordScreen> {
 
       final apiService = MyApIService(); // create instance
       // try{
-        //   final response = await apiService.signUpForContractor(
-        //     registeringAs: companyInfoController.registeringAs.value,
-        //     email: companyInfoController.companyEmail.text,
-        //     Name: companyInfoController.companyName.text,
-        //     phone: companyInfoController.phone.text,
-        //     postalAddress: companyInfoController.postalAddress.text,
-        //     // masterLicense: companyInfoController.license.text,
-        //     austraLianBusinessNumber: companyInfoController.abn.text,
-        //     // australianCompanyNumber: companyInfoController.acn.text,
-        //     password: passwordController.text,
-        //     confirmPassword: confirmPasswordController.text,
-        //     dob: companyInfoController.dob.text,
-        //     // role: companyInfoController.role.text ,
-        //     gender: companyInfoController.genderController.text,
-        //     passport: documentInfoController.passportFile.value,
-        //     whiteCard: documentInfoController.whiteCardFile.value,
-        //     visaWorkingRights: documentInfoController.visaForWorkingRightsFile.value,
-        //     securityLicense: documentInfoController.securityLicenseFile.value,
-        //     nationalCrimeCheck: documentInfoController.nationalCrimePoliceCheckFile.value,
-        //     abn: documentInfoController.abnFile.value,
-        //   );
-        try{
-          companyInfoController.dob.text = '01-01-2000'; // Default date for contractor, can be changed later
-          final signUpModelForIndividual = SignUpModelForIndividual(
-            registeringAs: companyInfoController.registeringAs.value,
-            name: companyInfoController.companyName.text,
-            email: companyInfoController.companyEmail.text,
-            phone: companyInfoController.phone.text,
-            postalAddress: companyInfoController.postalAddress.text,
-            australianBusinessNumber: companyInfoController.abn.text,
-            password: passwordController.text,
-            confirmPassword: confirmPasswordController.text,
-            passport: documentInfoController.passportFile.value,
-            whiteCard: (documentInfoController.whiteCardFile.value?.isNotEmpty ?? false)
-                ? documentInfoController.whiteCardFile.value
-                : null,
-            visaWorkingRights: documentInfoController.visaForWorkingRightsFile.value,
-            securityLicense: documentInfoController.securityLicenseFile.value,
-            nationalCrimeCheck: documentInfoController.nationalCrimePoliceCheckFile.value,
-            abn: (documentInfoController.abnFile.value?.isNotEmpty ?? false)
-                ? documentInfoController.abnFile.value
-                : null,
-            gender: companyInfoController.genderController.text,
-            dob: companyInfoController.dob.text,
-          );
+      //   final response = await apiService.signUpForContractor(
+      //     registeringAs: companyInfoController.registeringAs.value,
+      //     email: companyInfoController.companyEmail.text,
+      //     Name: companyInfoController.companyName.text,
+      //     phone: companyInfoController.phone.text,
+      //     postalAddress: companyInfoController.postalAddress.text,
+      //     // masterLicense: companyInfoController.license.text,
+      //     austraLianBusinessNumber: companyInfoController.abn.text,
+      //     // australianCompanyNumber: companyInfoController.acn.text,
+      //     password: passwordController.text,
+      //     confirmPassword: confirmPasswordController.text,
+      //     dob: companyInfoController.dob.text,
+      //     // role: companyInfoController.role.text ,
+      //     gender: companyInfoController.genderController.text,
+      //     passport: documentInfoController.passportFile.value,
+      //     whiteCard: documentInfoController.whiteCardFile.value,
+      //     visaWorkingRights: documentInfoController.visaForWorkingRightsFile.value,
+      //     securityLicense: documentInfoController.securityLicenseFile.value,
+      //     nationalCrimeCheck: documentInfoController.nationalCrimePoliceCheckFile.value,
+      //     abn: documentInfoController.abnFile.value,
+      //   );
+      try {
+        companyInfoController.dob.text =
+            '01-01-2000'; // Default date for contractor, can be changed later
+        final signUpModelForIndividual = SignUpModelForIndividual(
+          registeringAs: companyInfoController.registeringAs.value,
+          name: companyInfoController.companyName.text,
+          email: companyInfoController.companyEmail.text,
+          phone: companyInfoController.phone.text,
+          postalAddress: companyInfoController.postalAddress.text,
+          australianBusinessNumber: companyInfoController.abn.text,
+          password: passwordController.text,
+          confirmPassword: confirmPasswordController.text,
+          passport: documentInfoController.passportFile.value,
+          whiteCard:
+              (documentInfoController.whiteCardFile.value?.isNotEmpty ?? false)
+                  ? documentInfoController.whiteCardFile.value
+                  : null,
+          visaWorkingRights:
+              documentInfoController.visaForWorkingRightsFile.value,
+          securityLicense: documentInfoController.securityLicenseFile.value,
+          nationalCrimeCheck:
+              documentInfoController.nationalCrimePoliceCheckFile.value,
+          abn: (documentInfoController.abnFile.value?.isNotEmpty ?? false)
+              ? documentInfoController.abnFile.value
+              : null,
+          gender: companyInfoController.genderController.text,
+          dob: companyInfoController.dob.text,
+        );
 
-          final response = await apiService.signUpForContractor(
-            SignUpModelForIndividual: signUpModelForIndividual,
-          );
+        final response = await apiService.signUpForContractor(
+          SignUpModelForIndividual: signUpModelForIndividual,
+        );
 
-          if (response.statusCode == 200) {
-            debugPrint("data from API ${response.body}");
-            Get.offAndToNamed(AppRoutes.getLandingPageRoute());
-            // await saveLoginSession();
-          } else {
-            debugPrint('Error Signup failed: ${response.body}');
-          }
-      }
-      catch(e){
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          debugPrint("data from API ${response.body}");
+          Get.offAndToNamed(AppRoutes.getLandingPageRoute());
+          // await saveLoginSession();
+        } else {
+          debugPrint('Error Signup failed: ${response.body}');
+        }
+      } catch (e) {
         debugPrint('Error Network error: ${e.toString()}');
       }
     }
@@ -299,12 +306,12 @@ class _SetPasswordScreenState extends State<SetPasswordScreen> {
                             // return null;
 
                             if (value == null || value.isEmpty) {
-                                      return 'Password is required';
-                                    }
-                                    if (value.length < 8) {
-                                      return 'Password must be at least 8 characters';
-                                    }
-                                    return null;
+                              return 'Password is required';
+                            }
+                            if (value.length < 8) {
+                              return 'Password must be at least 8 characters';
+                            }
+                            return null;
                           },
                           onChanged: (value) {
                             _formKey.currentState!.validate();
@@ -324,16 +331,15 @@ class _SetPasswordScreenState extends State<SetPasswordScreen> {
                             }),
                           ),
                           validator: (value) {
-                            
                             // return null;
-                      
+
                             if (value == null || value.isEmpty) {
-                                    return 'Confirm Password is required';
-                                  }
-                                  if (value != passwordController.text) {
-                                    return "Passwords do not match";
-                                  }
-                                  return null;
+                              return 'Confirm Password is required';
+                            }
+                            if (value != passwordController.text) {
+                              return "Passwords do not match";
+                            }
+                            return null;
                           },
                           onChanged: (value) {
                             _formKey.currentState!.validate();
@@ -367,9 +373,11 @@ class _SetPasswordScreenState extends State<SetPasswordScreen> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
-                        if(companyInfoController.registeringAs.value == 'Company') {
+                        if (companyInfoController.registeringAs.value ==
+                            'Company') {
                           submitSignupForCompany();
-                        } else if(companyInfoController.registeringAs.value == 'contractor') {
+                        } else if (companyInfoController.registeringAs.value ==
+                            'contractor') {
                           submitSignupForContractor();
                         }
                       },
