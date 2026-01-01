@@ -62,8 +62,14 @@ class DocumentInfoScreen extends StatelessWidget {
 
               Row(
                 children: const [
-                  StepTab(title: "Company Info", isCompleted: true,),
-                  StepTab(title: "Documents", isCurrent: true,),
+                  StepTab(
+                    title: "Company Info",
+                    isCompleted: true,
+                  ),
+                  StepTab(
+                    title: "Documents",
+                    isCurrent: true,
+                  ),
                   StepTab(title: "Set Password"),
                 ],
               ),
@@ -85,13 +91,17 @@ class DocumentInfoScreen extends StatelessWidget {
                           controller: controller.passport,
                           filePath: controller.passportFile,
                           onTap: () async {
-                            String? path = await uploadFileController.showUploadFileBottomSheet(context, returnBase64: true, showPickFileOption: true);
+                            String? path = await uploadFileController
+                                .showUploadFileBottomSheet(context,
+                                    returnBase64: true,
+                                    showPickFileOption: true);
                             if (path != null) {
                               controller.passport.text = path;
                               controller.passportFile.value = path;
                             }
                           },
-                          onChanged: (_) => controller.formKey.currentState?.validate(),
+                          onChanged: (_) =>
+                              controller.formKey.currentState?.validate(),
                           isRequired: true,
                         ),
                         _DocumentTile(
@@ -99,13 +109,17 @@ class DocumentInfoScreen extends StatelessWidget {
                           controller: controller.securityLicense,
                           filePath: controller.securityLicenseFile,
                           onTap: () async {
-                            String? path = await uploadFileController.showUploadFileBottomSheet(context, returnBase64: true, showPickFileOption: true);
+                            String? path = await uploadFileController
+                                .showUploadFileBottomSheet(context,
+                                    returnBase64: true,
+                                    showPickFileOption: true);
                             if (path != null) {
                               controller.securityLicense.text = path;
                               controller.securityLicenseFile.value = path;
                             }
                           },
-                          onChanged: (_) => controller.formKey.currentState?.validate(),
+                          onChanged: (_) =>
+                              controller.formKey.currentState?.validate(),
                           isRequired: true,
                         ),
                         _DocumentTile(
@@ -113,41 +127,50 @@ class DocumentInfoScreen extends StatelessWidget {
                           controller: controller.visaForWorkingRights,
                           filePath: controller.visaForWorkingRightsFile,
                           onTap: () async {
-                            String? path = await uploadFileController.showUploadFileBottomSheet(context, returnBase64: true, showPickFileOption: true);
+                            String? path = await uploadFileController
+                                .showUploadFileBottomSheet(context,
+                                    returnBase64: true,
+                                    showPickFileOption: true);
                             if (path != null) {
                               controller.visaForWorkingRights.text = path;
                               controller.visaForWorkingRightsFile.value = path;
                             }
                           },
-                          onChanged: (_) => controller.formKey.currentState?.validate(),
+                          onChanged: (_) =>
+                              controller.formKey.currentState?.validate(),
                           isRequired: true,
                         ),
-                        _DocumentTile(
-                          title: "ABN",
-                          controller: controller.abn,
-                          filePath: controller.abnFile,
-                          onTap: () async {
-                            String? path = await uploadFileController.showUploadFileBottomSheet(context, returnBase64: true, showPickFileOption: true);
-                            if (path != null) {
-                              controller.abn.text = path;
-                              controller.abnFile.value = path;
-                            }
-                          },
-                          onChanged: (_) => controller.formKey.currentState?.validate(),
-                          isRequired: true,
-                        ),
+                        // _DocumentTile(
+                        //   title: "ABN",
+                        //   controller: controller.abn,
+                        //   filePath: controller.abnFile,
+                        //   onTap: () async {
+                        //     String? path = await uploadFileController.showUploadFileBottomSheet(context, returnBase64: true, showPickFileOption: true);
+                        //     if (path != null) {
+                        //       controller.abn.text = path;
+                        //       controller.abnFile.value = path;
+                        //     }
+                        //   },
+                        //   onChanged: (_) => controller.formKey.currentState?.validate(),
+                        //   isRequired: true,
+                        // ),
                         _DocumentTile(
                           title: "National Crime Police Check",
                           controller: controller.nationalCrimePoliceCheck,
                           filePath: controller.nationalCrimePoliceCheckFile,
                           onTap: () async {
-                            String? path = await uploadFileController.showUploadFileBottomSheet(context, returnBase64: true, showPickFileOption: true);
+                            String? path = await uploadFileController
+                                .showUploadFileBottomSheet(context,
+                                    returnBase64: true,
+                                    showPickFileOption: true);
                             if (path != null) {
                               controller.nationalCrimePoliceCheck.text = path;
-                              controller.nationalCrimePoliceCheckFile.value = path;
+                              controller.nationalCrimePoliceCheckFile.value =
+                                  path;
                             }
                           },
-                          onChanged: (_) => controller.formKey.currentState?.validate(),
+                          onChanged: (_) =>
+                              controller.formKey.currentState?.validate(),
                           isRequired: true,
                         ),
                         _DocumentTile(
@@ -155,13 +178,17 @@ class DocumentInfoScreen extends StatelessWidget {
                           controller: controller.whiteCard,
                           filePath: controller.whiteCardFile,
                           onTap: () async {
-                            String? path = await uploadFileController.showUploadFileBottomSheet(context, returnBase64: true, showPickFileOption: true);
+                            String? path = await uploadFileController
+                                .showUploadFileBottomSheet(context,
+                                    returnBase64: true,
+                                    showPickFileOption: true);
                             if (path != null) {
                               controller.whiteCard.text = path;
                               controller.whiteCardFile.value = path;
                             }
                           },
-                          onChanged: (_) => controller.formKey.currentState?.validate(),
+                          onChanged: (_) =>
+                              controller.formKey.currentState?.validate(),
                           isRequired: false,
                         ),
                       ],
@@ -179,11 +206,16 @@ class DocumentInfoScreen extends StatelessWidget {
                   OutlinedButton(
                     onPressed: () => Get.back(),
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: AppColors.kSkyBlue, width: 1.5),
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      side: const BorderSide(
+                          color: AppColors.kSkyBlue, width: 1.5),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 14),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8)),
                     ),
-                    child: Text("Back", style: AppTypography.kBold14.copyWith(color: AppColors.kSkyBlue)),
+                    child: Text("Back",
+                        style: AppTypography.kBold14
+                            .copyWith(color: AppColors.kSkyBlue)),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
@@ -195,10 +227,13 @@ class DocumentInfoScreen extends StatelessWidget {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.kSkyBlue,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8)),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
-                      child: Text("Proceed to Password Setup", style: AppTypography.kBold14.copyWith(color: Colors.black)),
+                      child: Text("Proceed to Password Setup",
+                          style: AppTypography.kBold14
+                              .copyWith(color: Colors.black)),
                     ),
                   ),
                 ],
@@ -252,15 +287,15 @@ class _DocumentTile extends StatelessWidget {
                     ),
                     children: isRequired
                         ? [
-                      TextSpan(
-                        text: '  Required*',
-                        style: AppTypography.kLight14.copyWith(
-                          color: AppColors.kRed,
-                          fontWeight: FontWeight.w400,
-                          fontSize: 10,
-                        ),
-                      )
-                    ]
+                            TextSpan(
+                              text: '  Required*',
+                              style: AppTypography.kLight14.copyWith(
+                                color: AppColors.kRed,
+                                fontWeight: FontWeight.w400,
+                                fontSize: 10,
+                              ),
+                            )
+                          ]
                         : [],
                   ),
                 ),
@@ -293,9 +328,12 @@ class _DocumentTile extends StatelessWidget {
           TextButton(
             onPressed: onTap,
             child: Obx(() => Text(
-              filePath?.value.isNotEmpty == true ? "File Selected" : "Upload",
-              style: AppTypography.kBold14.copyWith(color: AppColors.kSkyBlue),
-            )),
+                  filePath?.value.isNotEmpty == true
+                      ? "File Selected"
+                      : "Upload",
+                  style:
+                      AppTypography.kBold14.copyWith(color: AppColors.kSkyBlue),
+                )),
           ),
         ],
       ),
@@ -319,14 +357,14 @@ class StepTab extends StatelessWidget {
     Color progressColor = isCompleted
         ? AppColors.kSkyBlue
         : isCurrent
-        ? AppColors.kWhite
-        : AppColors.ktextlight.withOpacity(0.2);
+            ? AppColors.kWhite
+            : AppColors.ktextlight.withOpacity(0.2);
 
     double progressValue = isCompleted
         ? 1
         : isCurrent
-        ? 0.5
-        : 0.0;
+            ? 0.5
+            : 0.0;
 
     return Expanded(
       child: Padding(
@@ -352,7 +390,7 @@ class StepTab extends StatelessWidget {
                 fontFamily: 'YourFontFamily', // Specify the font family
                 fontSize: 13, // Adjust the font size
                 fontWeight:
-                FontWeight.w600, // Adjust the font weight (optional)
+                    FontWeight.w600, // Adjust the font weight (optional)
               ),
             )
           ],

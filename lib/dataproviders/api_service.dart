@@ -321,7 +321,7 @@ class MyApIService {
       String accountTitle,
       String accountNumber,
       String iban,
-      String expiryDate,
+    
       String userId) async {
     var functionUrl = 'contractorBankDetails';
     final response = await http.post(
@@ -335,7 +335,6 @@ class MyApIService {
         "accountTitle": accountTitle,
         "accountNumber": accountNumber,
         "IBAN": iban,
-        "entityDate": expiryDate,
         "userId": userId,
       }),
     );

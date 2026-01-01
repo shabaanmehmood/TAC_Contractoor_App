@@ -66,7 +66,7 @@ class CompanyInfoScreen extends StatelessWidget {
               Row(
                 children: const [
                   StepTab(title: "Company Info", isCurrent: true),
-                  StepTab(title: "Documents"),
+                  // StepTab(title: "Documents"),
                   StepTab(title: "Set Password"),
                 ],
               ),
@@ -86,7 +86,7 @@ class CompanyInfoScreen extends StatelessWidget {
                           decoration:
                               _inputDecoration("Company Name", AppAssets.kPer),
                           validator: controller.validateRequired,
-                          onChanged: (value){
+                          onChanged: (value) {
                             controller.formKey.currentState?.validate();
                           },
                         ),
@@ -98,7 +98,7 @@ class CompanyInfoScreen extends StatelessWidget {
                           decoration: _inputDecoration(
                               "Company Email", AppAssets.kMail),
                           validator: controller.validateEmail,
-                          onChanged: (value){
+                          onChanged: (value) {
                             controller.formKey.currentState?.validate();
                           },
                         ),
@@ -113,7 +113,7 @@ class CompanyInfoScreen extends StatelessWidget {
                           decoration:
                               _inputDecoration("Phone Number", AppAssets.kNum),
                           validator: controller.validatePhone,
-                          onChanged: (value){
+                          onChanged: (value) {
                             controller.formKey.currentState?.validate();
                           },
                         ),
@@ -124,7 +124,7 @@ class CompanyInfoScreen extends StatelessWidget {
                           decoration: _inputDecoration(
                               "Postal Address", AppAssets.kLoc),
                           validator: controller.validateRequired,
-                          onChanged: (value){
+                          onChanged: (value) {
                             controller.formKey.currentState?.validate();
                           },
                         ),
@@ -135,22 +135,22 @@ class CompanyInfoScreen extends StatelessWidget {
                           decoration: _inputDecoration(
                               "Master Security License", AppAssets.kCal),
                           validator: controller.validateRequired,
-                          onChanged: (value){
+                          onChanged: (value) {
                             controller.formKey.currentState?.validate();
                           },
                         ),
-                        SizedBox(height: AppSpacing.fifteenVertical),
-                        TextFormField(
-                          style: const TextStyle(color: AppColors.kWhite),
-                          controller: controller.abn,
-                          decoration: _inputDecoration(
-                              "Australian Business Number", AppAssets.kCal),
-                          validator: controller.validateABN,
-                          onChanged: (value){
-                            controller.formKey.currentState?.validate();
-                          },
-                          maxLength: 11,
-                        ),
+                        // SizedBox(height: AppSpacing.fifteenVertical),
+                        // TextFormField(
+                        //   style: const TextStyle(color: AppColors.kWhite),
+                        //   controller: controller.abn,
+                        //   decoration: _inputDecoration(
+                        //       "Australian Business Number", AppAssets.kCal),
+                        //   validator: controller.validateABN,
+                        //   onChanged: (value){
+                        //     controller.formKey.currentState?.validate();
+                        //   },
+                        //   maxLength: 11,
+                        // ),
                         SizedBox(height: AppSpacing.fifteenVertical),
                         TextFormField(
                           style: const TextStyle(color: AppColors.kWhite),
@@ -158,7 +158,7 @@ class CompanyInfoScreen extends StatelessWidget {
                           decoration: _inputDecoration(
                               "Australian Company Number", AppAssets.kCal),
                           validator: controller.validateACN,
-                          onChanged: (value){
+                          onChanged: (value) {
                             controller.formKey.currentState?.validate();
                           },
                           maxLength: 9,
@@ -197,7 +197,8 @@ class CompanyInfoScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(8)),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
-                      child: Text("Continue to Documents",
+                      //  Continue to Documents
+                      child: Text("Proceed To Password Setup",
                           style: AppTypography.kBold16
                               .copyWith(color: Colors.black)),
                     ),

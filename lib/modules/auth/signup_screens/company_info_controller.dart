@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:taccontractor/data/data/constants/app_colors.dart';
+import 'package:taccontractor/modules/auth/signup_screens/set_pass.dart';
 
 import 'document_upload_screen.dart';
 
@@ -39,7 +40,6 @@ class CompanyInfoController extends GetxController {
       ),
     );
   }
-
 
   String? validateRequired(String? value) {
     if (value == null || value.trim().isEmpty) {
@@ -91,7 +91,12 @@ class CompanyInfoController extends GetxController {
 
   void onContinue() {
     if (formKey.currentState!.validate()) {
-      Get.to(DocumentInfoScreen());
+      Get.to(SetPasswordScreen());
+      // registeringAs.value == 'Company'
+      //     ?
+      //     //   Get.to(DocumentInfoScreen());
+      //     Get.to(SetPasswordScreen())
+      //     : Get.to(DocumentInfoScreen());
     }
   }
 

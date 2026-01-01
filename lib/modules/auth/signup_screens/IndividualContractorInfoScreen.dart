@@ -9,8 +9,7 @@ import 'package:taccontractor/modules/auth/signup_screens/company_info_controlle
 import 'individual_info_controller.dart';
 
 class IndividualInfoScreen extends StatelessWidget {
-  final CompanyInfoController controller =
-      Get.put(CompanyInfoController());
+  final CompanyInfoController controller = Get.put(CompanyInfoController());
 
   InputDecoration _inputDecoration(String hintText, String iconPath) {
     return InputDecoration(
@@ -68,7 +67,7 @@ class IndividualInfoScreen extends StatelessWidget {
               Row(
                 children: const [
                   StepTab(title: "Account Info", isCurrent: true),
-                  StepTab(title: "Documents"),
+                  // StepTab(title: "Documents"),
                   StepTab(title: "Set Password"),
                 ],
               ),
@@ -97,7 +96,7 @@ class IndividualInfoScreen extends StatelessWidget {
                             }
                             return null;
                           },
-                          onChanged: (value){
+                          onChanged: (value) {
                             controller.formKey.currentState?.validate();
                           },
                         ),
@@ -109,7 +108,7 @@ class IndividualInfoScreen extends StatelessWidget {
                           decoration: _inputDecoration(
                               "johndoe@gmail.com", AppAssets.kMail),
                           validator: controller.validateEmail,
-                          onChanged: (value){
+                          onChanged: (value) {
                             controller.formKey.currentState?.validate();
                           },
                         ),
@@ -124,7 +123,7 @@ class IndividualInfoScreen extends StatelessWidget {
                           decoration:
                               _inputDecoration("Phone Number", AppAssets.kNum),
                           validator: controller.validatePhone,
-                          onChanged: (value){
+                          onChanged: (value) {
                             controller.formKey.currentState?.validate();
                           },
                         ),
@@ -135,11 +134,12 @@ class IndividualInfoScreen extends StatelessWidget {
                           readOnly: true,
                           onTap: controller.pickGender,
                           keyboardType: TextInputType.none,
-                          decoration: _inputDecoration("Gender", AppAssets.kGen),
+                          decoration:
+                              _inputDecoration("Gender", AppAssets.kGen),
                           validator: (val) => val == null || val.isEmpty
                               ? 'Select gender'
                               : null,
-                          onChanged: (value){
+                          onChanged: (value) {
                             controller.formKey.currentState?.validate();
                           },
                         ),
@@ -159,7 +159,7 @@ class IndividualInfoScreen extends StatelessWidget {
                             }
                             return null;
                           },
-                          onChanged: (value){
+                          onChanged: (value) {
                             controller.formKey.currentState?.validate();
                           },
                         ),
@@ -167,12 +167,12 @@ class IndividualInfoScreen extends StatelessWidget {
                         TextFormField(
                           controller: controller.abn,
                           style: const TextStyle(color: AppColors.kWhite),
-                          keyboardType: TextInputType.number,
+                          keyboardType: TextInputType.text,
                           decoration: _inputDecoration(
                               "Australian Business Number", AppAssets.kCal),
                           validator: controller.validateABN,
                           maxLength: 11,
-                          onChanged: (value){
+                          onChanged: (value) {
                             controller.formKey.currentState?.validate();
                           },
                         ),
@@ -216,8 +216,9 @@ class IndividualInfoScreen extends StatelessWidget {
                         ),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
+                      //  "Continue to Documents",
                       child: Text(
-                        "Continue to Documents",
+                        "Proceed to Set Password",
                         style:
                             AppTypography.kBold16.copyWith(color: Colors.black),
                       ),

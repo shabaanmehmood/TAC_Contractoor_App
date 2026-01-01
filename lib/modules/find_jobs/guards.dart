@@ -285,7 +285,7 @@
 //       ),
 //     ),
 //     SizedBox(height: Get.height * 0.003),
-              
+
 //               Expanded(child: _buildGuardList()),
 //             ],
 //           ),
@@ -583,7 +583,6 @@
 //   }
 // }
 
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
@@ -654,9 +653,12 @@ class AvailableGuardsScreen extends StatelessWidget {
                           },
                           child: Container(
                             margin: const EdgeInsets.only(right: 10.0),
-                            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16.0, vertical: 8.0),
                             decoration: BoxDecoration(
-                              color: isSelected ? AppColors.kSkyBlue : AppColors.kDarkBlue,
+                              color: isSelected
+                                  ? AppColors.kSkyBlue
+                                  : AppColors.kDarkBlue,
                               borderRadius: BorderRadius.circular(8.0),
                               border: Border.all(
                                 color: AppColors.kSkyBlue,
@@ -666,7 +668,9 @@ class AvailableGuardsScreen extends StatelessWidget {
                             child: Text(
                               c.buttonTitles[index],
                               style: AppTypography.kBold12.copyWith(
-                                color: isSelected ? Colors.black : AppColors.kWhite,
+                                color: isSelected
+                                    ? Colors.black
+                                    : AppColors.kWhite,
                               ),
                             ),
                           ),
@@ -677,7 +681,6 @@ class AvailableGuardsScreen extends StatelessWidget {
                 ),
               ),
               SizedBox(height: Get.height * 0.02),
-              
               Expanded(child: _buildGuardList()),
             ],
           ),
@@ -687,210 +690,221 @@ class AvailableGuardsScreen extends StatelessWidget {
   }
 
   Widget _header() => Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [
-      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Image.asset(AppAssets.kTacLogo,
-              height: Get.height * 0.05, ),
-          SizedBox(width: 4),
-          Text("Guards",
-              style: AppTypography.kBold18.copyWith(color: AppColors.kWhite)),
-        ],
-      ),
-      Row(
-        children: [
-          GestureDetector(
-            onTap: () => Get.to(() => NotificationScreen()),
-            child: SvgPicture.asset("assets/icon/notification.svg",
-                width: 28, color: AppColors.kSkyBlue),
+          Row(
+            children: [
+              Image.asset(
+                AppAssets.kTacLogo,
+                height: Get.height * 0.05,
+              ),
+              SizedBox(width: 4),
+              Text("Guards",
+                  style:
+                      AppTypography.kBold18.copyWith(color: AppColors.kWhite)),
+            ],
+          ),
+          Row(
+            children: [
+              GestureDetector(
+                onTap: () => Get.to(() => NotificationScreen()),
+                child: SvgPicture.asset("assets/icon/notification.svg",
+                    width: 28, color: AppColors.kSkyBlue),
+              ),
+            ],
           ),
         ],
-      ),
-    ],
-  );
+      );
 
   Widget _searchBar() => TextFormField(
-    style: const TextStyle(color: AppColors.kgrey),
-    decoration: InputDecoration(
-      hintText: "Search for security jobs...",
-      hintStyle: TextStyle(color: AppColors.kgrey, fontSize: 16),
-      fillColor: AppColors.kDarkBlue,
-      filled: true,
-      suffixIcon: Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: Image.asset("assets/icon/search.png"),
-      ),
-      contentPadding: EdgeInsets.symmetric(
-        vertical: Get.width * 0.03,
-        horizontal: Get.width * 0.04,
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(Get.width * 0.04),
-        borderSide: const BorderSide(width: 0.8, color: AppColors.kgrey),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(Get.width * 0.09),
-        borderSide: const BorderSide(width: 0.04, color: AppColors.kgrey),
-      ),
-    ),
-    onChanged: c.searchText,
-  );
+        style: const TextStyle(color: AppColors.kgrey),
+        decoration: InputDecoration(
+          hintText: "Search for security guards...",
+          hintStyle: TextStyle(color: AppColors.kgrey, fontSize: 16),
+          fillColor: AppColors.kDarkBlue,
+          filled: true,
+          suffixIcon: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Image.asset("assets/icon/search.png"),
+          ),
+          contentPadding: EdgeInsets.symmetric(
+            vertical: Get.width * 0.03,
+            horizontal: Get.width * 0.04,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(Get.width * 0.04),
+            borderSide: const BorderSide(width: 0.8, color: AppColors.kgrey),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(Get.width * 0.09),
+            borderSide: const BorderSide(width: 0.04, color: AppColors.kgrey),
+          ),
+        ),
+        onChanged: c.searchText,
+      );
 
   Widget _buildGuardList() => Obx(() {
-    if (c.isLoading.value) {
-      return const Center(
-          child: CircularProgressIndicator(color: AppColors.kSkyBlue));
-    }
-    if (c.guards.isEmpty) {
-      return Center(
-          child: Text("No guards found",
-              style: AppTypography.kBold16.copyWith(color: AppColors.kWhite)));
-    }
+        if (c.isLoading.value) {
+          return const Center(
+              child: CircularProgressIndicator(color: AppColors.kSkyBlue));
+        }
+        if (c.guards.isEmpty) {
+          return Center(
+              child: Text("No guards found",
+                  style:
+                      AppTypography.kBold16.copyWith(color: AppColors.kWhite)));
+        }
 
-    return RefreshIndicator(
-      onRefresh: c.fetchGuards,
-      color: AppColors.kSkyBlue,
-      child: ListView.builder(
-        itemCount: c.filtered.length,
-        padding: EdgeInsets.symmetric(vertical: Get.height * 0.02),
-        itemBuilder: (_, index) {
-          final g = c.filtered[index];
-          final imageUrl = g.profilePicture.isEmpty
-              ? null
-              : '${MyApIService.imageBaseUrl}/${g.profilePicture}';
+        return RefreshIndicator(
+          onRefresh: c.fetchGuards,
+          color: AppColors.kSkyBlue,
+          child: ListView.builder(
+            itemCount: c.filtered.length,
+            padding: EdgeInsets.symmetric(vertical: Get.height * 0.02),
+            itemBuilder: (_, index) {
+              final g = c.filtered[index];
+              final imageUrl = g.profilePicture.isEmpty
+                  ? null
+                  : '${MyApIService.imageBaseUrl}/${g.profilePicture}';
               print(imageUrl);
 
-          return Padding(
-            padding: EdgeInsets.only(bottom: Get.height * 0.015),
-            child: Container(
-              // constraints: BoxConstraints(
-              //   minHeight: Get.width * 0.3, // Minimum height constraint
-              // ),
-              padding: EdgeInsets.all(Get.width * 0.03),
-              decoration: BoxDecoration(
-                color: AppColors.kinput.withOpacity(0.5),
-                borderRadius: BorderRadius.circular(Get.width * 0.02),
-              ),
-              child: IntrinsicHeight( // This ensures proper height calculation
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    // Profile Picture
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(Get.width * 0.02),
-                      child: imageUrl == null
-                          ? Image.asset("assets/userpicture.jpg",
-                          width: Get.width * 0.18,
-                          height: Get.width * 0.18,
-                          fit: BoxFit.cover)
-                          : Image.network(imageUrl,
-                          width: Get.width * 0.18,
-                          height: Get.width * 0.18,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Image.asset(
-                              "assets/userpicture.jpg",
-                              width: Get.width * 0.18,
-                              height: Get.width * 0.18,
-                              fit: BoxFit.cover)),
-                    ),
-                    SizedBox(width: Get.width * 0.03),
-                    
-                    // Guard Information - Takes remaining space but with constraints
-                    Expanded(
-                      child: Container(
-                        constraints: BoxConstraints(
-                          minHeight: Get.width * 0.18, // Match image height
+              return Padding(
+                padding: EdgeInsets.only(bottom: Get.height * 0.015),
+                child: Container(
+                  // constraints: BoxConstraints(
+                  //   minHeight: Get.width * 0.3, // Minimum height constraint
+                  // ),
+                  padding: EdgeInsets.all(Get.width * 0.03),
+                  decoration: BoxDecoration(
+                    color: AppColors.kinput.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(Get.width * 0.02),
+                  ),
+                  child: IntrinsicHeight(
+                    // This ensures proper height calculation
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // Profile Picture
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(Get.width * 0.02),
+                          child: imageUrl == null
+                              ? Image.asset("assets/userpicture.jpg",
+                                  width: Get.width * 0.18,
+                                  height: Get.width * 0.18,
+                                  fit: BoxFit.cover)
+                              : Image.network(imageUrl,
+                                  width: Get.width * 0.18,
+                                  height: Get.width * 0.18,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) => Image.asset(
+                                      "assets/userpicture.jpg",
+                                      width: Get.width * 0.18,
+                                      height: Get.width * 0.18,
+                                      fit: BoxFit.cover)),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min, // Important: prevents unbounded height
-                          children: [
-                            // Badge and Verification Row
-                            Wrap( // Use Wrap instead of Row for better overflow handling
-                              crossAxisAlignment: WrapCrossAlignment.center,
+                        SizedBox(width: Get.width * 0.03),
+
+                        // Guard Information - Takes remaining space but with constraints
+                        Expanded(
+                          child: Container(
+                            constraints: BoxConstraints(
+                              minHeight: Get.width * 0.18, // Match image height
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize
+                                  .min, // Important: prevents unbounded height
                               children: [
-                                Container(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: Get.width * 0.02,
-                                      vertical: Get.width * 0.01),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.kGuardsCard,
-                                    borderRadius: BorderRadius.circular(
-                                        Get.width * 0.02),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Image.asset("assets/icon/Layer 2.png",
-                                          width: Get.width * 0.035),
-                                      SizedBox(width: Get.width * 0.01),
-                                      Text(
-                                        g.professionalBadge ?? "", // Null safety
-                                        style: AppTypography.kBold10
-                                            .copyWith(color: Colors.white),
+                                // Badge and Verification Row
+                                Wrap(
+                                  // Use Wrap instead of Row for better overflow handling
+                                  crossAxisAlignment: WrapCrossAlignment.center,
+                                  children: [
+                                    Container(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: Get.width * 0.02,
+                                          vertical: Get.width * 0.01),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.kGuardsCard,
+                                        borderRadius: BorderRadius.circular(
+                                            Get.width * 0.02),
                                       ),
-                                    ],
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Image.asset("assets/icon/Layer 2.png",
+                                              width: Get.width * 0.035),
+                                          SizedBox(width: Get.width * 0.01),
+                                          Text(
+                                            g.professionalBadge ??
+                                                "", // Null safety
+                                            style: AppTypography.kBold10
+                                                .copyWith(color: Colors.white),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    if (g.isVerified == true) // Null safety
+                                      Padding(
+                                        padding: EdgeInsets.only(
+                                            left: Get.width * 0.015),
+                                        child: CircleAvatar(
+                                          radius: Get.width * 0.03,
+                                          backgroundColor:
+                                              AppColors.kGuardsCard,
+                                          child: Icon(Icons.verified,
+                                              size: Get.width * 0.04,
+                                              color: Colors.white),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                                SizedBox(height: Get.height * 0.008),
+
+                                // Guard Name - Fixed width container to prevent overflow
+                                Container(
+                                  width: double.infinity,
+                                  child: Text(
+                                    g.fullName ??
+                                        "Unknown Guard", // Null safety
+                                    style: AppTypography.kBold13
+                                        .copyWith(color: AppColors.kWhite),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
-                                if (g.isVerified == true) // Null safety
-                                  Padding(
-                                    padding: EdgeInsets.only(left: Get.width * 0.015),
-                                    child: CircleAvatar(
-                                      radius: Get.width * 0.03,
-                                      backgroundColor: AppColors.kGuardsCard,
-                                      child: Icon(Icons.verified,
-                                          size: Get.width * 0.04,
-                                          color: Colors.white),
-                                    ),
-                                  ),
+                                SizedBox(height: Get.height * 0.004),
+
+                                // Level
+                                Text(
+                                  "Level ${g.level ?? 0}", // Null safety
+                                  style: AppTypography.kLight12
+                                      .copyWith(color: Colors.grey.shade400),
+                                ),
                               ],
                             ),
-                            SizedBox(height: Get.height * 0.008),
-                            
-                            // Guard Name - Fixed width container to prevent overflow
-                            Container(
-                              width: double.infinity,
-                              child: Text(
-                                g.fullName ?? "Unknown Guard", // Null safety
-                                style: AppTypography.kBold13
-                                    .copyWith(color: AppColors.kWhite),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                            SizedBox(height: Get.height * 0.004),
-                            
-                            // Level
-                            Text(
-                              "Level ${g.level ?? 0}", // Null safety
-                              style: AppTypography.kLight12
-                                  .copyWith(color: Colors.grey.shade400),
-                            ),
-                          ],
+                          ),
                         ),
-                      ),
+
+                        SizedBox(width: Get.width * 0.02),
+
+                        // Hire Button - Always aligned to center-right
+                        Container(
+                          height: Get.width * 0.18, // Match image height
+                          child: Center(
+                            child: _JobDropdownButton(guard: g),
+                          ),
+                        ),
+                      ],
                     ),
-                    
-                    SizedBox(width: Get.width * 0.02),
-                    
-                    // Hire Button - Always aligned to center-right
-                    Container(
-                      height: Get.width * 0.18, // Match image height
-                      child: Center(
-                        child: _JobDropdownButton(guard: g),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  });
+              );
+            },
+          ),
+        );
+      });
 }
 
 /// Dropdown that uses the passed guard
@@ -1039,8 +1053,8 @@ class _ConfirmDialog extends StatelessWidget {
         ElevatedButton(
           style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.kSkyBlue,
-              shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8))),
           onPressed: () => Get.back(result: true),
           child: Text('Confirm',
               style: AppTypography.kBold14.copyWith(color: Colors.black)),

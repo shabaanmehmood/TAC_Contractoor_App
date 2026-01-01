@@ -86,24 +86,24 @@ class _SetPasswordScreenState extends State<SetPasswordScreen> {
           phone: companyInfoController.phone.text,
           postalAddress: companyInfoController.postalAddress.text,
           masterSecurityLicense: companyInfoController.license.text,
-          australianBusinessNumber: companyInfoController.abn.text,
           australianCompanyNumber: companyInfoController.acn.text,
           password: passwordController.text,
           confirmPassword: confirmPasswordController.text,
-          passport: documentInfoController.passportFile.value,
-          whiteCard:
-              (documentInfoController.whiteCardFile.value?.isNotEmpty ?? false)
-                  ? documentInfoController.whiteCardFile.value
-                  : null,
-          visaWorkingRights:
-              documentInfoController.visaForWorkingRightsFile.value,
-          securityLicense: documentInfoController.securityLicenseFile.value,
-          abn: (documentInfoController.abnFile.value?.isNotEmpty ?? false)
-              ? documentInfoController.abnFile.value
-              : null,
-          nationalCrimeCheck:
-              documentInfoController.nationalCrimePoliceCheckFile.value,
         );
+        //australianBusinessNumber: companyInfoController.abn.text,
+        // passport: documentInfoController.passportFile.value,
+        // whiteCard:
+        //     (documentInfoController.whiteCardFile.value?.isNotEmpty ?? false)
+        //         ? documentInfoController.whiteCardFile.value
+        //         : null,
+        // visaWorkingRights:
+        //     documentInfoController.visaForWorkingRightsFile.value,
+        // securityLicense: documentInfoController.securityLicenseFile.value,
+        // abn: (documentInfoController.abnFile.value?.isNotEmpty ?? false)
+        //     ? documentInfoController.abnFile.value
+        //     : null,
+        // nationalCrimeCheck:
+        //     documentInfoController.nationalCrimePoliceCheckFile.value,
 
         final response = await apiService.signUpForCompany(
             SignUpModelForCompany: signUpModelForCompany);
@@ -141,17 +141,23 @@ class _SetPasswordScreenState extends State<SetPasswordScreen> {
               responseBody['message'] ?? 'Unknown error';
 
           // Show dialog with one line call
-          await AdaptiveAlertDialogWidget.show(
-            context,
-            title: 'Signup Failed',
-            content: errorMessage,
-            yesText: 'OK',
-            showNoButton: false,
-            onYes: () {
-              // Optional: do something on OK pressed
-            },
+
+          return Get.dialog(
+            AlertDialog(
+              backgroundColor: AppColors.kDarkestBlue,
+              title: const Text('Signup Failed',
+                  style: TextStyle(color: Colors.white)),
+              content: Text(errorMessage,
+                  style: const TextStyle(color: Colors.white)),
+              actions: [
+                TextButton(
+                  onPressed: () => Get.back(),
+                  child: const Text('OK',
+                      style: TextStyle(color: AppColors.kSkyBlue)),
+                ),
+              ],
+            ),
           );
-          debugPrint('Error signup failed: ${response.body}');
         }
       } catch (e) {
         debugPrint('Error Network error: ${e.toString()}');
@@ -209,19 +215,19 @@ class _SetPasswordScreenState extends State<SetPasswordScreen> {
           australianBusinessNumber: companyInfoController.abn.text,
           password: passwordController.text,
           confirmPassword: confirmPasswordController.text,
-          passport: documentInfoController.passportFile.value,
-          whiteCard:
-              (documentInfoController.whiteCardFile.value?.isNotEmpty ?? false)
-                  ? documentInfoController.whiteCardFile.value
-                  : null,
-          visaWorkingRights:
-              documentInfoController.visaForWorkingRightsFile.value,
-          securityLicense: documentInfoController.securityLicenseFile.value,
-          nationalCrimeCheck:
-              documentInfoController.nationalCrimePoliceCheckFile.value,
-          abn: (documentInfoController.abnFile.value?.isNotEmpty ?? false)
-              ? documentInfoController.abnFile.value
-              : null,
+          // passport: documentInfoController.passportFile.value,
+          // whiteCard:
+          //     (documentInfoController.whiteCardFile.value?.isNotEmpty ?? false)
+          //         ? documentInfoController.whiteCardFile.value
+          //         : null,
+          // visaWorkingRights:
+          //     documentInfoController.visaForWorkingRightsFile.value,
+          // securityLicense: documentInfoController.securityLicenseFile.value,
+          // nationalCrimeCheck:
+          //     documentInfoController.nationalCrimePoliceCheckFile.value,
+          // abn: (documentInfoController.abnFile.value?.isNotEmpty ?? false)
+          //     ? documentInfoController.abnFile.value
+          //     : null,
           gender: companyInfoController.genderController.text,
           dob: companyInfoController.dob.text,
         );
@@ -236,6 +242,29 @@ class _SetPasswordScreenState extends State<SetPasswordScreen> {
           // await saveLoginSession();
         } else {
           debugPrint('Error Signup failed: ${response.body}');
+          debugPrint("data from API ${response.body}");
+          final Map<String, dynamic> responseBody = jsonDecode(response.body);
+          final String errorMessage =
+              responseBody['message'] ?? 'Unknown error';
+
+          // Show dialog with one line call
+
+          return Get.dialog(
+            AlertDialog(
+              backgroundColor: AppColors.kDarkestBlue,
+              title: const Text('Signup Failed',
+                  style: TextStyle(color: Colors.white)),
+              content: Text(errorMessage,
+                  style: const TextStyle(color: Colors.white)),
+              actions: [
+                TextButton(
+                  onPressed: () => Get.back(),
+                  child: const Text('OK',
+                      style: TextStyle(color: AppColors.kSkyBlue)),
+                ),
+              ],
+            ),
+          );
         }
       } catch (e) {
         debugPrint('Error Network error: ${e.toString()}');
@@ -271,10 +300,23 @@ class _SetPasswordScreenState extends State<SetPasswordScreen> {
                 ],
               ),
               const SizedBox(height: 20),
+              // companyInfoController.registeringAs.value == 'Company'
+              //     ? Row(
+              //         children: const [
+              //           StepTab(title: "Account Info", isCompleted: true),
+              //           StepTab(title: "Set Password", isCurrent: true),
+              //         ],
+              //       )
+              //     : Row(
+              //         children: const [
+              //           StepTab(title: "Account Info", isCompleted: true),
+              //           StepTab(title: "Documents", isCompleted: true),
+              //           StepTab(title: "Set Password", isCurrent: true),
+              //         ],
+              //       ),
               Row(
                 children: const [
                   StepTab(title: "Account Info", isCompleted: true),
-                  StepTab(title: "Documents", isCompleted: true),
                   StepTab(title: "Set Password", isCurrent: true),
                 ],
               ),
@@ -308,9 +350,16 @@ class _SetPasswordScreenState extends State<SetPasswordScreen> {
                             if (value == null || value.isEmpty) {
                               return 'Password is required';
                             }
-                            if (value.length < 8) {
-                              return 'Password must be at least 8 characters';
+
+                            if (!RegExp(r'[A-Z]').hasMatch(value)) {
+                              return 'Password must contain at least one uppercase letter';
                             }
+                            if (!RegExp(r'[a-z]').hasMatch(value)) {
+                              return 'Password must contain at least one lowercase letter';
+                            }
+                            // if (value.length < 8) {
+                            //   return 'Password must be at least 8 characters';
+                            // }
                             return null;
                           },
                           onChanged: (value) {

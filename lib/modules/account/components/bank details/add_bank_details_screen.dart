@@ -27,20 +27,17 @@ class BankDetailsController extends GetxController {
           accountTitleController.text,
           accountNumberController.text,
           ibanController.text,
-          expiryDateController.text,
           userController.userData.value!.id!,
         );
 
-        if (response.statusCode == 201) {
+        if (response.statusCode == 201 || response.statusCode == 200) {
           await apiService.getUserByID(userController.userData.value!.id!);
           Get.back(result: true);
         } else {
           debugPrint("Error: ${response.body}");
         }
-      } catch (e) {
-      }
-    } else {
-    }
+      } catch (e) {}
+    } else {}
   }
 }
 
@@ -94,48 +91,48 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
                     buildTextField("Bank Name", Icons.account_balance,
                         controller.bankNameController, () {}),
                     const SizedBox(height: 14),
-                    buildTextField("Account Title", Icons.person_outline,
+                    buildTextField("Account Holder Name", Icons.person_outline,
                         controller.accountTitleController, () {}),
                     const SizedBox(height: 14),
                     buildTextField("Account Number", Icons.credit_card,
                         controller.accountNumberController, () {}),
                     const SizedBox(height: 14),
-                    buildTextField("IBAN", Icons.numbers,
+                    buildTextField("BsB Number", Icons.numbers,
                         controller.ibanController, () {}),
-                    const SizedBox(height: 14),
-                    buildTextField("Expiry Date", Icons.calendar_month_outlined,
-                        controller.expiryDateController, () async {
-                        final picked = await showDatePicker(
-                          context: context,
-                          initialDate: DateTime.now(),
-                          firstDate: DateTime.now(),
-                          lastDate: DateTime(2101),
-                          builder: (context, child) {
-                            return Theme(
-                              data: Theme.of(context).copyWith(
-                                dialogBackgroundColor: AppColors.kDarkestBlue,
-                                colorScheme: ColorScheme.dark(
-                                  primary: AppColors.kSkyBlue,
-                                  onPrimary: Colors.black,
-                                  surface: AppColors.kDarkestBlue,
-                                  onSurface: Colors.white,
-                                ),
-                                textButtonTheme: TextButtonThemeData(
-                                  style: TextButton.styleFrom(
-                                    foregroundColor: AppColors
-                                        .kSkyBlue, // Button text color
-                                  ),
-                                ),
-                              ),
-                              child: child!,
-                            );
-                          },
-                        );
-                        if (picked != null) {
-                          controller.expiryDateController.text =
-                              picked.toIso8601String().split('T').first;
-                        }
-                      },),
+                    // const SizedBox(height: 14),
+                    // buildTextField("Expiry Date", Icons.calendar_month_outlined,
+                    //     controller.expiryDateController, () async {
+                    //     final picked = await showDatePicker(
+                    //       context: context,
+                    //       initialDate: DateTime.now(),
+                    //       firstDate: DateTime.now(),
+                    //       lastDate: DateTime(2101),
+                    //       builder: (context, child) {
+                    //         return Theme(
+                    //           data: Theme.of(context).copyWith(
+                    //             dialogBackgroundColor: AppColors.kDarkestBlue,
+                    //             colorScheme: ColorScheme.dark(
+                    //               primary: AppColors.kSkyBlue,
+                    //               onPrimary: Colors.black,
+                    //               surface: AppColors.kDarkestBlue,
+                    //               onSurface: Colors.white,
+                    //             ),
+                    //             textButtonTheme: TextButtonThemeData(
+                    //               style: TextButton.styleFrom(
+                    //                 foregroundColor: AppColors
+                    //                     .kSkyBlue, // Button text color
+                    //               ),
+                    //             ),
+                    //           ),
+                    //           child: child!,
+                    //         );
+                    //       },
+                    //     );
+                    //     if (picked != null) {
+                    //       controller.expiryDateController.text =
+                    //           picked.toIso8601String().split('T').first;
+                    //     }
+                    //   },),
                   ],
                 ),
               ),
@@ -227,102 +224,96 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
   //   );
   // }
 
- Widget buildTextField(
-    String hint,
-    IconData icon,
-    TextEditingController fieldController,
-    Function? onTap) {
-  return TextFormField(
-    onTap: () {
-      if (onTap != null) {
-        onTap();
-      }
-    },
-    controller: fieldController,
-    cursorColor: AppColors.kSkyBlue,
-    cursorErrorColor: Colors.red,
-    style: const TextStyle(color: AppColors.kWhite),
-
-    // ---------------- INPUT LIMITS ----------------
-    maxLength: hint == "Bank Name" || hint == "Account Title"
-        ? 50
-        : hint == "Account Number"
-            ? 10
-            : hint == "IBAN"
-                ? 34
-                : hint == "Expiry Date"
-                    ? 10 // YYYY-MM-DD
-                    : null,
-
-    keyboardType: hint == "Account Number"
-        ? TextInputType.number
-        : hint == "Expiry Date"
-            ? TextInputType.datetime
-            : TextInputType.text,
-
-    inputFormatters: [
-      if (hint == "Bank Name" || hint == "Account Title")
-        FilteringTextInputFormatter.allow(RegExp(r"[A-Za-z ]")),
-      if (hint == "Account Number") FilteringTextInputFormatter.digitsOnly,
-      if (hint == "IBAN")
-        FilteringTextInputFormatter.allow(RegExp(r"[A-Za-z0-9]")),
-      if (hint == "Expiry Date")
-        FilteringTextInputFormatter.allow(RegExp(r"[0-9-]")), // YYYY-MM-DD
-    ],
-
-    decoration: InputDecoration(
-      counterText: "",
-      enabledBorder: const UnderlineInputBorder(
-        borderSide: BorderSide(color: AppColors.kSkyBlue),
-      ),
-      focusedBorder: const UnderlineInputBorder(
-        borderSide: BorderSide(color: AppColors.kSkyBlue),
-      ),
-      contentPadding: const EdgeInsets.all(15),
-      isDense: true,
-      hintText: hint,
-      hintStyle: const TextStyle(color: Colors.grey),
-      prefixIcon: Padding(
-        padding: const EdgeInsets.all(15),
-        child: Icon(icon, color: Colors.grey),
-      ),
-    ),
-
-    // ---------------- VALIDATION ----------------
-    validator: (value) {
-      if (value == null || value.isEmpty) {
-        return "Please enter $hint";
-      }
-
-      if ((hint == "Bank Name" || hint == "Account Title") &&
-          !RegExp(r"^[A-Za-z ]+$").hasMatch(value)) {
-        return "$hint must contain alphabets only";
-      }
-
-      if (hint == "Account Number" &&
-          !RegExp(r"^[0-9]{1,10}$").hasMatch(value)) {
-        return "Account Number must be up to 10 digits only";
-      }
-
-      if (hint == "IBAN" &&
-          !RegExp(r"^[A-Za-z0-9]{1,34}$").hasMatch(value)) {
-        return "IBAN must be alphanumeric only";
-      }
-
-      // YYYY-MM-DD Format
-      if (hint == "Expiry Date") {
-        final regex = RegExp(
-            r"^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$");
-
-        if (!regex.hasMatch(value)) {
-          return "Use YYYY-MM-DD format";
+  Widget buildTextField(String hint, IconData icon,
+      TextEditingController fieldController, Function? onTap) {
+    return TextFormField(
+      onTap: () {
+        if (onTap != null) {
+          onTap();
         }
-      }
+      },
+      controller: fieldController,
+      cursorColor: AppColors.kSkyBlue,
+      cursorErrorColor: Colors.red,
+      style: const TextStyle(color: AppColors.kWhite),
 
-      return null;
-    },
-  );
-}
+      // ---------------- INPUT LIMITS ----------------
+      maxLength: hint == "Bank Name" || hint == "Account Title"
+          ? 50
+          : hint == "Account Number"
+              ? 10
+              : hint == "IBAN"
+                  ? 34
+                  : hint == "Expiry Date"
+                      ? 10 // YYYY-MM-DD
+                      : null,
 
+      keyboardType: hint == "Account Number"
+          ? TextInputType.number
+          : hint == "Expiry Date"
+              ? TextInputType.datetime
+              : TextInputType.text,
 
+      inputFormatters: [
+        if (hint == "Bank Name" || hint == "Account Title")
+          FilteringTextInputFormatter.allow(RegExp(r"[A-Za-z ]")),
+        if (hint == "Account Number") FilteringTextInputFormatter.digitsOnly,
+        if (hint == "IBAN")
+          FilteringTextInputFormatter.allow(RegExp(r"[A-Za-z0-9]")),
+        if (hint == "Expiry Date")
+          FilteringTextInputFormatter.allow(RegExp(r"[0-9-]")), // YYYY-MM-DD
+      ],
+
+      decoration: InputDecoration(
+        counterText: "",
+        enabledBorder: const UnderlineInputBorder(
+          borderSide: BorderSide(color: AppColors.kSkyBlue),
+        ),
+        focusedBorder: const UnderlineInputBorder(
+          borderSide: BorderSide(color: AppColors.kSkyBlue),
+        ),
+        contentPadding: const EdgeInsets.all(15),
+        isDense: true,
+        hintText: hint,
+        hintStyle: const TextStyle(color: Colors.grey),
+        prefixIcon: Padding(
+          padding: const EdgeInsets.all(15),
+          child: Icon(icon, color: Colors.grey),
+        ),
+      ),
+
+      // ---------------- VALIDATION ----------------
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return "Please enter $hint";
+        }
+
+        if ((hint == "Bank Name" || hint == "Account Title") &&
+            !RegExp(r"^[A-Za-z ]+$").hasMatch(value)) {
+          return "$hint must contain alphabets only";
+        }
+
+        if (hint == "Account Number" &&
+            !RegExp(r"^[0-9]{1,10}$").hasMatch(value)) {
+          return "Account Number must be up to 10 digits only";
+        }
+
+        if (hint == "IBAN" && !RegExp(r"^[A-Za-z0-9]{1,34}$").hasMatch(value)) {
+          return "IBAN must be alphanumeric only";
+        }
+
+        // YYYY-MM-DD Format
+        if (hint == "Expiry Date") {
+          final regex =
+              RegExp(r"^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$");
+
+          if (!regex.hasMatch(value)) {
+            return "Use YYYY-MM-DD format";
+          }
+        }
+
+        return null;
+      },
+    );
+  }
 }

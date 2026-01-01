@@ -29,15 +29,19 @@ class _BankDetailsScreenState extends State<BankDetailsScreen> {
 
   Future<List<BankDetails>> fetchBankDetails() async {
     final apiService = MyApIService();
-    final response = await apiService.getBankDetailsWithParams({'userId': userId});
+    final response =
+        await apiService.getBankDetailsWithParams({'userId': userId});
 
     if (response.statusCode == 200) {
       final jsonResponse = jsonDecode(response.body);
       final dataList = jsonResponse['data'];
       if (dataList != null && dataList is List) {
-        debugPrint('Bank details fetched successfully: ${dataList.length} items');
+        debugPrint(
+            'Bank details fetched successfully: ${dataList.length} items');
         debugPrint('Bank details: $dataList');
-        return dataList.map<BankDetails>((json) => BankDetails.fromJson(json)).toList();
+        return dataList
+            .map<BankDetails>((json) => BankDetails.fromJson(json))
+            .toList();
       }
       return [];
     } else {
@@ -68,7 +72,8 @@ class _BankDetailsScreenState extends State<BankDetailsScreen> {
         backgroundColor: AppColors.kDarkestBlue,
         elevation: 0,
         iconTheme: const IconThemeData(color: AppColors.kWhite),
-        title: const Text('Bank Details', style: TextStyle(color: AppColors.kWhite)),
+        title: const Text('Bank Details',
+            style: TextStyle(color: AppColors.kWhite)),
         actions: [
           TextButton(
             onPressed: () {
@@ -80,7 +85,8 @@ class _BankDetailsScreenState extends State<BankDetailsScreen> {
                 }
               });
             },
-            child: const Text('Add', style: TextStyle(color: AppColors.kSkyBlue)),
+            child:
+                const Text('Add', style: TextStyle(color: AppColors.kSkyBlue)),
           ),
         ],
         bottom: const PreferredSize(
@@ -108,9 +114,11 @@ class _BankDetailsScreenState extends State<BankDetailsScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.account_balance_wallet_outlined, color: Colors.white38, size: 64),
+                    Icon(Icons.account_balance_wallet_outlined,
+                        color: Colors.white38, size: 64),
                     SizedBox(height: 12),
-                    Text('No bank details found', style: TextStyle(color: Colors.white54)),
+                    Text('No bank details found',
+                        style: TextStyle(color: Colors.white54)),
                   ],
                 ),
               );
@@ -120,7 +128,8 @@ class _BankDetailsScreenState extends State<BankDetailsScreen> {
               padding: const EdgeInsets.all(16),
               child: ListView.separated(
                 itemCount: bankList.length,
-                separatorBuilder: (context, index) => const SizedBox(height: 20),
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: 20),
                 itemBuilder: (context, index) {
                   final bank = bankList[index];
                   return buildBankCard(
@@ -129,7 +138,7 @@ class _BankDetailsScreenState extends State<BankDetailsScreen> {
                     bank.bankName ?? 'Bank Name',
                     bank.accountNumber ?? 'Account Number',
                     bank.accountTitle ?? 'Account Title',
-                    bank.entityDate ?? 'Expiry Date',
+                    bank.iban ?? 'BsB Number',
                   );
                 },
               ),
@@ -141,13 +150,13 @@ class _BankDetailsScreenState extends State<BankDetailsScreen> {
   }
 
   Widget buildBankCard(
-      BuildContext context,
-      String id,
-      String bankName,
-      String accountNumber,
-      String accountTitle,
-      String expiryDate,
-      ) {
+    BuildContext context,
+    String id,
+    String bankName,
+    String accountNumber,
+    String accountTitle,
+    String bsbNumber,
+  ) {
     return Stack(
       children: [
         Container(
@@ -166,7 +175,8 @@ class _BankDetailsScreenState extends State<BankDetailsScreen> {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.account_balance, color: AppColors.kWhite, size: 28),
+                  const Icon(Icons.account_balance,
+                      color: AppColors.kWhite, size: 28),
                   const SizedBox(width: 8),
                   Text(
                     bankName,
@@ -197,19 +207,19 @@ class _BankDetailsScreenState extends State<BankDetailsScreen> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text("VALID",
-                              style: TextStyle(
-                                  color: AppColors.ktextlight,
-                                  fontSize: 10,
-                                  letterSpacing: 1)),
-                          const Text("THRU",
-                              style: TextStyle(
-                                  color: AppColors.ktextlight,
-                                  fontSize: 10,
-                                  letterSpacing: 1)),
+                          // const Text("VALID",
+                          //     style: TextStyle(
+                          //         color: AppColors.ktextlight,
+                          //         fontSize: 10,
+                          //         letterSpacing: 1)),
+                          // const Text("THRU",
+                          //     style: TextStyle(
+                          //         color: AppColors.ktextlight,
+                          //         fontSize: 10,
+                          //         letterSpacing: 1)),
                           const SizedBox(height: 4),
                           Text(
-                            expiryDate,
+                            bsbNumber,
                             style: const TextStyle(
                               color: AppColors.kWhite,
                               fontSize: 14,
@@ -246,7 +256,8 @@ class _BankDetailsScreenState extends State<BankDetailsScreen> {
                   color: AppColors.kDarkBlue,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
                 ),
-                padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -262,26 +273,32 @@ class _BankDetailsScreenState extends State<BankDetailsScreen> {
                     //   },
                     // ),
                     ListTile(
-                      leading: const Icon(Icons.delete_outline, color: AppColors.kRed),
-                      title: const Text('Delete', style: TextStyle(color: AppColors.kRed)),
+                      leading: const Icon(Icons.delete_outline,
+                          color: AppColors.kRed),
+                      title: const Text('Delete',
+                          style: TextStyle(color: AppColors.kRed)),
                       onTap: () {
                         Get.back();
                         showDialog(
                           context: context,
                           builder: (context) => AlertDialog(
                             title: const Text('Delete Bank Details'),
-                            content: const Text('Are you sure you want to delete this bank details?'),
+                            content: const Text(
+                                'Are you sure you want to delete this bank details?'),
                             actions: [
                               TextButton(
                                 onPressed: () => Get.back(),
-                                child: const Text('Cancel',),
+                                child: const Text(
+                                  'Cancel',
+                                ),
                               ),
                               TextButton(
                                 onPressed: () {
                                   deleteBankDetails(id);
                                   Get.back();
                                 },
-                                child: const Text('Delete', style: TextStyle(color: AppColors.kRed)),
+                                child: const Text('Delete',
+                                    style: TextStyle(color: AppColors.kRed)),
                               ),
                             ],
                           ),
