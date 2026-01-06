@@ -7,12 +7,49 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:419940175084:android:b3463b98b5b8a6cfc629c9",
+        "mobilesdk_app_id": "1:419940175084:android:c10fee5ae0c9447ec629c9",
         "android_client_info": {
-          "package_name": "com.example.taccontractor"
+          "package_name": "com.tac.contractor"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "419940175084-4bmae7ir51knsskfb1e16628ca3mitda.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.tac.contractor",
+            "certificate_hash": "3bdd75c352b03237e4d8d9930fcf8156d3796309"
+          }
+        },
+        {
+          "client_id": "419940175084-eno0oq3bfrdnr147bgcse032v3p0h0au.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.tac.contractor",
+            "certificate_hash": "70fa1608dba4c5c0a3f7c121dee748b53c606300"
+          }
+        },
+        {
+          "client_id": "419940175084-iatf7a7i2uqo5i9lhtj3gprbli2e6m0v.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.tac.contractor",
+            "certificate_hash": "3846d04e644baa43cd5b2a7014d19188a5d6824e"
+          }
+        },
+        {
+          "client_id": "419940175084-u7f2ege1i9mcn0qspnvrbt8icpkk9ojb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.tac.contractor",
+            "certificate_hash": "544a453ffbf3c8d999e88d897d0eb72ab8c14b79"
+          }
+        },
+        {
+          "client_id": "419940175084-s1nht5ir6gn7nkt5lp08atmpe4pg9vi1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBnw4ZEUmYs7nYdl9kVI0uqr9lod3Q_eQQ"
@@ -20,7 +57,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "419940175084-s1nht5ir6gn7nkt5lp08atmpe4pg9vi1.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "419940175084-tlfsj4aioparlj8n3cgnptci4lc3bvp9.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.taccontractor"
+              }
+            }
+          ]
         }
       }
     }

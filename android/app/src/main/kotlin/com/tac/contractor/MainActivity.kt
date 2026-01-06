@@ -1,4 +1,4 @@
-package com.example.taccontractor
+package com.tac.contractor
 
 import io.flutter.embedding.android.FlutterFragmentActivity
 
