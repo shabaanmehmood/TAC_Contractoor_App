@@ -14,7 +14,6 @@ import 'package:taccontractor/models/latestguard.dart';
 import 'package:taccontractor/models/nearbyjob.dart';
 import 'package:taccontractor/models/notification_model.dart';
 import 'package:taccontractor/models/signUpModelForCompany.dart';
-
 import '../controllers/user_controller.dart';
 import '../models/createJobModel.dart';
 import '../models/getUserById_model.dart';
@@ -27,19 +26,8 @@ import '../modules/Messages/socket_file.dart';
 class MyApIService {
   UserController get userController => Get.find<UserController>();
 
-  //get access token url:
-  ///this 'http://192.168.5.175/flutter' part of loginTokenUrl
-  ///must match the same portion of your base URL.
-  ///E.g: If the base URL is = 'http://192.168.5.171/RecruitziUI/api/mobile/
-  ///then the loginTokenUrl must be = 'http://192.168.5.171/RecruitziUI/oauth/token';
-
-  ///IIS server on Remote Desktop:
-  //String loginTokenUrl= 'http://192.168.5.175/flutter/oauth/token';
-  //String baseurl = 'http://192.168.5.175/flutter/api/mobile/';
-
-  /// Live portal server:
-  // String loginTokenUrl = 'https://truegigs.com/portal/oauth/token';
-  String baseurl = 'http://148.66.158.113:3006/api/v1/'; //portal flutter.
+  String baseurl =
+      'https://api.control1security.com.au/api/v1/'; //portal flutter.
   // String controllerBase = 'https://truegigs.com/portal/'; //baseUrl for other calls
 
   Future<http.Response> signUpForCompany({
@@ -308,21 +296,18 @@ class MyApIService {
     return response;
   }
 
-  static const String imageBaseUrl = 'http://148.66.158.113:3006/uploads';
-  static const String imageBaseUrlMap = 'http://148.66.158.113:3006/uploads/';
+  static const String imageBaseUrl =
+      'https://api.control1security.com.au/uploads';
+  static const String imageBaseUrlMap =
+      'https://api.control1security.com.au/uploads/';
 
   static String? fullImageUrl(String? imagePath) {
     if (imagePath == null || imagePath.isEmpty) return null;
     return '$imageBaseUrlMap$imagePath';
   }
 
-  Future<http.Response> addBankDetails(
-      String bankName,
-      String accountTitle,
-      String accountNumber,
-      String iban,
-    
-      String userId) async {
+  Future<http.Response> addBankDetails(String bankName, String accountTitle,
+      String accountNumber, String iban, String userId) async {
     var functionUrl = 'contractorBankDetails';
     final response = await http.post(
       Uri.parse(baseurl + functionUrl),
