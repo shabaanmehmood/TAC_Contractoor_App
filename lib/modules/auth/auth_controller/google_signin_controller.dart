@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -15,10 +16,19 @@ class GoogleAuthService {
   // ✅ CORRECT: Use Get.find() instead of Get.put() to avoid multiple instances
   SignInViewController get signInViewController =>
       Get.find<SignInViewController>();
+  static String get androidClientId {
+    // For debug builds (local development)
+    if (kDebugMode) {
+      return '419940175084-eno0oq3bfrdnr147bgcse032v3p0h0au.apps.googleusercontent.com';
+    }
+    // For release builds (including Play Store)
+    return '419940175084-fq4l4e0mvlopqu3la2b1ldgsc0imgup2.apps.googleusercontent.com';
+  }
 
   // ✅ CORRECT: Simple initialization without complex setup
   final GoogleSignIn _googleSignIn = GoogleSignIn(
     scopes: ['email', 'profile', 'openid'],
+    clientId: androidClientId, // Use the correct client ID for Android
     // ✅ Use your Web Client ID for server authentication
     serverClientId:
         '419940175084-s1nht5ir6gn7nkt5lp08atmpe4pg9vi1.apps.googleusercontent.com',
