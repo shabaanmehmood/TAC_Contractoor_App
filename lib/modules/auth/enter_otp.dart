@@ -248,7 +248,11 @@ class EnterOtpView extends StatelessWidget {
                               SizedBox(width: AppSpacing.tenHorizontal),
                               CustomIconButton(
                                 onTap: () {
-                                  Get.back(canPop: true);
+                                  if (Navigator.canPop(context)) {
+                                    Navigator.pop(context);
+                                  } else {
+                                    Get.back();
+                                  }
                                 },
                               ),
                               SizedBox(width: AppSpacing.twentyHorizontal),

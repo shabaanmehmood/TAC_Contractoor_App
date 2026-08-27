@@ -1,11 +1,13 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:taccontractor/data/data/constants/app_assets.dart';
 import 'package:taccontractor/data/data/constants/app_colors.dart';
 import 'package:taccontractor/data/data/constants/app_spacing.dart';
 import 'package:taccontractor/data/data/constants/app_typography.dart';
+import 'package:taccontractor/data/data/helpers/validators.dart';
 import 'package:taccontractor/models/signUpModelForContractor.dart';
 import 'package:taccontractor/modules/auth/signup_screens/document_upload_screen.dart';
 
@@ -16,6 +18,8 @@ import '../../../widhets/common widgets/buttons/adaptive_dialogue.dart';
 import 'company_info_controller.dart';
 
 class SetPasswordScreen extends StatefulWidget {
+  const SetPasswordScreen({super.key});
+
   @override
   State<SetPasswordScreen> createState() => _SetPasswordScreenState();
 }
@@ -34,6 +38,7 @@ class _SetPasswordScreenState extends State<SetPasswordScreen> {
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   var isContractor = ''.obs;
+  bool _isSigningUp = false;
 
   @override
   void initState() {
@@ -71,12 +76,14 @@ class _SetPasswordScreenState extends State<SetPasswordScreen> {
 
   // ✅ Call this for the company
   Future<void> submitSignupForCompany() async {
+    if (_isSigningUp) return;
     if (_formKey.currentState!.validate()) {
       if (passwordController.text != confirmPasswordController.text) {
         debugPrint("password do not match");
         return;
       }
 
+      setState(() => _isSigningUp = true);
       final apiService = MyApIService(); // create instance
       try {
         final signUpModelForCompany = SignUpModelForCompany(
@@ -90,57 +97,21 @@ class _SetPasswordScreenState extends State<SetPasswordScreen> {
           password: passwordController.text,
           confirmPassword: confirmPasswordController.text,
         );
-        //australianBusinessNumber: companyInfoController.abn.text,
-        // passport: documentInfoController.passportFile.value,
-        // whiteCard:
-        //     (documentInfoController.whiteCardFile.value?.isNotEmpty ?? false)
-        //         ? documentInfoController.whiteCardFile.value
-        //         : null,
-        // visaWorkingRights:
-        //     documentInfoController.visaForWorkingRightsFile.value,
-        // securityLicense: documentInfoController.securityLicenseFile.value,
-        // abn: (documentInfoController.abnFile.value?.isNotEmpty ?? false)
-        //     ? documentInfoController.abnFile.value
-        //     : null,
-        // nationalCrimeCheck:
-        //     documentInfoController.nationalCrimePoliceCheckFile.value,
 
         final response = await apiService.signUpForCompany(
             SignUpModelForCompany: signUpModelForCompany);
 
-        // final response = await apiService.signUpForCompany(
-        //   registeringAs: companyInfoController.registeringAs.value,
-        //   email: companyInfoController.companyEmail.text,
-        //   Name: companyInfoController.companyName.text,
-        //   phone: companyInfoController.phone.text,
-        //   postalAddress: companyInfoController.postalAddress.text,
-        //   masterLicense: companyInfoController.license.text,
-        //   austraLianBusinessNumber: companyInfoController.abn.text,
-        //   australianCompanyNumber: companyInfoController.acn.text,
-        //   password: passwordController.text,
-        //   confirmPassword: confirmPasswordController.text,
-        //   // dob: companyInfoController.dob.text,
-        //   role: companyInfoController.role.text ,
-        //   // gender: companyInfoController.genderController.text,
-        //   passport: documentInfoController.passportFile.value,
-        //   whiteCard: documentInfoController.whiteCardFile.value,
-        //   visaWorkingRights: documentInfoController.visaForWorkingRightsFile.value,
-        //   securityLicense: documentInfoController.securityLicenseFile.value,
-        //   nationalCrimeCheck: documentInfoController.nationalCrimePoliceCheckFile.value,
-        //   abn: documentInfoController.abnFile.value,
-        // );
         if (response.statusCode == 200 || response.statusCode == 201) {
           debugPrint("data from API ${response.body}");
           Get.offAndToNamed(AppRoutes.getLandingPageRoute());
-          // await saveLoginSession();
         } else {
           debugPrint('Error Signup failed: ${response.body}');
           debugPrint("data from API ${response.body}");
           final Map<String, dynamic> responseBody = jsonDecode(response.body);
           final String errorMessage =
               responseBody['message'] ?? 'Unknown error';
-
-          // Show dialog with one line call
+          final bool isEmailIssue = errorMessage.toLowerCase().contains('email') ||
+              errorMessage.toLowerCase().contains('user already exists');
 
           return Get.dialog(
             AlertDialog(
@@ -151,7 +122,19 @@ class _SetPasswordScreenState extends State<SetPasswordScreen> {
                   style: const TextStyle(color: Colors.white)),
               actions: [
                 TextButton(
-                  onPressed: () => Get.back(),
+                  onPressed: () {
+                    Get.back(); // Dismiss error dialog
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (Navigator.canPop(context)) {
+                        Navigator.pop(context); // Return to Company Info screen
+                      } else {
+                        Get.back();
+                      }
+                      Future.delayed(const Duration(milliseconds: 250), () {
+                        companyInfoController.emailFocusNode.requestFocus();
+                      });
+                    });
+                  },
                   child: const Text('OK',
                       style: TextStyle(color: AppColors.kSkyBlue)),
                 ),
@@ -168,18 +151,22 @@ class _SetPasswordScreenState extends State<SetPasswordScreen> {
           yesText: 'OK',
           showNoButton: false,
         );
+      } finally {
+        if (mounted) setState(() => _isSigningUp = false);
       }
     }
   }
 
   // ✅ Call this for the contractor
   Future<void> submitSignupForContractor() async {
+    if (_isSigningUp) return;
     if (_formKey.currentState!.validate()) {
       if (passwordController.text != confirmPasswordController.text) {
         debugPrint("password do not match");
         return;
       }
 
+      setState(() => _isSigningUp = true);
       final apiService = MyApIService(); // create instance
       // try{
       //   final response = await apiService.signUpForContractor(
@@ -246,6 +233,8 @@ class _SetPasswordScreenState extends State<SetPasswordScreen> {
           final Map<String, dynamic> responseBody = jsonDecode(response.body);
           final String errorMessage =
               responseBody['message'] ?? 'Unknown error';
+          final bool isEmailIssue = errorMessage.toLowerCase().contains('email') ||
+              errorMessage.toLowerCase().contains('user already exists');
 
           // Show dialog with one line call
 
@@ -258,7 +247,19 @@ class _SetPasswordScreenState extends State<SetPasswordScreen> {
                   style: const TextStyle(color: Colors.white)),
               actions: [
                 TextButton(
-                  onPressed: () => Get.back(),
+                  onPressed: () {
+                    Get.back(); // Dismiss error dialog
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (Navigator.canPop(context)) {
+                        Navigator.pop(context); // Return to Individual Info screen
+                      } else {
+                        Get.back();
+                      }
+                      Future.delayed(const Duration(milliseconds: 250), () {
+                        companyInfoController.emailFocusNode.requestFocus();
+                      });
+                    });
+                  },
                   child: const Text('OK',
                       style: TextStyle(color: AppColors.kSkyBlue)),
                 ),
@@ -268,6 +269,15 @@ class _SetPasswordScreenState extends State<SetPasswordScreen> {
         }
       } catch (e) {
         debugPrint('Error Network error: ${e.toString()}');
+        await AdaptiveAlertDialogWidget.show(
+          context,
+          title: 'Network Error',
+          content: e.toString(),
+          yesText: 'OK',
+          showNoButton: false,
+        );
+      } finally {
+        if (mounted) setState(() => _isSigningUp = false);
       }
     }
   }
@@ -300,20 +310,6 @@ class _SetPasswordScreenState extends State<SetPasswordScreen> {
                 ],
               ),
               const SizedBox(height: 20),
-              // companyInfoController.registeringAs.value == 'Company'
-              //     ? Row(
-              //         children: const [
-              //           StepTab(title: "Account Info", isCompleted: true),
-              //           StepTab(title: "Set Password", isCurrent: true),
-              //         ],
-              //       )
-              //     : Row(
-              //         children: const [
-              //           StepTab(title: "Account Info", isCompleted: true),
-              //           StepTab(title: "Documents", isCompleted: true),
-              //           StepTab(title: "Set Password", isCurrent: true),
-              //         ],
-              //       ),
               Row(
                 children: const [
                   StepTab(title: "Account Info", isCompleted: true),
@@ -334,6 +330,9 @@ class _SetPasswordScreenState extends State<SetPasswordScreen> {
                           style: const TextStyle(color: AppColors.kWhite),
                           controller: passwordController,
                           obscureText: _obscurePassword,
+                          inputFormatters: [
+                            LengthLimitingTextInputFormatter(64)
+                          ],
                           decoration: _passwordInputDecoration(
                             "Set Password",
                             _obscurePassword,
@@ -341,27 +340,7 @@ class _SetPasswordScreenState extends State<SetPasswordScreen> {
                               _obscurePassword = !_obscurePassword;
                             }),
                           ),
-                          validator: (value) {
-                            // if (value == null || value.isEmpty) {
-                            //   return "Please enter password";
-                            // }
-                            // return null;
-
-                            if (value == null || value.isEmpty) {
-                              return 'Password is required';
-                            }
-
-                            if (!RegExp(r'[A-Z]').hasMatch(value)) {
-                              return 'Password must contain at least one uppercase letter';
-                            }
-                            if (!RegExp(r'[a-z]').hasMatch(value)) {
-                              return 'Password must contain at least one lowercase letter';
-                            }
-                            // if (value.length < 8) {
-                            //   return 'Password must be at least 8 characters';
-                            // }
-                            return null;
-                          },
+                          validator: AppValidators.validateSignupPassword,
                           onChanged: (value) {
                             _formKey.currentState!.validate();
                           },
@@ -371,6 +350,9 @@ class _SetPasswordScreenState extends State<SetPasswordScreen> {
                           style: const TextStyle(color: AppColors.kWhite),
                           controller: confirmPasswordController,
                           obscureText: _obscureConfirmPassword,
+                          inputFormatters: [
+                            LengthLimitingTextInputFormatter(64)
+                          ],
                           decoration: _passwordInputDecoration(
                             "Confirm Password",
                             _obscureConfirmPassword,
@@ -379,17 +361,9 @@ class _SetPasswordScreenState extends State<SetPasswordScreen> {
                                   !_obscureConfirmPassword;
                             }),
                           ),
-                          validator: (value) {
-                            // return null;
-
-                            if (value == null || value.isEmpty) {
-                              return 'Confirm Password is required';
-                            }
-                            if (value != passwordController.text) {
-                              return "Passwords do not match";
-                            }
-                            return null;
-                          },
+                          validator: (value) =>
+                              AppValidators.validateConfirmPassword(
+                                  value, passwordController.text),
                           onChanged: (value) {
                             _formKey.currentState!.validate();
                           },
@@ -405,7 +379,13 @@ class _SetPasswordScreenState extends State<SetPasswordScreen> {
               Row(
                 children: [
                   OutlinedButton(
-                    onPressed: () => Get.back(),
+                    onPressed: () {
+                      if (Navigator.canPop(context)) {
+                        Navigator.pop(context);
+                      } else {
+                        Get.back();
+                      }
+                    },
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(
                           color: AppColors.kSkyBlue, width: 1.5),
@@ -421,24 +401,35 @@ class _SetPasswordScreenState extends State<SetPasswordScreen> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {
-                        if (companyInfoController.registeringAs.value ==
-                            'Company') {
-                          submitSignupForCompany();
-                        } else if (companyInfoController.registeringAs.value ==
-                            'contractor') {
-                          submitSignupForContractor();
-                        }
-                      },
+                      onPressed: _isSigningUp
+                          ? null
+                          : () {
+                              if (companyInfoController.registeringAs.value ==
+                                  'Company') {
+                                submitSignupForCompany();
+                              } else if (companyInfoController.registeringAs.value ==
+                                  'contractor') {
+                                submitSignupForContractor();
+                              }
+                            },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.kSkyBlue,
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8)),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
-                      child: Text("Create Account",
-                          style: AppTypography.kBold16
-                              .copyWith(color: Colors.black)),
+                      child: _isSigningUp
+                          ? const SizedBox(
+                              height: 22,
+                              width: 22,
+                              child: CircularProgressIndicator(
+                                color: Colors.black,
+                                strokeWidth: 2.5,
+                              ),
+                            )
+                          : Text("Create Account",
+                              style: AppTypography.kBold16
+                                  .copyWith(color: Colors.black)),
                     ),
                   ),
                 ],

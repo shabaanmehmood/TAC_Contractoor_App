@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:taccontractor/controllers/user_controller.dart';
 import 'package:taccontractor/data/data/constants/app_assets.dart';
 import 'package:taccontractor/data/data/constants/app_colors.dart';
+import 'package:taccontractor/data/data/constants/app_spacing.dart';
 import 'package:taccontractor/data/data/constants/app_typography.dart';
 import 'package:taccontractor/dataproviders/api_service.dart';
 import 'package:taccontractor/modules/Jobs/Create%20Jobs/setJobDetailsScreen.dart';
@@ -194,71 +195,62 @@ class _MyJobsScreenState extends State<MyJobsScreen> {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: AppColors.kDarkBlue,
-      body: Padding(
-        padding: EdgeInsets.only(
-          right: Get.height * 0.02,
-          top: Get.height * 0.06,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            /// Top Row
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    SizedBox(width: Get.height * 0.02),
-                    Image.asset(
-                      AppAssets.kTacLogo,
-                      height: Get.height * 0.05,
-                      fit: BoxFit.contain,
-                    ),
-                    SizedBox(width: 4),
-                    Text(
-                      "My Jobs",
-                      style: AppTypography.kBold18
-                          .copyWith(color: AppColors.kWhite),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    // Auto-refresh indicator
-
-                    SizedBox(width: 10),
-                    IconButton(
-                      onPressed: refreshJobs,
-                      icon: Icon(Icons.refresh, color: AppColors.kSkyBlue),
-                      tooltip: 'Refresh jobs',
-                    ),
-                    GestureDetector(
-                      onTap: () => Get.to(() => SetJobDetailsScreen()),
-                      child: Image.asset("assets/icon/plus.png",
-                          scale: Get.width * 0.003, color: AppColors.kSkyBlue),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-
-            /// Search Bar
-            Container(
-              margin: EdgeInsets.only(
-                  left: Get.width * 0.04,
-                  top: Get.width * 0.04,
-                  bottom: Get.width * 0.04),
-              child: TextFormField(
+      body: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+              horizontal: AppSpacing.twentyHorizontal, vertical: 10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              /// Top Row
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Image.asset(
+                        AppAssets.kTacLogo,
+                        height: Get.height * 0.045,
+                        fit: BoxFit.contain,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        "My Jobs",
+                        style: AppTypography.kBold16
+                            .copyWith(color: AppColors.kWhite),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      // Auto-refresh indicator
+                      IconButton(
+                        onPressed: refreshJobs,
+                        icon: const Icon(Icons.refresh, color: AppColors.kSkyBlue),
+                        tooltip: 'Refresh jobs',
+                      ),
+                      GestureDetector(
+                        onTap: () => Get.to(() => SetJobDetailsScreen()),
+                        child: Image.asset("assets/icon/plus.png",
+                            scale: Get.width * 0.003, color: AppColors.kSkyBlue),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              SizedBox(height: Get.height * 0.015),
+              /// Search Bar
+              TextFormField(
                 style: const TextStyle(color: AppColors.kgrey),
                 decoration: InputDecoration(
                   fillColor: AppColors.kDarkBlue,
                   filled: true,
                   hintText: "Search for security jobs...",
-                  suffixIcon: Image.asset(
-                    "assets/icon/search.png",
-                    scale: Get.width * 0.004,
+                  suffixIcon: Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Image.asset("assets/icon/search.png"),
                   ),
-                  hintStyle: TextStyle(color: AppColors.kgrey, fontSize: 16),
+                  hintStyle: const TextStyle(color: AppColors.kgrey, fontSize: 16),
                   contentPadding: EdgeInsets.symmetric(
                     vertical: Get.width * 0.03,
                     horizontal: Get.width * 0.04,
@@ -275,39 +267,36 @@ class _MyJobsScreenState extends State<MyJobsScreen> {
                   ),
                 ),
               ),
-            ),
 
             /// Status Info
 
-            /// Tab Buttons
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Padding(
-                padding: EdgeInsets.only(left: Get.width * 0.03),
+              SizedBox(height: Get.height * 0.02),
+
+              /// Tab Buttons
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
                 child: Row(
                   children: List.generate(tabs.length, (index) {
                     final isSelected = selectedIndex == index;
-                    return Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: Get.width * 0.015),
-                      child: OutlinedButton(
-                        onPressed: () {
-                          setState(() {
-                            selectedIndex = index;
-                          });
-                        },
-                        style: OutlinedButton.styleFrom(
-                          backgroundColor: isSelected
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          selectedIndex = index;
+                        });
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.only(right: 10.0),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16.0, vertical: 8.0),
+                        decoration: BoxDecoration(
+                          color: isSelected
                               ? AppColors.kSkyBlue
                               : Colors.transparent,
-                          side: BorderSide(color: AppColors.kSkyBlue),
-                          shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(Get.width * 0.02),
+                          borderRadius: BorderRadius.circular(8.0),
+                          border: Border.all(
+                            color: AppColors.kSkyBlue,
+                            width: 1.5,
                           ),
-                          padding: EdgeInsets.symmetric(
-                              horizontal: Get.width * 0.03,
-                              vertical: Get.width * 0.01),
                         ),
                         child: Text(
                           tabs[index],
@@ -322,7 +311,7 @@ class _MyJobsScreenState extends State<MyJobsScreen> {
                   }),
                 ),
               ),
-            ),
+              SizedBox(height: Get.height * 0.02),
 
             /// Jobs List
             Expanded(
@@ -333,8 +322,9 @@ class _MyJobsScreenState extends State<MyJobsScreen> {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildJobList() {
     final filteredJobs = getFilteredJobs();

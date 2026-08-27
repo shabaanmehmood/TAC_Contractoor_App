@@ -357,6 +357,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart'; // ✅ Added
 import 'package:taccontractor/data/data/constants/app_colors.dart';
+import 'package:taccontractor/data/data/constants/app_spacing.dart';
+import 'package:taccontractor/data/data/constants/app_typography.dart';
 import 'package:taccontractor/modules/account/components/Earning/earnings_screen.dart';
 import 'package:taccontractor/modules/account/components/bank%20details/bank_details_screen.dart';
 import 'package:taccontractor/modules/account/components/logout.dart';
@@ -380,40 +382,37 @@ class AccountScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppColors.kDarkestBlue,
-      body: Column(
-        children: [
-          // App Bar
-          Container(
-            width: double.infinity,
-            padding:
-                const EdgeInsets.only(left: 20, right: 20, top: 40, bottom: 10),
-            decoration: const BoxDecoration(
-              color: AppColors.kDarkestBlue,
-              border: Border(
-                bottom: BorderSide(width: 0.5, color: AppColors.kgrey),
+      body: SafeArea(
+        child: Column(
+          children: [
+            // App Bar
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(
+                  horizontal: AppSpacing.twentyHorizontal, vertical: 10),
+              child: Row(
+                children: [
+                  Image.asset(
+                    AppAssets.kTacLogo,
+                    height: Get.height * 0.045,
+                    fit: BoxFit.contain,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    'Account',
+                    style: AppTypography.kBold16.copyWith(
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
               ),
             ),
-            child: Row(
-              children: [
-                Image.asset(AppAssets.kTacLogo, width: 34, height: 34),
-                const SizedBox(width: 8),
-                Text(
-                  'Account',
-                  style: GoogleFonts.outfit(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
 
-          // Scrollable Body
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(0, 32, 0, 16),
-              child: Column(
+            // Scrollable Body
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
+                child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   // Profile Card
@@ -602,8 +601,9 @@ class AccountScreen extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget buildCard(
     double screenWidth,

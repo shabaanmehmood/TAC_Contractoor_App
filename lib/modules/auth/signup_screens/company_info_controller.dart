@@ -5,8 +5,11 @@ import 'package:taccontractor/modules/auth/signup_screens/set_pass.dart';
 
 import 'document_upload_screen.dart';
 
+import '../../../data/data/helpers/validators.dart';
+
 class CompanyInfoController extends GetxController {
   final formKey = GlobalKey<FormState>();
+  final emailFocusNode = FocusNode();
   var registeringAs = ''.obs;
   final companyName = TextEditingController();
   final companyEmail = TextEditingController();
@@ -49,14 +52,7 @@ class CompanyInfoController extends GetxController {
   }
 
   String? validateEmail(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return 'Email is required';
-    }
-    final emailRegEx = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-    if (!emailRegEx.hasMatch(value.trim())) {
-      return 'Enter a valid email';
-    }
-    return null;
+    return AppValidators.validateEmail(value);
   }
 
   String? validatePhone(String? value) {
@@ -91,12 +87,7 @@ class CompanyInfoController extends GetxController {
 
   void onContinue() {
     if (formKey.currentState!.validate()) {
-      Get.to(SetPasswordScreen());
-      // registeringAs.value == 'Company'
-      //     ?
-      //     //   Get.to(DocumentInfoScreen());
-      //     Get.to(SetPasswordScreen())
-      //     : Get.to(DocumentInfoScreen());
+      Get.to(() => const SetPasswordScreen());
     }
   }
 

@@ -200,15 +200,15 @@ class GoogleAuthService {
 
   void _handleError(error) {
     debugPrint('Google Sign-In Error: $error');
+    final errStr = error.toString().toLowerCase();
 
-    if (error.toString().contains('canceled') ||
-        error.toString().contains('cancelled')) {
+    if (errStr.contains('cancel') || errStr.contains('12501')) {
       Get.snackbar("Cancelled", "Sign-in was cancelled.");
-    } else if (error.toString().contains('sign_in_failed')) {
+    } else if (errStr.contains('network')) {
+      Get.snackbar("Network Error", "Please check your internet connection.");
+    } else if (errStr.contains('sign_in_failed')) {
       Get.snackbar(
           "Sign-In Failed", "Please check your Google Console configuration.");
-    } else if (error.toString().contains('network')) {
-      Get.snackbar("Network Error", "Please check your internet connection.");
     } else {
       Get.snackbar(
           "Error", "An unexpected error occurred: ${error.toString()}");

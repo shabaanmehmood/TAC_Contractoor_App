@@ -636,7 +636,13 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                                       ),
                                       actions: [
                                         TextButton(
-                                          onPressed: () => Get.back(),
+                                          onPressed: () {
+                                            if (Navigator.canPop(context)) {
+                                              Navigator.pop(context);
+                                            } else {
+                                              Get.back();
+                                            }
+                                          },
                                           child: Text("Cancel",
                                               style: TextStyle(
                                                   color: AppColors.kSkyBlue)),

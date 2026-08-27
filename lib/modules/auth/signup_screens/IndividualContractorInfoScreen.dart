@@ -103,6 +103,7 @@ class IndividualInfoScreen extends StatelessWidget {
                         SizedBox(height: AppSpacing.fifteenVertical),
                         TextFormField(
                           controller: controller.companyEmail,
+                          focusNode: controller.emailFocusNode,
                           style: const TextStyle(color: AppColors.kWhite),
                           keyboardType: TextInputType.emailAddress,
                           decoration: _inputDecoration(
@@ -189,7 +190,13 @@ class IndividualInfoScreen extends StatelessWidget {
               Row(
                 children: [
                   OutlinedButton(
-                    onPressed: () => Get.back(),
+                    onPressed: () {
+                      if (Navigator.canPop(context)) {
+                        Navigator.pop(context);
+                      } else {
+                        Get.back();
+                      }
+                    },
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(
                           color: AppColors.kSkyBlue, width: 1.5),

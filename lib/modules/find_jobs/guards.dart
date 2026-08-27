@@ -604,6 +604,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import '../../../data/data/constants/app_assets.dart';
 import '../../../data/data/constants/app_colors.dart';
+import '../../../data/data/constants/app_spacing.dart';
 import '../../../data/data/constants/app_typography.dart';
 import '../../../dataproviders/api_service.dart';
 import '../../../models/guardsList_model.dart';
@@ -622,14 +623,14 @@ class AvailableGuardsScreen extends StatelessWidget {
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(
-              vertical: Get.width * 0.04, horizontal: Get.width * 0.04),
+              horizontal: AppSpacing.twentyHorizontal, vertical: 10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _header(),
-              SizedBox(height: Get.height * 0.02),
+              SizedBox(height: Get.height * 0.015),
               _searchBar(),
-              SizedBox(height: Get.height * 0.035),
+              SizedBox(height: Get.height * 0.03),
               Text(
                 "Available Guards",
                 style: AppTypography.kBold20.copyWith(color: AppColors.kWhite),
@@ -696,20 +697,28 @@ class AvailableGuardsScreen extends StatelessWidget {
             children: [
               Image.asset(
                 AppAssets.kTacLogo,
-                height: Get.height * 0.05,
+                height: Get.height * 0.045,
+                fit: BoxFit.contain,
               ),
-              SizedBox(width: 4),
+              const SizedBox(width: 4),
               Text("Guards",
                   style:
-                      AppTypography.kBold18.copyWith(color: AppColors.kWhite)),
+                      AppTypography.kBold16.copyWith(color: AppColors.kWhite)),
             ],
           ),
           Row(
             children: [
-              GestureDetector(
-                onTap: () => Get.to(() => NotificationScreen()),
-                child: SvgPicture.asset("assets/icon/notification.svg",
-                    width: 28, color: AppColors.kSkyBlue),
+              IconButton(
+                focusColor: AppColors.kPrimary,
+                color: AppColors.kPrimary,
+                icon: SvgPicture.asset(
+                  width: 35,
+                  height: 35,
+                  AppAssets.kAlerts,
+                ),
+                onPressed: () {
+                  Get.to<void>(() => NotificationScreen());
+                },
               ),
             ],
           ),

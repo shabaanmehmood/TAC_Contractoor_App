@@ -32,17 +32,11 @@ class _SelectAccountTypeScreenState extends State<SelectAccountTypeScreen> {
     if (_selectedType == 'Company') {
       controller.registeringAs.value = 'Company';
       debugPrint('Registering as: ${controller.registeringAs.value}');
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => CompanyInfoScreen()),
-      );
+      Get.to(() => CompanyInfoScreen());
     } else {
       controller.registeringAs.value = 'contractor';
       debugPrint('Registering as: ${controller.registeringAs.value}');
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => IndividualInfoScreen()),
-      );
+      Get.to(() => IndividualInfoScreen());
     }
   }
 
