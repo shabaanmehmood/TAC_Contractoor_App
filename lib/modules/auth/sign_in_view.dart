@@ -703,7 +703,7 @@ class SignInViewController extends GetxController {
         final response = await apiService.login(
           emailController.text.toString(),
           passwordController.text.toString(),
-          fcmToken!,
+          fcmToken ?? '',
         );
 
         if (response.statusCode == 200) {

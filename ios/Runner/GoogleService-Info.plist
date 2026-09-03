@@ -3,11 +3,11 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>419940175084-tlfsj4aioparlj8n3cgnptci4lc3bvp9.apps.googleusercontent.com</string>
+	<string>419940175084-i1vikvcvabv3831i2cv5374o04bgejlm.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.419940175084-tlfsj4aioparlj8n3cgnptci4lc3bvp9</string>
+	<string>com.googleusercontent.apps.419940175084-i1vikvcvabv3831i2cv5374o04bgejlm</string>
 	<key>ANDROID_CLIENT_ID</key>
-	<string>419940175084-4qb9l7n5emi57flmaqqr9ddjrbe1mlv8.apps.googleusercontent.com</string>
+	<string>419940175084-4bmae7ir51knsskfb1e16628ca3mitda.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
 	<string>AIzaSyBJwCCQNTZELfnhwAUbjqgMQ9kHvsQaWCM</string>
 	<key>GCM_SENDER_ID</key>
@@ -15,7 +15,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.example.taccontractor</string>
+	<string>com.tac.contractor</string>
 	<key>PROJECT_ID</key>
 	<string>taccontractor-f77ef</string>
 	<key>STORAGE_BUCKET</key>
@@ -31,6 +31,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:419940175084:ios:988c6b26d1a56a58c629c9</string>
+	<string>1:419940175084:ios:bd3e20efae0bbef4c629c9</string>
 </dict>
 </plist>

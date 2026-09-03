@@ -16,20 +16,22 @@ class GoogleAuthService {
   // ✅ CORRECT: Use Get.find() instead of Get.put() to avoid multiple instances
   SignInViewController get signInViewController =>
       Get.find<SignInViewController>();
+
   static String get androidClientId {
-    // For debug builds (local development)
     if (kDebugMode) {
       return '419940175084-eno0oq3bfrdnr147bgcse032v3p0h0au.apps.googleusercontent.com';
     }
-    // For release builds (including Play Store)
     return '419940175084-fq4l4e0mvlopqu3la2b1ldgsc0imgup2.apps.googleusercontent.com';
   }
 
-  // ✅ CORRECT: Simple initialization without complex setup
-  final GoogleSignIn _googleSignIn = GoogleSignIn(
+  static String get iosClientId {
+    return '419940175084-tlfsj4aioparlj8n3cgnptci4lc3bvp9.apps.googleusercontent.com';
+  }
+
+  // ✅ Platform-aware Google Sign-In config: Android and iOS need different client IDs.
+  late final GoogleSignIn _googleSignIn = GoogleSignIn(
     scopes: ['email', 'profile', 'openid'],
-    clientId: androidClientId, // Use the correct client ID for Android
-    // ✅ Use your Web Client ID for server authentication
+    clientId: defaultTargetPlatform == TargetPlatform.iOS ? iosClientId : null,
     serverClientId:
         '419940175084-s1nht5ir6gn7nkt5lp08atmpe4pg9vi1.apps.googleusercontent.com',
   );
