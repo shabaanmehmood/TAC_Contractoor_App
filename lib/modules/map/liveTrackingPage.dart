@@ -242,7 +242,6 @@ const String _darkMapStyle = '''
 ]
 ''';
 
-
 class JobsMapView extends StatelessWidget {
   final MapController controller = Get.put(MapController());
 
@@ -279,8 +278,8 @@ class JobsMapView extends StatelessWidget {
                   initialCameraPosition: CameraPosition(
                     target: controller.userPath.isNotEmpty
                         ? controller.userPath.first
-                        : LatLng(0, 0),
-                    zoom: 15,
+                        : const LatLng(-25.2744, 133.7751),
+                    zoom: 4.5,
                   ),
                   markers: controller.markers.value,
                   onMapCreated: controller.setMapController,

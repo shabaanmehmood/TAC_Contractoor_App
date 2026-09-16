@@ -40,8 +40,8 @@ class HomeView extends StatelessWidget {
                       initialCameraPosition: CameraPosition(
                         target: controller.userPath.isNotEmpty
                             ? controller.userPath.first
-                            : const LatLng(33.6844, 73.0479),
-                        zoom: 18,
+                            : const LatLng(-25.2744, 133.7751),
+                        zoom: 4.5,
                       ),
                       markers: controller.markers,
                       myLocationEnabled: false,
@@ -62,7 +62,6 @@ class HomeView extends StatelessWidget {
                     );
                   }),
 
-         
                   Obx(() {
                     final guard = controller.selectedGuard.value;
                     if (guard == null) return const SizedBox.shrink();
