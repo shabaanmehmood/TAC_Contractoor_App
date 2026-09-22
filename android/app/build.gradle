@@ -71,12 +71,7 @@ android {
             storeFile file(keystoreProperties['storeFile'])
             storePassword keystoreProperties['storePassword']
         } else {
-            // Fallback to debug signing (prevents build crash)
-            println "⚠️ WARNING: keystore.properties not found! Using debug signing for release build."
-            keyAlias "androiddebugkey"
-            keyPassword "android"
-            storeFile file(System.getProperty("user.home") + "/.android/debug.keystore")
-            storePassword "android"
+            throw new GradleException("Missing android/keystore.properties. Configure a release keystore before building for Google Play.")
         }
     }
 }
