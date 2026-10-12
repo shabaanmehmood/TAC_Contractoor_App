@@ -9,7 +9,7 @@ class LocationService {
     try {
       final response = await http.get(
         Uri.parse(
-            '$_baseUrl/autocomplete/json?input=$input&key=${apikey}&components=country:pk'),
+            '$_baseUrl/autocomplete/json?input=$input&key=${apikey}&components=country:au'),
       );
 
       if (response.statusCode == 200) {

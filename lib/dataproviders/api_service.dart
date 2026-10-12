@@ -156,7 +156,8 @@ class MyApIService {
       final userDataModel = UserDataModel.fromJson(jsonData);
 
       if (userDataModel.data != null) {
-        final userId = userDataModel.data!.id;
+        final loginData = userDataModel.data!;
+        final userId = loginData.id;
         debugPrint('User ID: $userId');
         // userController.setUser(userDataModel.data!);
         // final getuserbyid = await getUserByID(userId!);
@@ -167,7 +168,7 @@ class MyApIService {
           final userData =
               GetUserById.fromJson(jsonDecode(getUserResponse.body)).data;
           if (userData != null) {
-            Get.find<UserController>().setUser(userData);
+            Get.find<UserController>().setUser(userData, authData: loginData);
             SocketService().initialize();
           }
         }
@@ -895,24 +896,6 @@ class MyApIService {
       debugPrint('Error job creating issue: ${response.statusCode}');
     }
 
-    return response;
-  }
-
-  Future<http.Response> getRequiredSkills() async {
-    var functionUrl = 'requiredSkills/';
-    final response = await http.get(
-      Uri.parse(baseurl + functionUrl),
-      headers: {
-        "Content-Type": "application/json",
-        'ngrok-skip-browser-warning': 'true',
-      },
-    );
-    if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
-      debugPrint('Response in getAllLicense: $json');
-    } else {
-      // handle error
-    }
     return response;
   }
 

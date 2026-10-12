@@ -51,10 +51,10 @@ class Data {
   String? masterSecurityLicense;
   String? australianBusinessNumber;
   String? australianCompanyNumber;
-  String? createdAt;  // Changed from createdDate
-  String? updatedAt;  // Changed from updatedDate
+  String? createdAt; // Changed from createdDate
+  String? updatedAt; // Changed from updatedDate
   AccountInfo? accountInfo;
-  List<PersonalDetails>? personalDetails;  // Changed from single object to list
+  List<PersonalDetails>? personalDetails; // Changed from single object to list
   List<ProfileImages>? profileImages;
   List<Documents>? documents;
   List<BankDetails>? bankDetails;
@@ -102,15 +102,15 @@ class Data {
     password = json['password'];
     role = json['role'];
     dob = json['dob'];
-    token = json['token'];
+    token = json['token'] ?? json['accessToken'];
     isVerified = json['isVerified'];
     fcmToken = json['fcmToken'];
     gender = json['gender'];
     registeringAs = json['registeringAs'];
     isActive = json['isActive'];
     isDeleted = json['isDeleted'];
-    createdAt = json['createdAt'];  // Corrected field name
-    updatedAt = json['updatedAt'];  // Corrected field name
+    createdAt = json['createdAt']; // Corrected field name
+    updatedAt = json['updatedAt']; // Corrected field name
     appleId = json['appleId'];
     australianBusinessNumber = json['australianBusinessNumber'];
     australianCompanyNumber = json['australianCompanyNumber'];
@@ -155,7 +155,7 @@ class Data {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = {};
     data['id'] = id;
-    data['name'] = name;  // Changed from fullName to name
+    data['name'] = name; // Changed from fullName to name
     data['email'] = email;
     data['phone'] = phone;
     data['postalAddress'] = postalAddress;
@@ -171,8 +171,8 @@ class Data {
     data['gender'] = gender;
     data['isActive'] = isActive;
     data['isDeleted'] = isDeleted;
-    data['createdAt'] = createdAt;  // Corrected field name
-    data['updatedAt'] = updatedAt;  // Corrected field name
+    data['createdAt'] = createdAt; // Corrected field name
+    data['updatedAt'] = updatedAt; // Corrected field name
     data['appleId'] = appleId;
 
     if (profileImages != null) {
@@ -180,7 +180,8 @@ class Data {
     }
 
     if (personalDetails != null) {
-      data['personalDetails'] = personalDetails!.map((v) => v.toJson()).toList();
+      data['personalDetails'] =
+          personalDetails!.map((v) => v.toJson()).toList();
     }
 
     if (documents != null) {

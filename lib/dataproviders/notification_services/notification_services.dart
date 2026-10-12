@@ -1,11 +1,17 @@
 import 'dart:io' show Platform;
+import 'dart:convert';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:get/get.dart';
+import 'package:taccontractor/controllers/user_controller.dart';
+import 'package:taccontractor/modules/community/community_service.dart';
+import 'package:taccontractor/modules/community/community_view.dart';
 
 class NotificationServices {
   static final FirebaseMessaging messaging = FirebaseMessaging.instance;
   static final FlutterLocalNotificationsPlugin
       _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  static Map<String, dynamic>? _pendingCommunityPayload;
 
   /// Request notification permissions from the user
   static Future<void> requestNotificationPermission() async {
@@ -97,7 +103,46 @@ class NotificationServices {
   /// Handle notification taps
   static void onNotificationTap(NotificationResponse notificationResponse) {
     print("📩 Notification tapped: ${notificationResponse.payload}");
-    // navigatorKey.currentState!.pushNamed("/message", arguments: notificationResponse);
+    final payload = notificationResponse.payload;
+    if (payload == null) return;
+    try {
+      final decoded = jsonDecode(payload);
+      if (decoded is Map)
+        handleRemoteNotificationData(Map<String, dynamic>.from(decoded));
+    } on FormatException {
+      return;
+    }
+  }
+
+  static void handleRemoteNotificationData(Map<String, dynamic> data) {
+    if (data['type'] != 'community' || data['postId'] is! String) return;
+    _pendingCommunityPayload = Map<String, dynamic>.from(data);
+    openPendingCommunityNotification();
+  }
+
+  static void openPendingCommunityNotification() {
+    final payload = _pendingCommunityPayload;
+    if (payload == null || !Get.isRegistered<UserController>()) return;
+    final userController = Get.find<UserController>();
+    final token = userController.accessToken;
+    final accountId = userController.accountId;
+    final accountType = userController.accountType;
+    if (token == null || accountId == null || accountType == null) return;
+
+    _pendingCommunityPayload = null;
+    Get.to<void>(() => CommunityThreadView(
+          service: CommunityService(
+            token: token,
+            accountId: accountId,
+            accountType: accountType,
+          ),
+          postId: payload['postId'] as String,
+          commentId: payload['commentId'] as String?,
+          canComment: userController.userData.value?.isVerified == true ||
+              accountType == 'admin',
+          onVerifiedPostDenied: () {},
+          onHiddenPost: () {},
+        ));
   }
 
   /// Show a simple notification

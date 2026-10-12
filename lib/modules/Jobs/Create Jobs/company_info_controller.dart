@@ -11,7 +11,6 @@ import 'package:taccontractor/models/jobPremisesModel.dart';
 
 import '../../../dataproviders/api_service.dart';
 import '../../../models/requiredLicenseModel.dart';
-import '../../../models/required_skills.dart';
 import '../../../models/shift_model.dart';
 import 'preferences_screen.dart';
 import 'package:geolocator/geolocator.dart';
@@ -49,6 +48,7 @@ class SetJobDetailsController extends GetxController {
 
   final formKeyforpreference = GlobalKey<FormState>();
   final licenseRequired = TextEditingController();
+  final requiredSkills = TextEditingController();
   final jobAppearance = TextEditingController();
   final yearsOfExperience = TextEditingController();
   final level = TextEditingController();
@@ -81,10 +81,10 @@ class SetJobDetailsController extends GetxController {
   var maxExperience = 0.obs;
   var minAge = 0.obs;
   var maxAge = 0.obs;
+  var ageLimitEnabled = false.obs;
+  var experienceLimitEnabled = false.obs;
   var minimumLevel = 0.obs;
   var maximumLevel = 0.obs;
-  var selectedSkills = <SkillModel>[].obs;
-  var availableSkills = <SkillModel>[].obs;
 
   // Add this method to your controller class (e.g., JobCreationController)
   void clearAllFields() {
@@ -101,6 +101,7 @@ class SetJobDetailsController extends GetxController {
     cardExpiryMonthController.clear();
     cardExpiryYearController.clear();
     cardCvvController.clear();
+    requiredSkills.clear();
     jobAppearance.clear();
 
     // Reset Rx variables to their initial state
@@ -112,9 +113,10 @@ class SetJobDetailsController extends GetxController {
     maxExperience.value = 0;
     minAge.value = 0;
     maxAge.value = 0;
+    ageLimitEnabled.value = false;
+    experienceLimitEnabled.value = false;
     minimumLevel.value = 0;
     maximumLevel.value = 0;
-    selectedSkills.clear(); // Assuming it's an RxList
     selectedLicenses.clear(); // Assuming it's an RxList
     shifts.clear(); // Assuming it's an RxList
     selectedCategory.value = ''; // Or to an initial default value
@@ -312,25 +314,6 @@ class SetJobDetailsController extends GetxController {
       }
     } catch (e) {
       Get.snackbar("Error", "Failed to fetch licenses");
-    }
-  }
-
-  Future<void> fetchRequiredSkills() async {
-    try {
-      final response = await myApiService
-          .getRequiredSkills(); // Make sure this hits your skills endpoint
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> jsonMap = jsonDecode(response.body);
-        final List<dynamic> jsonList = jsonMap['data'];
-        availableSkills.value =
-            jsonList.map((json) => SkillModel.fromJson(json)).toList();
-      } else {
-        availableSkills.clear();
-        Get.snackbar("Error", "Failed to fetch skills");
-      }
-    } catch (e) {
-      availableSkills.clear();
-      Get.snackbar("Error", "Failed to fetch skills");
     }
   }
 

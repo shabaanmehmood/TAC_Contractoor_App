@@ -1,6 +1,5 @@
 import 'package:taccontractor/models/preferenceModel.dart';
 import 'package:taccontractor/models/requiredLicenseModel.dart';
-import 'package:taccontractor/models/required_skills.dart';
 import 'package:taccontractor/models/shift_model.dart';
 
 class CreateJobModel {
@@ -15,8 +14,8 @@ class CreateJobModel {
   final String longitude;
   final String reportingManagerNumber;
   final String reportingManagerName;
-  final String minAge;
-  final String maxAge;
+  final String? minAge;
+  final String? maxAge;
   final String minimumLevel;
   final String maximumLevel;
   final int noOfGuardsRequired;
@@ -25,13 +24,13 @@ class CreateJobModel {
   final String jobSOPs;
   final String contractorId;
   final List<RequiredLicense> requiredLicense;
-  final List<SkillModel> SkillIds;
+  final String requiredSkills;
   final List<Shift> shifts;
   final Preferences preferences;
-  final String cardNumber;
-  final String expiryMonth;
-  final String expiryYear;
-  final String cvv;
+  // final String cardNumber;
+  // final String expiryMonth;
+  // final String expiryYear;
+  // final String cvv;
 
   CreateJobModel({
     required this.title,
@@ -55,13 +54,13 @@ class CreateJobModel {
     required this.jobSOPs,
     required this.contractorId,
     required this.requiredLicense,
-    required this.SkillIds,
+    required this.requiredSkills,
     required this.shifts,
     required this.preferences,
-    required this.cardNumber,
-    required this.expiryMonth,
-    required this.expiryYear,
-    required this.cvv,
+    // required this.cardNumber,
+    // required this.expiryMonth,
+    // required this.expiryYear,
+    // required this.cvv,
   });
 
   Map<String, dynamic> toJson() {
@@ -77,8 +76,8 @@ class CreateJobModel {
       'longitude': longitude,
       'reportingManagerNumber': reportingManagerNumber,
       'reportingManagerName': reportingManagerName,
-      'minAge': minAge,
-      'maxAge': maxAge,
+      if (minAge != null) 'minAge': minAge,
+      if (maxAge != null) 'maxAge': maxAge,
       'minumumLevel': minimumLevel,
       'maximumLevel': maximumLevel,
       'noOfGuardsRequired': noOfGuardsRequired,
@@ -87,13 +86,13 @@ class CreateJobModel {
       'jobSOPs': jobSOPs,
       'contractorId': contractorId,
       'requiredLicenses': requiredLicense.map((l) => l.toJson()).toList(),
-      'skillIds': SkillIds.map((s) => s.id).toList(),
+      'requiredSkills': requiredSkills,
       'shifts': shifts.map((shift) => shift.toJson()).toList(),
       'preferences': preferences.toJson(),
-      'cardNumber': cardNumber,
-      'expMonth': expiryMonth,
-      'expYear': expiryYear,
-      'cvc': cvv,
+      // 'cardNumber': cardNumber,
+      // 'expMonth': expiryMonth,
+      // 'expYear': expiryYear,
+      // 'cvc': cvv,
     };
   }
 }

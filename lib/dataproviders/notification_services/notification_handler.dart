@@ -21,15 +21,16 @@ class NotificationHandlerController {
     // App opened from background
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       print("📲 App opened via notification: $message");
-      // Handle navigation or other actions
+      NotificationServices.handleRemoteNotificationData(message.data);
     });
   }
 
   static Future<void> handleTerminatedState() async {
-    RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+    RemoteMessage? initialMessage =
+        await FirebaseMessaging.instance.getInitialMessage();
     if (initialMessage != null) {
       print("🚀 App launched from terminated by notification: $initialMessage");
-      // Handle deep linking/navigation
+      NotificationServices.handleRemoteNotificationData(initialMessage.data);
     }
   }
 }

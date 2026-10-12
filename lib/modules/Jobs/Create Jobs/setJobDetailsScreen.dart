@@ -675,13 +675,17 @@ class _SetJobDetailsScreenState extends State<SetJobDetailsScreen> {
                         SizedBox(height: AppSpacing.fifteenVertical),
                         TextFormField(
                           controller: controller.payPerHour,
-                          keyboardType: TextInputType.number,
+                          keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true),
                           inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
+                            FilteringTextInputFormatter.allow(
+                                RegExp(r'^\d*\.?\d{0,2}')),
                           ],
                           style: const TextStyle(color: AppColors.kWhite),
                           decoration: _inputDecoration(
-                              "Set Pay Per Hour", AppAssets.kMail),
+                            "Set Pay Per Hour",
+                            AppAssets.kMail,
+                          ),
                           validator: controller.validateRequired,
                           onChanged: (value) {
                             controller.formKey.currentState?.validate();

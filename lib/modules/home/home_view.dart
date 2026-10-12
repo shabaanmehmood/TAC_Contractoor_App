@@ -7,8 +7,10 @@ import 'package:taccontractor/data/data/constants/app_assets.dart';
 import 'package:taccontractor/data/data/constants/app_spacing.dart';
 import 'package:taccontractor/data/data/constants/app_typography.dart';
 import 'package:taccontractor/dataproviders/api_service.dart';
+import 'package:taccontractor/dataproviders/notification_services/notification_services.dart';
 import 'package:taccontractor/modules/Guards/guards_view.dart';
 import 'package:taccontractor/modules/alerts/notification_view.dart';
+import 'package:taccontractor/modules/community/community_view.dart';
 import 'package:taccontractor/modules/home/components/search_field.dart';
 
 import '../../controllers/user_controller.dart';
@@ -16,6 +18,98 @@ import '../../data/data/constants/app_colors.dart';
 
 class HomeView extends StatelessWidget {
   HomeView({super.key});
+
+  final UserController userController = Get.find<UserController>();
+
+  @override
+  Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      NotificationServices.openPendingCommunityNotification();
+    });
+    return Scaffold(
+      backgroundColor: AppColors.kDarkBlue,
+      body: SafeArea(
+        child: Column(
+          children: [
+            _homeAppBar(),
+            Expanded(child: const CommunityView(showAppBar: false)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _homeAppBar() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: AppSpacing.twentyHorizontal),
+      child: SizedBox(
+        width: double.infinity,
+        height: 56,
+        child: Row(
+          children: [
+            Image.asset(
+              AppAssets.kTacLogo,
+              height: Get.height * 0.045,
+              fit: BoxFit.contain,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              'Community',
+              style: AppTypography.kBold16.copyWith(color: AppColors.kWhite),
+            ),
+            const Spacer(),
+            IconButton(
+              tooltip: 'Open Google Maps',
+              color: AppColors.kPrimary,
+              icon: const Icon(Icons.map_outlined),
+              onPressed: () => Get.to<void>(() => GoogleMapScreen()),
+            ),
+            IconButton(
+              focusColor: AppColors.kPrimary,
+              color: AppColors.kPrimary,
+              tooltip: 'Notifications',
+              icon: SvgPicture.asset(
+                width: 35,
+                height: 35,
+                AppAssets.kAlerts,
+              ),
+              onPressed: () => Get.to<void>(() => NotificationScreen()),
+            ),
+            const SizedBox(width: 8),
+            Builder(
+              builder: (_) {
+                final profileImages =
+                    userController.userData.value?.profileImages;
+                final mainImage = profileImages
+                    ?.firstWhereOrNull((img) => img.isMain == true);
+                final imageUrl =
+                    (mainImage?.image != null && mainImage!.image!.isNotEmpty)
+                        ? '${MyApIService.imageBaseUrl}/${mainImage.image}'
+                        : null;
+                return Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    image: DecorationImage(
+                      image: imageUrl != null
+                          ? NetworkImage(imageUrl)
+                          : AssetImage(AppAssets.kUserPicture) as ImageProvider,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class GoogleMapScreen extends StatelessWidget {
+  GoogleMapScreen({super.key});
 
   final MapController controller = Get.put(MapController(), permanent: true);
   final UserController userController = Get.find<UserController>();
@@ -173,14 +267,6 @@ class HomeView extends StatelessWidget {
           ],
         ),
       ),
-      // Refresh button
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () {
-      //     controller.refreshMap();
-      //   },
-      //   backgroundColor: AppColors.kPrimary,
-      //   child: Icon(Icons.refresh, color: Colors.white),
-      // ),
     );
   }
 
@@ -196,6 +282,11 @@ class HomeView extends StatelessWidget {
               children: [
                 Row(
                   children: [
+                    IconButton(
+                      tooltip: 'Back to community',
+                      icon: const Icon(Icons.arrow_back, color: Colors.white),
+                      onPressed: Get.back,
+                    ),
                     Image.asset(
                       AppAssets.kTacLogo,
                       height: Get.height * 0.045,

@@ -40,8 +40,9 @@ import 'package:socket_io_client/socket_io_client.dart' as IO;
 import '../../controllers/user_controller.dart';
 
 class SocketService {
-  final String? userId = Get.find<UserController>().userData.value?.id;
-  String? _currentUserType = "Contractor";
+  String? get userId => Get.find<UserController>().accountId;
+  String? _currentUserType;
+  String? _connectedAccountKey;
   static final SocketService _instance = SocketService._internal();
   factory SocketService() => _instance;
   SocketService._internal();
@@ -61,18 +62,44 @@ class SocketService {
 
   // Stream controller for chat list updates
   final StreamController<Map<String, dynamic>> _chatListController =
-  StreamController<Map<String, dynamic>>.broadcast();
+      StreamController<Map<String, dynamic>>.broadcast();
+
+  final StreamController<Map<String, dynamic>> _communityController =
+      StreamController<Map<String, dynamic>>.broadcast();
 
   Stream<Map<String, dynamic>> get chatListStream => _chatListController.stream;
+  Stream<Map<String, dynamic>> get communityEvents =>
+      _communityController.stream;
 
   void initialize() {
-    if (_socket != null && _isConnected) {
+    final userController = Get.find<UserController>();
+    final accountId = userController.accountId;
+    final accountType = userController.accountType;
+    final accountKey = '$accountType:$accountId';
+    if (_socket != null && _connectedAccountKey == accountKey) {
+      if (!_isConnected) _socket!.connect();
       debugPrint('Socket already connected');
       return;
     }
+    if (_socket != null) disconnect();
+
+    final query = <String, String>{};
+    if (accountType == 'guard' && accountId != null) {
+      query['userId'] = accountId;
+      _currentUserType = 'Guard';
+    } else if (accountType == 'contractor' && accountId != null) {
+      query['contractorId'] = accountId;
+      _currentUserType = 'Contractor';
+    } else {
+      _currentUserType = accountType == null
+          ? null
+          : '${accountType[0].toUpperCase()}${accountType.substring(1)}';
+    }
+    _connectedAccountKey = accountKey;
 
     _socket = IO.io(socketUrl, <String, dynamic>{
       'transports': ['websocket'],
+      'query': query,
       'autoConnect': false,
       'reconnection': true,
       'reconnectionAttempts': maxReconnectAttempts,
@@ -123,7 +150,8 @@ class SocketService {
           if (data[0] is Map<String, dynamic>) {
             responseData = data[0] as Map<String, dynamic>;
           } else {
-            debugPrint('⚠️ Unexpected data format in array: ${data[0].runtimeType}');
+            debugPrint(
+                '⚠️ Unexpected data format in array: ${data[0].runtimeType}');
             return;
           }
         } else {
@@ -142,6 +170,28 @@ class SocketService {
     _socket!.on('receive_message', (data) {
       debugPrint('📨 New message received: $data');
     });
+
+    for (final event in [
+      'community:post-created',
+      'community:comment-created',
+      'community:reaction-updated',
+      'community:moderation',
+    ]) {
+      _socket!.on(event, (data) {
+        final payload = _toMap(data);
+        if (payload != null && !_communityController.isClosed) {
+          _communityController.add({'event': event, 'payload': payload});
+        }
+      });
+    }
+  }
+
+  Map<String, dynamic>? _toMap(dynamic data) {
+    if (data is Map) return Map<String, dynamic>.from(data);
+    if (data is List && data.isNotEmpty && data.first is Map) {
+      return Map<String, dynamic>.from(data.first as Map);
+    }
+    return null;
   }
 
   void _attemptReconnect() {
@@ -153,7 +203,8 @@ class SocketService {
     _reconnectTimer?.cancel();
     _reconnectTimer = Timer(reconnectDelay, () {
       _reconnectAttempts++;
-      debugPrint('🔄 Reconnection attempt $_reconnectAttempts/$maxReconnectAttempts');
+      debugPrint(
+          '🔄 Reconnection attempt $_reconnectAttempts/$maxReconnectAttempts');
       _socket?.connect();
     });
   }
@@ -168,7 +219,10 @@ class SocketService {
       // Wait a bit for connection then emit
       Future.delayed(Duration(seconds: 2), () {
         if (_isConnected) {
-          _emitChatList(userId, userType,);
+          _emitChatList(
+            userId,
+            userType,
+          );
         }
       });
       return;

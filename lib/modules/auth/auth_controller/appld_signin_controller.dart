@@ -86,7 +86,8 @@ class AppleAuthService {
       final userDataModel = UserDataModel.fromJson(jsonData);
 
       if (userDataModel.data != null) {
-        final userId = userDataModel.data!.id;
+        final loginData = userDataModel.data!;
+        final userId = loginData.id;
         debugPrint('User ID: $userId');
 
         final getUserResponse = await myApIService.getUserByID(userId!);
@@ -96,7 +97,7 @@ class AppleAuthService {
               GetUserById.fromJson(jsonDecode(getUserResponse.body)).data;
 
           if (userData != null) {
-            Get.find<UserController>().setUser(userData);
+            Get.find<UserController>().setUser(userData, authData: loginData);
 
             // Use name from Apple credential - access properties directly
             final displayName = credential.givenName ??

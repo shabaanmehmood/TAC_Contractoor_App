@@ -162,7 +162,8 @@ class GoogleAuthService {
       final userDataModel = UserDataModel.fromJson(jsonData);
 
       if (userDataModel.data != null) {
-        final userId = userDataModel.data!.id;
+        final loginData = userDataModel.data!;
+        final userId = loginData.id;
         debugPrint('User ID: $userId');
 
         final getUserResponse = await myApIService.getUserByID(userId!);
@@ -172,7 +173,7 @@ class GoogleAuthService {
               GetUserById.fromJson(jsonDecode(getUserResponse.body)).data;
 
           if (userData != null) {
-            Get.find<UserController>().setUser(userData);
+            Get.find<UserController>().setUser(userData, authData: loginData);
             Get.snackbar("Success", "Welcome ${googleUser.displayName}!");
             debugPrint("Data from API: ${response.body}");
             Get.offAndToNamed(AppRoutes.getLandingPageRoute());
