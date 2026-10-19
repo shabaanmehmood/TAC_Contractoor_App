@@ -125,55 +125,81 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
   void showLicensesBottomSheet(BuildContext context, controller) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       enableDrag: true,
       isDismissible: true,
       useSafeArea: true,
       backgroundColor: AppColors.kDarkBlue,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.all(20),
-          child: Obx(() {
-            if (controller.availableLicenses.isEmpty) {
-              return Center(child: CircularProgressIndicator());
-            }
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Divider(
-                  color: Colors.grey,
-                  thickness: 5,
-                  indent: 140,
-                  endIndent: 140,
-                ),
-                // Title & Done Button
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "Optional Licenses",
-                      style: AppTypography.kBold18
-                          .copyWith(color: AppColors.kWhite),
+        return ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.75,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+            child: Obx(() {
+              if (controller.availableLicenses.isEmpty) {
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(32),
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+              }
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      margin: const EdgeInsets.only(bottom: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.withValues(alpha: 0.5),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
                     ),
-                    GestureDetector(
-                      onTap: () => Get.back(),
-                      child: Text("Done",
-                          style: AppTypography.kBold16.copyWith(
-                            color: AppColors.kSkyBlue,
-                          )),
+                  ),
+                  // Title & Done Button
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Optional Licenses",
+                        style: AppTypography.kBold18
+                            .copyWith(color: AppColors.kWhite),
+                      ),
+                      GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => Get.back(),
+                        child: Text("Done",
+                            style: AppTypography.kBold16.copyWith(
+                              color: AppColors.kSkyBlue,
+                            )),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: AppSpacing.tenVertical),
+                  // Scrollable multi-select list of licenses
+                  Flexible(
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          for (final license in controller.availableLicenses)
+                            _buildLicenseOption(controller, license),
+                        ],
+                      ),
                     ),
-                  ],
-                ),
-                SizedBox(height: AppSpacing.tenVertical),
-                // Multi-select list of licenses
-                ...controller.availableLicenses
-                    .map((license) => _buildLicenseOption(controller, license))
-                    .toList(),
-              ],
-            );
-          }),
+                  ),
+                ],
+              );
+            }),
+          ),
         );
       },
     );

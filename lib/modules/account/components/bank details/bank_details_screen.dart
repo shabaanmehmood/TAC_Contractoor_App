@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -7,7 +8,6 @@ import 'package:taccontractor/models/bankDetails_model.dart';
 
 import '../../../../controllers/user_controller.dart';
 import '../../../../dataproviders/api_service.dart';
-import '../../../../routes/app_routes.dart';
 import 'add_bank_details_screen.dart';
 
 class BankDetailsScreen extends StatefulWidget {
@@ -20,11 +20,36 @@ class BankDetailsScreen extends StatefulWidget {
 class _BankDetailsScreenState extends State<BankDetailsScreen> {
   late Future<List<BankDetails>> bankDetailsFuture;
   final userId = Get.find<UserController>().userData.value?.id ?? '';
+  bool _isExpanded = true;
+  Timer? _collapseTimer;
 
   @override
   void initState() {
     super.initState();
     bankDetailsFuture = fetchBankDetails();
+    _collapseTimer = Timer(const Duration(milliseconds: 2800), () {
+      if (mounted) {
+        setState(() {
+          _isExpanded = false;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _collapseTimer?.cancel();
+    super.dispose();
+  }
+
+  void _navigateToAddBankDetails() {
+    Get.to(() => AddBankDetailsScreen())?.then((value) {
+      if (value == true) {
+        setState(() {
+          bankDetailsFuture = fetchBankDetails();
+        });
+      }
+    });
   }
 
   Future<List<BankDetails>> fetchBankDetails() async {
@@ -74,24 +99,71 @@ class _BankDetailsScreenState extends State<BankDetailsScreen> {
         iconTheme: const IconThemeData(color: AppColors.kWhite),
         title: const Text('Bank Details',
             style: TextStyle(color: AppColors.kWhite)),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Get.to(() => AddBankDetailsScreen())?.then((value) {
-                if (value == true) {
-                  setState(() {
-                    bankDetailsFuture = fetchBankDetails();
-                  });
-                }
-              });
-            },
-            child:
-                const Text('Add', style: TextStyle(color: AppColors.kSkyBlue)),
-          ),
-        ],
         bottom: const PreferredSize(
           preferredSize: Size.fromHeight(1),
           child: Divider(color: Colors.white24, height: 1),
+        ),
+      ),
+      floatingActionButton: Material(
+        color: Colors.transparent,
+        elevation: 6,
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: _navigateToAddBankDetails,
+          child: Container(
+            height: 56,
+            decoration: BoxDecoration(
+              color: AppColors.kSkyBlue,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.28),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(
+                  width: 56,
+                  height: 56,
+                  child: Center(
+                    child: Icon(Icons.add, color: AppColors.kBlack, size: 28),
+                  ),
+                ),
+                ClipRect(
+                  child: AnimatedAlign(
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.easeInOutCubic,
+                    alignment: Alignment.centerLeft,
+                    widthFactor: _isExpanded ? 1.0 : 0.0,
+                    child: AnimatedOpacity(
+                      duration: const Duration(milliseconds: 320),
+                      curve: Curves.easeInOut,
+                      opacity: _isExpanded ? 1.0 : 0.0,
+                      child: const Padding(
+                        padding: EdgeInsets.only(right: 20.0),
+                        child: Text(
+                          'Add Bank Details',
+                          maxLines: 1,
+                          softWrap: false,
+                          overflow: TextOverflow.clip,
+                          style: TextStyle(
+                            color: AppColors.kBlack,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14.5,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
       body: FutureBuilder<List<BankDetails>>(

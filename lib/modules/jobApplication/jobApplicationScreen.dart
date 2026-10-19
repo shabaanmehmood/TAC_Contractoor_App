@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:taccontractor/dataproviders/api_service.dart';
 
 import '../../data/data/constants/app_colors.dart';
@@ -20,12 +19,33 @@ class _JobApplicationsScreenState extends State<JobApplicationsScreen> with Sing
   late TabController _tabController;
   final MyApIService _apiService = MyApIService();
 
+  int _selectedTabIndex = 0;
+  final List<String> _tabTitles = [
+    'Pending',
+    'Approved',
+    'Rejected',
+    'Cancelled',
+  ];
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
+    _tabController.addListener(() {
+      if (_tabController.index != _selectedTabIndex) {
+        setState(() {
+          _selectedTabIndex = _tabController.index;
+        });
+      }
+    });
     _futureApplications = _apiService.getJobApplications(widget.contractorId);
     // _futureApplications = _apiService.getJobApplications('aae1bd27-e24e-4480-b438-8c334680db49');
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   Future<void> _refresh() async {
@@ -445,51 +465,91 @@ LayoutBuilder(
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 4,
-      child: Scaffold(
+    return Scaffold(
+      backgroundColor: AppColors.kDarkBlue,
+      appBar: AppBar(
+        iconTheme: const IconThemeData(color: AppColors.kWhite),
         backgroundColor: AppColors.kDarkBlue,
-        appBar: AppBar(
-          iconTheme: IconThemeData(color: AppColors.kWhite),
-          backgroundColor: AppColors.kDarkBlue,
-          title: Text('Job Applications', style: AppTypography.kBold18.copyWith(color: AppColors.kWhite)),
-          bottom: TabBar(
-            indicatorColor: AppColors.kWhite,
-            labelStyle: AppTypography.kBold16.copyWith(color: AppColors.kWhite),
-            unselectedLabelColor: AppColors.kgrey,
-            controller: _tabController,
-            tabs: [
-              Tab(text: 'Pending'),
-              Tab(text: 'Approved'),
-              Tab(text: 'Rejected'),
-              Tab(text: 'Cancelled'),
-            ],
+        elevation: 0,
+        title: Text('Job Applications',
+            style: AppTypography.kBold18.copyWith(color: AppColors.kWhite)),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(52),
+          child: Container(
+            height: 52,
+            alignment: Alignment.centerLeft,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              physics: const BouncingScrollPhysics(),
+              child: Row(
+                children: List.generate(_tabTitles.length, (index) {
+                  final isSelected = _selectedTabIndex == index;
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _selectedTabIndex = index;
+                      });
+                      _tabController.animateTo(index);
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.only(right: 10.0),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 18.0, vertical: 8.0),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? AppColors.kSkyBlue
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(8.0),
+                        border: Border.all(
+                          color: AppColors.kSkyBlue,
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Text(
+                        _tabTitles[index],
+                        style: AppTypography.kBold14.copyWith(
+                          color: isSelected
+                              ? AppColors.kBlack
+                              : AppColors.kWhite,
+                        ),
+                      ),
+                    ),
+                  );
+                }),
+              ),
+            ),
           ),
         ),
-        body: FutureBuilder<List<JobApplicationModel>>(
-          future: _futureApplications,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator(
+      ),
+      body: FutureBuilder<List<JobApplicationModel>>(
+        future: _futureApplications,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(
                 color: AppColors.kWhite,
-              ));
-            }
-            if (snapshot.hasError) {
-              print('snapshot error: ${snapshot.error}');
-              return Center(child: Text('Error loading applications'));
-            }
-            final apps = snapshot.data ?? [];
-            return TabBarView(
-              controller: _tabController,
-              children: [
-                _buildTabContent(apps, 'pending', true),
-                _buildTabContent(apps, 'approved', false),
-                _buildTabContent(apps, 'rejected', false),
-                _buildTabContent(apps, 'cancelled', false),
-              ],
+              ),
             );
-          },
-        ),
+          }
+          if (snapshot.hasError) {
+            print('snapshot error: ${snapshot.error}');
+            return const Center(
+              child: Text('Error loading applications',
+                  style: TextStyle(color: Colors.white70)),
+            );
+          }
+          final apps = snapshot.data ?? [];
+          return TabBarView(
+            controller: _tabController,
+            children: [
+              _buildTabContent(apps, 'pending', true),
+              _buildTabContent(apps, 'approved', false),
+              _buildTabContent(apps, 'rejected', false),
+              _buildTabContent(apps, 'cancelled', false),
+            ],
+          );
+        },
       ),
     );
   }

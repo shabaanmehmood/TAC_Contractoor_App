@@ -3,93 +3,89 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:taccontractor/data/data/constants/app_typography.dart';
 import 'package:taccontractor/data/data/constants/app_colors.dart';
-import 'package:taccontractor/data/data/constants/app_spacing.dart';
 import 'package:taccontractor/modules/account/components/Earning/transcation.dart';
 import 'earnings_controller.dart';
-import 'package:taccontractor/data/data/constants/app_assets.dart';
 
 class EarningsScreen extends StatelessWidget {
   final EarningsController controller = Get.put(EarningsController());
 
+  EarningsScreen({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.kDarkestBlue,
+      backgroundColor: AppColors.kDarkBlue,
+      appBar: AppBar(
+        backgroundColor: AppColors.kDarkBlue,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: AppColors.kWhite),
+        title: Text(
+          'Payments',
+          style: AppTypography.kBold18.copyWith(color: AppColors.kWhite),
+        ),
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(1),
+          child: Divider(color: Colors.white24, height: 1),
+        ),
+      ),
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SafeArea(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: AppSpacing.twentyHorizontal,
-                    vertical: AppSpacing.tenVertical,
-                  ),
-                  child: Row(
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.arrow_back, color: AppColors.kWhite),
-                        onPressed: () => Get.back(),
-                      ),
-                      SizedBox(width: AppSpacing.tenHorizontal),
-                      Text('Earnings',
-                          style: AppTypography.kBold20
-                              .copyWith(color: Colors.white)),
-                    ],
-                  ),
-                ),
-                Divider(color: AppColors.kinput),
-              ],
-            ),
-          ),
-
-          // ---- Earnings Card ----
+          // ---- Balance & Hours Card ----
           Container(
-            margin: EdgeInsets.only(
-              top: AppSpacing.twentyFiveHorizontal,
-              left: AppSpacing.twentyFiveHorizontal,
-              right: AppSpacing.twentyFiveHorizontal,
-            ),
-            padding: EdgeInsets.all(AppSpacing.twentyHorizontal),
+            margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppColors.kDarkestBlue,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.kinput, width: 1),
+              color: AppColors.kJobCardColor,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.08),
+                width: 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.2),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
             child: Obx(() {
               final total = controller.currentPayments
                   .fold(0.0, (sum, p) => sum + double.parse(p.amount));
               final hours = controller.currentPayments.length * 8;
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("Total Balance",
-                              style: AppTypography.kLight14
-                                  .copyWith(color: AppColors.ktextlight)),
-                          const SizedBox(height: 6),
-                          Text("\$${total.toStringAsFixed(2)}",
-                              style: AppTypography.kBold32
-                                  .copyWith(color: AppColors.kPrimary)),
-                        ],
+                      Text(
+                        "Total Balance",
+                        style: AppTypography.kLight14
+                            .copyWith(color: AppColors.kgrey),
                       ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text("Hours",
-                              style: AppTypography.kLight14
-                                  .copyWith(color: AppColors.ktextlight)),
-                          const SizedBox(height: 6),
-                          Text("$hours",
-                              style: AppTypography.kBold20
-                                  .copyWith(color: AppColors.kPrimary)),
-                        ],
+                      const SizedBox(height: 6),
+                      Text(
+                        "\$${total.toStringAsFixed(2)}",
+                        style: AppTypography.kBold32
+                            .copyWith(color: AppColors.kSkyBlue),
+                      ),
+                    ],
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        "Hours",
+                        style: AppTypography.kLight14
+                            .copyWith(color: AppColors.kgrey),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        "$hours",
+                        style: AppTypography.kBold20
+                            .copyWith(color: AppColors.kWhite),
                       ),
                     ],
                   ),
@@ -98,7 +94,7 @@ class EarningsScreen extends StatelessWidget {
             }),
           ),
 
-          // ---- Filter Chips (CUSTOM CHIP REMOVED) ----
+          // ---- Filter Chips ----
           Obx(() {
             final chips = <Widget>[];
             if (controller.selectedClient.value != null) {
@@ -122,54 +118,68 @@ class EarningsScreen extends StatelessWidget {
             if (chips.isEmpty) return const SizedBox.shrink();
 
             return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
               child: Wrap(
                 spacing: 8,
-                runSpacing: 4,
+                runSpacing: 6,
                 children: [
                   ...chips,
-                  ActionChip(
-                    label: const Text("Clear All"),
-                    onPressed: () => controller.clearFilters(),
+                  GestureDetector(
+                    onTap: () => controller.clearFilters(),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.white10,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Text(
+                        "Clear All",
+                        style: TextStyle(color: Colors.white70, fontSize: 12),
+                      ),
+                    ),
                   ),
                 ],
               ),
             );
           }),
 
-          // ---- Tabs (only 3 buttons now) ----
-          SizedBox(height: AppSpacing.twentyVertical),
+          // ---- Tabs matching Jobs Screen ----
           Padding(
-            padding:
-            EdgeInsets.symmetric(horizontal: AppSpacing.twentyHorizontal),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             child: Obx(() {
+              const tabLabels = ["This Week", "Last Week", "All"];
               return Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: List.generate(3, (index) {   // 3 instead of 4
-                  bool isSelected = controller.selectedIndex.value == index;
+                children: List.generate(tabLabels.length, (index) {
+                  final isSelected = controller.selectedIndex.value == index;
                   return Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      padding: EdgeInsets.only(
+                        left: index == 0 ? 0 : 4,
+                        right: index == tabLabels.length - 1 ? 0 : 4,
+                      ),
                       child: GestureDetector(
                         onTap: () => controller.selectIndex(index),
                         child: Container(
-                          padding: EdgeInsets.symmetric(
-                              vertical: AppSpacing.fiveVertical),
+                          padding: const EdgeInsets.symmetric(vertical: 9),
                           decoration: BoxDecoration(
                             color: isSelected
-                                ? AppColors.kPrimary
+                                ? AppColors.kSkyBlue
                                 : Colors.transparent,
-                            border: Border.all(color: AppColors.kgrey),
                             borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: AppColors.kSkyBlue,
+                              width: 1.5,
+                            ),
                           ),
                           alignment: Alignment.center,
                           child: Text(
-                            ["This Week", "Last Week", "All"][index],
+                            tabLabels[index],
                             style: AppTypography.kBold14.copyWith(
-                              fontSize: 12,
+                              fontSize: 13,
                               color: isSelected
-                                  ? Colors.white
-                                  : AppColors.ktextlight,
+                                  ? AppColors.kBlack
+                                  : AppColors.kWhite,
                             ),
                           ),
                         ),
@@ -182,16 +192,11 @@ class EarningsScreen extends StatelessWidget {
           ),
 
           // ---- Recent Earnings Header ----
-          SizedBox(height: AppSpacing.fifteenVertical),
           Padding(
-            padding:
-            EdgeInsets.symmetric(horizontal: AppSpacing.twentyHorizontal),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Text("Recent Earnings",
-                    style: AppTypography.kBold18.copyWith(color: Colors.white)),
-              ],
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 6),
+            child: Text(
+              "Recent Transactions",
+              style: AppTypography.kBold16.copyWith(color: AppColors.kWhite),
             ),
           ),
 
@@ -201,52 +206,122 @@ class EarningsScreen extends StatelessWidget {
               final payments = controller.currentPayments;
               if (payments.isEmpty) {
                 return Center(
-                  child: Text("No data available",
-                      style: AppTypography.kBold16
-                          .copyWith(color: AppColors.kWhite)),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.receipt_long_outlined,
+                        size: 48,
+                        color: Colors.white.withValues(alpha: 0.25),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        "No payment records found",
+                        style: AppTypography.kBold14.copyWith(
+                          color: Colors.white.withValues(alpha: 0.6),
+                        ),
+                      ),
+                    ],
+                  ),
                 );
               }
               return ListView.builder(
+                padding: const EdgeInsets.only(bottom: 20),
                 itemCount: payments.length,
                 itemBuilder: (_, index) {
                   final p = payments[index];
-                  return GestureDetector(
-                    onTap: () =>
-                        Get.to(() => TransactionDetailsScreen(payment: p)),
-                    child: Container(
-                      margin: EdgeInsets.symmetric(
-                        vertical: AppSpacing.tenVertical,
-                        horizontal: AppSpacing.twentyHorizontal,
-                      ),
-                      padding: EdgeInsets.all(AppSpacing.fifteenHorizontal),
-                      decoration: BoxDecoration(
-                        color: AppColors.kJobCardColor,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(p.guard.fullName,
-                              style: AppTypography.kBold16
-                                  .copyWith(color: AppColors.kWhite)),
-                          SizedBox(height: AppSpacing.fiveVertical),
-                          Text(p.paymentDate,
-                              style: AppTypography.kLight14
-                                  .copyWith(color: AppColors.ktextlight)),
-                          SizedBox(height: AppSpacing.fiveVertical),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 6),
+                    child: Material(
+                      color: AppColors.kJobCardColor,
+                      borderRadius: BorderRadius.circular(14),
+                      child: InkWell(
+                        onTap: () => Get.to(
+                            () => TransactionDetailsScreen(payment: p)),
+                        borderRadius: BorderRadius.circular(14),
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.08),
+                              width: 1,
+                            ),
+                          ),
+                          child: Row(
                             children: [
-                              const Text("N/A",
-                                  style:
-                                  TextStyle(color: AppColors.ktextlight)),
-                              Text(
-                                  "\$${double.parse(p.amount).toStringAsFixed(2)}",
-                                  style: AppTypography.kBold16
-                                      .copyWith(color: AppColors.kWhite)),
+                              Container(
+                                width: 44,
+                                height: 44,
+                                decoration: BoxDecoration(
+                                  color: AppColors.kSkyBlue
+                                      .withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: const Center(
+                                  child: Icon(
+                                    Icons.person_outline_rounded,
+                                    color: AppColors.kSkyBlue,
+                                    size: 22,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      p.guard.fullName,
+                                      style: AppTypography.kBold16.copyWith(
+                                        color: AppColors.kWhite,
+                                        fontSize: 15,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.calendar_today_outlined,
+                                          size: 13,
+                                          color: AppColors.kgrey,
+                                        ),
+                                        const SizedBox(width: 5),
+                                        Text(
+                                          p.paymentDate,
+                                          style: AppTypography.kLight14
+                                              .copyWith(
+                                            color: AppColors.kgrey,
+                                            fontSize: 12.5,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    "\$${double.parse(p.amount).toStringAsFixed(2)}",
+                                    style: AppTypography.kBold16.copyWith(
+                                      color: AppColors.kSkyBlue,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  const Icon(
+                                    Icons.arrow_forward_ios_rounded,
+                                    size: 12,
+                                    color: Colors.white38,
+                                  ),
+                                ],
+                              ),
                             ],
                           ),
-                        ],
+                        ),
                       ),
                     ),
                   );
@@ -260,13 +335,38 @@ class EarningsScreen extends StatelessWidget {
   }
 
   Widget _buildChip(String label, VoidCallback onRemove) {
-    return Chip(
-      label: Text(label,
-          style: AppTypography.kBold14
-              .copyWith(fontSize: 10, color: AppColors.kDarkestBlue)),
-      backgroundColor: AppColors.kSkyBlue,
-      deleteIcon: const Icon(Icons.close, color: Colors.white),
-      onDeleted: onRemove,
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: AppColors.kSkyBlue.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: AppColors.kSkyBlue.withValues(alpha: 0.35),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              color: AppColors.kSkyBlue,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(width: 6),
+          GestureDetector(
+            onTap: onRemove,
+            child: const Icon(
+              Icons.close_rounded,
+              color: AppColors.kSkyBlue,
+              size: 15,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

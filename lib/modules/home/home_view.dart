@@ -11,6 +11,7 @@ import 'package:taccontractor/dataproviders/notification_services/notification_s
 import 'package:taccontractor/modules/Guards/guards_view.dart';
 import 'package:taccontractor/modules/alerts/notification_view.dart';
 import 'package:taccontractor/modules/community/community_view.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:taccontractor/modules/home/components/search_field.dart';
 
 import '../../controllers/user_controller.dart';
@@ -86,17 +87,37 @@ class HomeView extends StatelessWidget {
                     (mainImage?.image != null && mainImage!.image!.isNotEmpty)
                         ? '${MyApIService.imageBaseUrl}/${mainImage.image}'
                         : null;
-                return Container(
-                  width: 32,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    image: DecorationImage(
-                      image: imageUrl != null
-                          ? NetworkImage(imageUrl)
-                          : AssetImage(AppAssets.kUserPicture) as ImageProvider,
-                      fit: BoxFit.cover,
-                    ),
+                return ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: SizedBox(
+                    width: 32,
+                    height: 32,
+                    child: (imageUrl != null && imageUrl.isNotEmpty)
+                        ? CachedNetworkImage(
+                            imageUrl: imageUrl,
+                            fit: BoxFit.cover,
+                            placeholder: (_, __) => Container(
+                              color: AppColors.kJobCardColor,
+                              child: const Center(
+                                child: SizedBox(
+                                  width: 14,
+                                  height: 14,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: AppColors.kSkyBlue,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            errorWidget: (_, __, ___) => Image.asset(
+                              AppAssets.kUserPicture,
+                              fit: BoxFit.cover,
+                            ),
+                          )
+                        : Image.asset(
+                            AppAssets.kUserPicture,
+                            fit: BoxFit.cover,
+                          ),
                   ),
                 );
               },
@@ -174,7 +195,7 @@ class GoogleMapScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.2),
+                                color: Colors.black.withValues(alpha: 0.2),
                                 blurRadius: 8,
                                 offset: const Offset(0, 4),
                               )
@@ -182,23 +203,36 @@ class GoogleMapScreen extends StatelessWidget {
                           ),
                           child: Row(
                             children: [
-                              // Guard image from assets (ALWAYS assets/a.jpg)
-                              Container(
-                                width: 60,
-                                height: 60,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(30),
-                                  image: guard.guard.profileImageUrl != null &&
-                                          guard
-                                              .guard.profileImageUrl!.isNotEmpty
-                                      ? DecorationImage(
-                                          image: NetworkImage(
-                                              '${guard.guard.profileImageUrl}'),
+                              // Guard image with cached network image and skeleton placeholder
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(30),
+                                child: SizedBox(
+                                  width: 60,
+                                  height: 60,
+                                  child: guard.guard.profileImageUrl.isNotEmpty
+                                      ? CachedNetworkImage(
+                                          imageUrl: guard.guard.profileImageUrl,
                                           fit: BoxFit.cover,
+                                          placeholder: (_, __) => Container(
+                                            color: const Color(0xFF1B284F),
+                                            child: const Center(
+                                              child: SizedBox(
+                                                width: 20,
+                                                height: 20,
+                                                child: CircularProgressIndicator(
+                                                  strokeWidth: 2,
+                                                  color: AppColors.kSkyBlue,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          errorWidget: (_, __, ___) => Image.asset(
+                                            "assets/userpicture.jpg",
+                                            fit: BoxFit.cover,
+                                          ),
                                         )
-                                      : DecorationImage(
-                                          image: AssetImage(
-                                              "assets/userpicture.jpg"),
+                                      : Image.asset(
+                                          "assets/userpicture.jpg",
                                           fit: BoxFit.cover,
                                         ),
                                 ),
@@ -272,88 +306,17 @@ class GoogleMapScreen extends StatelessWidget {
 
   Widget _appBar(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: AppSpacing.twentyHorizontal),
-      child: SizedBox(
-        width: double.infinity,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              children: [
-                Row(
-                  children: [
-                    IconButton(
-                      tooltip: 'Back to community',
-                      icon: const Icon(Icons.arrow_back, color: Colors.white),
-                      onPressed: Get.back,
-                    ),
-                    Image.asset(
-                      AppAssets.kTacLogo,
-                      height: Get.height * 0.045,
-                      fit: BoxFit.contain,
-                    ),
-                    SizedBox(width: 4),
-                    Text(
-                      'Home',
-                      style: AppTypography.kBold16
-                          .copyWith(color: AppColors.kWhite),
-                    ),
-                  ],
-                ),
-                const Spacer(),
-                Stack(
-                  children: [
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          focusColor: AppColors.kPrimary,
-                          color: AppColors.kPrimary,
-                          icon: SvgPicture.asset(
-                            width: 35,
-                            height: 35,
-                            AppAssets.kAlerts,
-                          ),
-                          onPressed: () {
-                            Get.to<void>(() => NotificationScreen());
-                          },
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(width: 10),
-                Builder(
-                  builder: (_) {
-                    final profileImages =
-                        userController.userData.value?.profileImages;
-                    final mainImage = profileImages
-                        ?.firstWhereOrNull((img) => img.isMain == true);
-                    final imageUrl = (mainImage?.image != null &&
-                            mainImage!.image!.isNotEmpty)
-                        ? '${MyApIService.imageBaseUrl}/${mainImage.image}'
-                        : null;
-
-                    return Container(
-                      width: 32,
-                      height: 32,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        image: DecorationImage(
-                          image: imageUrl != null
-                              ? NetworkImage(imageUrl)
-                              : AssetImage(AppAssets.kUserPicture)
-                                  as ImageProvider,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-            SizedBox(height: AppSpacing.tenVertical),
-            SearchField(
+      padding: const EdgeInsets.fromLTRB(8, 8, 16, 8),
+      child: Row(
+        children: [
+          IconButton(
+            tooltip: 'Back to community',
+            icon: const Icon(Icons.arrow_back, color: AppColors.kWhite),
+            onPressed: Get.back,
+          ),
+          const SizedBox(width: 4),
+          Expanded(
+            child: SearchField(
               isBorderBlue: true,
               isEnabled: false,
               text: 'Search for Security Guards',
@@ -361,8 +324,8 @@ class GoogleMapScreen extends StatelessWidget {
               icon2: AppAssets.kSearch,
               guardsController: guardsController,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

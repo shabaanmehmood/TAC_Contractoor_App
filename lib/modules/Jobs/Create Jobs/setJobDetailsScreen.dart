@@ -484,53 +484,78 @@ class _SetJobDetailsScreenState extends State<SetJobDetailsScreen> {
   void showJobCategoryBottomSheet(BuildContext context, controller) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       enableDrag: true,
       isDismissible: true,
       useSafeArea: true,
       backgroundColor: AppColors.kDarkBlue,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.all(20),
-          child: Obx(() {
-            if (controller.availableCategories.isEmpty) {
-              return Center(child: CircularProgressIndicator());
-            }
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Divider(
-                  color: Colors.grey,
-                  thickness: 5,
-                  indent: 140,
-                  endIndent: 140,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "Job Category",
-                      style: AppTypography.kBold18
-                          .copyWith(color: AppColors.kWhite),
+        return ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.75,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+            child: Obx(() {
+              if (controller.availableCategories.isEmpty) {
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(32),
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+              }
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      margin: const EdgeInsets.only(bottom: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.withValues(alpha: 0.5),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
                     ),
-                    GestureDetector(
-                      onTap: () => Get.back(),
-                      child: Text("Done",
-                          style: AppTypography.kBold16
-                              .copyWith(color: AppColors.kSkyBlue)),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Job Category",
+                        style: AppTypography.kBold18
+                            .copyWith(color: AppColors.kWhite),
+                      ),
+                      GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => Get.back(),
+                        child: Text("Done",
+                            style: AppTypography.kBold16
+                                .copyWith(color: AppColors.kSkyBlue)),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: AppSpacing.tenVertical),
+                  Flexible(
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          for (final category in controller.availableCategories)
+                            _buildJobCategoryOption(controller, category),
+                        ],
+                      ),
                     ),
-                  ],
-                ),
-                SizedBox(height: AppSpacing.tenVertical),
-                ...controller.availableCategories
-                    .map((category) =>
-                        _buildJobCategoryOption(controller, category))
-                    .toList(),
-              ],
-            );
-          }),
+                  ),
+                ],
+              );
+            }),
+          ),
         );
       },
     );
@@ -545,7 +570,7 @@ class _SetJobDetailsScreenState extends State<SetJobDetailsScreen> {
         controller.selectedCategory.value = value;
         debugPrint('Selected category: ${controller.selectedCategory.value}');
       },
-      title: Text(category.name, style: TextStyle(color: Colors.white)),
+      title: Text(category.name, style: const TextStyle(color: Colors.white)),
       activeColor: AppColors.kSkyBlue,
     );
   }
@@ -553,55 +578,80 @@ class _SetJobDetailsScreenState extends State<SetJobDetailsScreen> {
   void showJobPremisesBottomSheet(BuildContext context, controller) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       enableDrag: true,
       isDismissible: true,
       useSafeArea: true,
       backgroundColor: AppColors.kDarkBlue,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.all(20),
-          child: Obx(() {
-            if (controller.availablePremises.isEmpty) {
-              return Center(child: CircularProgressIndicator());
-            }
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Divider(
-                  color: Colors.grey,
-                  thickness: 5,
-                  indent: 140,
-                  endIndent: 140,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "Job Premises",
-                      style: AppTypography.kBold18
-                          .copyWith(color: AppColors.kWhite),
-                    ),
-                    GestureDetector(
-                      onTap: () => Get.back(),
-                      child: Text(
-                        "Done",
-                        style: AppTypography.kBold16
-                            .copyWith(color: AppColors.kSkyBlue),
+        return ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.75,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+            child: Obx(() {
+              if (controller.availablePremises.isEmpty) {
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(32),
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+              }
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      margin: const EdgeInsets.only(bottom: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.withValues(alpha: 0.5),
+                        borderRadius: BorderRadius.circular(2),
                       ),
                     ),
-                  ],
-                ),
-                SizedBox(height: AppSpacing.tenVertical),
-                ...controller.availablePremises
-                    .map((premise) =>
-                        _buildJobPremisesOption(controller, premise))
-                    .toList(),
-              ],
-            );
-          }),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Job Premises",
+                        style: AppTypography.kBold18
+                            .copyWith(color: AppColors.kWhite),
+                      ),
+                      GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => Get.back(),
+                        child: Text(
+                          "Done",
+                          style: AppTypography.kBold16
+                              .copyWith(color: AppColors.kSkyBlue),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: AppSpacing.tenVertical),
+                  Flexible(
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          for (final premise in controller.availablePremises)
+                            _buildJobPremisesOption(controller, premise),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            }),
+          ),
         );
       },
     );
@@ -614,7 +664,7 @@ class _SetJobDetailsScreenState extends State<SetJobDetailsScreen> {
       onChanged: (String? value) {
         controller.selectedPremises.value = value;
       },
-      title: Text(premise.name, style: TextStyle(color: Colors.white)),
+      title: Text(premise.name, style: const TextStyle(color: Colors.white)),
       activeColor: AppColors.kSkyBlue,
     );
   }

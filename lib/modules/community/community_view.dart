@@ -1,19 +1,25 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:taccontractor/controllers/user_controller.dart';
 import 'package:taccontractor/data/data/constants/app_colors.dart';
 import 'package:taccontractor/models/job_model.dart';
-import 'package:taccontractor/models/myJobs_model.dart';
 import 'package:taccontractor/models/userdata_model.dart';
 import 'package:taccontractor/modules/Guards/job_details/job_details_screen.dart';
 import 'package:taccontractor/modules/Messages/socket_file.dart';
 import 'package:taccontractor/routes/app_routes.dart';
 
 import 'community_service.dart';
+import 'components/create_post_view.dart';
+import 'components/post_card.dart';
+import 'components/report_reason_sheet.dart';
+import 'components/thread_view.dart';
+
+export 'components/create_post_view.dart';
+export 'components/post_card.dart';
+export 'components/report_reason_sheet.dart';
+export 'components/thread_view.dart';
 
 class CommunityView extends StatefulWidget {
   const CommunityView({super.key, this.showAppBar = true});
@@ -205,6 +211,28 @@ class _CommunityViewState extends State<CommunityView> {
           postCounts['reactions'] = counts['reactions'];
           post['counts'] = postCounts;
         }
+      } else if (name == 'community:comment-created') {
+        final postId = payload['postId'] as String?;
+        final post = _posts.firstWhereOrNull((item) => item['id'] == postId);
+        if (post != null) {
+          final postCounts =
+              Map<String, dynamic>.from(_mapValue(post['counts']) ?? {});
+          final current = (postCounts['comments'] as num?)?.toInt() ?? 0;
+          postCounts['comments'] = current + 1;
+          post['counts'] = postCounts;
+        }
+      } else if (name == 'community:comment-deleted') {
+        final postId = payload['postId'] as String?;
+        final post = _posts.firstWhereOrNull((item) => item['id'] == postId);
+        if (post != null) {
+          final postCounts =
+              Map<String, dynamic>.from(_mapValue(post['counts']) ?? {});
+          final current = (postCounts['comments'] as num?)?.toInt() ?? 0;
+          if (current > 0) {
+            postCounts['comments'] = current - 1;
+            post['counts'] = postCounts;
+          }
+        }
       } else if (name == 'community:moderation' &&
           payload['targetType'] == 'post') {
         final status = payload['status'];
@@ -319,6 +347,16 @@ class _CommunityViewState extends State<CommunityView> {
     if (type != 'guard' && type != 'contractor') return;
     final key = _accountKey(type, id);
     final follow = !_followedAccounts.contains(key);
+
+    // Instant optimistic update (0ms lag)
+    setState(() {
+      if (follow) {
+        _followedAccounts.add(key);
+      } else {
+        _followedAccounts.remove(key);
+      }
+    });
+
     try {
       await _service!.follow(
         followingType: type,
@@ -326,24 +364,26 @@ class _CommunityViewState extends State<CommunityView> {
         follow: follow,
       );
       if (!mounted) return;
-      setState(() {
-        if (follow)
-          _followedAccounts.add(key);
-        else
-          _followedAccounts.remove(key);
-      });
-      final followingPage = await _service!.fetchFeed(filter: 'following');
-      if (mounted && _filter == 'following' && _topicId == null) {
-        setState(() {
-          _posts = followingPage.posts;
-          _nextCursor = followingPage.nextCursor;
-        });
-      }
-      if (mounted) {
-        Get.snackbar(follow ? 'Following' : 'Unfollowed',
-            '${author['name'] ?? 'Account'}');
+      if (_filter == 'following' && _topicId == null) {
+        final followingPage = await _service!.fetchFeed(filter: 'following');
+        if (mounted && _filter == 'following' && _topicId == null) {
+          setState(() {
+            _posts = followingPage.posts;
+            _nextCursor = followingPage.nextCursor;
+          });
+        }
       }
     } on CommunityApiException catch (exception) {
+      // Revert state if network call fails
+      if (mounted) {
+        setState(() {
+          if (follow) {
+            _followedAccounts.remove(key);
+          } else {
+            _followedAccounts.add(key);
+          }
+        });
+      }
       _handleApiError(exception);
     }
   }
@@ -381,56 +421,24 @@ class _CommunityViewState extends State<CommunityView> {
 
   Future<void> _editPost(Map<String, dynamic> post) async {
     if (_service == null || !_canEdit(post)) return;
-    final textController = TextEditingController(text: post['text'] as String?);
     final topic = _mapValue(post['topic']);
-    String? selectedTopicId = topic?['id'] as String?;
-    final updated = await showDialog<Map<String, dynamic>>(
+    final currentTopicId = topic?['id'] as String?;
+    final currentText = post['text'] as String? ?? '';
+
+    final updated = await showModalBottomSheet<Map<String, dynamic>>(
       context: context,
-      builder: (dialogContext) => StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Edit post'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: textController,
-                maxLength: 2000,
-                maxLines: 5,
-                decoration: const InputDecoration(labelText: 'Post text'),
-              ),
-              DropdownButtonFormField<String?>(
-                value: selectedTopicId,
-                decoration: const InputDecoration(labelText: 'Topic'),
-                items: [
-                  const DropdownMenuItem<String?>(
-                      value: null, child: Text('No topic')),
-                  ..._topics.map((item) => DropdownMenuItem<String?>(
-                        value: item['id'] as String?,
-                        child: Text(item['name'] as String? ?? 'Topic'),
-                      )),
-                ],
-                onChanged: (value) =>
-                    setDialogState(() => selectedTopicId = value),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-                onPressed: () => Navigator.pop(dialogContext),
-                child: const Text('Cancel')),
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext, {
-                'text': textController.text.trim(),
-                'topicId': selectedTopicId,
-              }),
-              child: const Text('Save'),
-            ),
-          ],
-        ),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) => _EditPostSheet(
+        initialText: currentText,
+        initialTopicId: currentTopicId,
+        topics: _topics,
       ),
     );
-    textController.dispose();
-    if (updated == null || updated['text'] == '') return;
+
+    if (updated == null || (updated['text'] as String).isEmpty) return;
+    if (!mounted) return;
+
     try {
       final response = await _service!.editPost(
         post['id'] as String,
@@ -448,25 +456,112 @@ class _CommunityViewState extends State<CommunityView> {
         post['editedAt'] =
             response['editedAt'] ?? DateTime.now().toUtc().toIso8601String();
       });
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Post updated successfully'),
+          backgroundColor: AppColors.kJobCardColor,
+          behavior: SnackBarBehavior.floating,
+          duration: Duration(seconds: 2),
+        ),
+      );
     } on CommunityApiException catch (exception) {
+      if (!mounted) return;
       _handleApiError(exception);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to update post: $e'),
+          backgroundColor: Colors.redAccent,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
     }
   }
 
   Future<void> _deletePost(Map<String, dynamic> post) async {
     if (_service == null || !_isAuthor(_mapValue(post['author']))) return;
-    final confirmed = await Get.dialog<bool>(
-      AlertDialog(
-        title: const Text('Delete post?'),
-        content: const Text('This post will be removed from the feed.'),
-        actions: [
-          TextButton(
-              onPressed: () => Get.back(result: false),
-              child: const Text('Cancel')),
-          TextButton(
-              onPressed: () => Get.back(result: true),
-              child: const Text('Delete')),
-        ],
+    final confirmed = await showModalBottomSheet<bool>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.all(20),
+        decoration: const BoxDecoration(
+          color: AppColors.kJobCardColor,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.white24,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Delete post?',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'This post will be permanently removed from the feed.',
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.7),
+                fontSize: 14,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(ctx, false),
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(
+                          color: Colors.white.withValues(alpha: 0.2)),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: const Text('Cancel',
+                        style: TextStyle(color: Colors.white70)),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(ctx, true),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.redAccent,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: const Text('Delete',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold)),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+          ],
+        ),
       ),
     );
     if (confirmed != true) return;
@@ -480,24 +575,20 @@ class _CommunityViewState extends State<CommunityView> {
   }
 
   Future<void> _reportTarget(String targetType, String targetId) async {
-    if (_service == null || _reportedTargets.contains('$targetType:$targetId'))
+    if (_service == null) return;
+    if (_reportedTargets.contains('$targetType:$targetId')) {
+      Get.snackbar(
+        'Already reported',
+        'You have already reported this $targetType.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColors.kDarkestBlue,
+        colorText: Colors.white,
+      );
       return;
-    final reason = await Get.bottomSheet<String>(
-      SafeArea(
-        child: Container(
-          color: AppColors.kDarkestBlue,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: ['spam', 'harassment', 'unsafe', 'other']
-                .map((value) => ListTile(
-                      title: Text(value[0].toUpperCase() + value.substring(1),
-                          style: const TextStyle(color: Colors.white)),
-                      onTap: () => Get.back(result: value),
-                    ))
-                .toList(),
-          ),
-        ),
-      ),
+    }
+    final reason = await showReportReasonSheet(
+      context: context,
+      title: targetType == 'post' ? 'Report post' : 'Report comment',
     );
     if (reason == null) return;
     try {
@@ -513,10 +604,23 @@ class _CommunityViewState extends State<CommunityView> {
           _posts.removeWhere((post) => post['id'] == targetId);
         }
       });
+      Get.snackbar(
+        'Report submitted',
+        'Thank you for reporting. Our moderation team will review this.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColors.kDarkestBlue,
+        colorText: Colors.white,
+      );
     } on CommunityApiException catch (exception) {
       if (exception.statusCode == 409) {
         setState(() => _reportedTargets.add('$targetType:$targetId'));
-        Get.snackbar('Already reported', exception.message);
+        Get.snackbar(
+          'Already reported',
+          exception.message,
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: AppColors.kDarkestBlue,
+          colorText: Colors.white,
+        );
       } else {
         _handleApiError(exception);
       }
@@ -554,18 +658,37 @@ class _CommunityViewState extends State<CommunityView> {
   void _openThread(Map<String, dynamic> post) {
     final id = post['id'] as String?;
     if (id == null || _service == null) return;
-    Get.to<void>(() => CommunityThreadView(
-          service: _service!,
-          postId: id,
-          canComment: _canPost,
-          onVerifiedPostDenied: () {
-            if (mounted) setState(() => _postingBlockedByServer = true);
-          },
-          onHiddenPost: () {
-            if (mounted)
-              setState(() => _posts.removeWhere((item) => item['id'] == id));
-          },
-        ));
+    Get.bottomSheet<void>(
+      CommunityThreadView(
+        service: _service!,
+        postId: id,
+        canComment: _canPost,
+        onVerifiedPostDenied: () {
+          if (mounted) setState(() => _postingBlockedByServer = true);
+        },
+        onHiddenPost: () {
+          if (mounted) {
+            setState(() => _posts.removeWhere((item) => item['id'] == id));
+          }
+        },
+        onCommentCountUpdated: (count) {
+          if (mounted) {
+            setState(() {
+              final targetPost = _posts.firstWhereOrNull((p) => p['id'] == id);
+              if (targetPost != null) {
+                final postCounts =
+                    Map<String, dynamic>.from(_mapValue(targetPost['counts']) ?? {});
+                postCounts['comments'] = count;
+                targetPost['counts'] = postCounts;
+              }
+            });
+          }
+        },
+      ),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+    );
   }
 
   @override
@@ -613,67 +736,157 @@ class _CommunityViewState extends State<CommunityView> {
             ),
         floatingActionButton: !blocked
           ? FloatingActionButton(
-            tooltip: _canPost ? 'Create post' : 'Posting requires verification',
-            backgroundColor:
-              _postingBlockedByServer ? Colors.grey : AppColors.kPrimary,
-              foregroundColor: Colors.white,
-            onPressed: _postingBlockedByServer
-              ? null
-              : _canPost
-                ? _createPost
-                : _showPostingEligibility,
-              child: const Icon(Icons.add),
+              tooltip: _canPost ? 'Create post' : 'Posting requires verification',
+              backgroundColor:
+                  _postingBlockedByServer ? Colors.grey : AppColors.kSkyBlue,
+              foregroundColor: AppColors.kBlack,
+              onPressed: _postingBlockedByServer
+                  ? null
+                  : _canPost
+                      ? _createPost
+                      : _showPostingEligibility,
+              child: const Icon(Icons.add, size: 28),
             )
           : null,
     );
   }
 
   Widget _feedControls() {
+    final isEveryone = _filter == 'everyone';
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Everyone / Following Switcher with Identical Shape (borderRadius: 8) & Smooth Sliding Animation
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-          child: SegmentedButton<String>(
-            segments: const [
-              ButtonSegment(value: 'everyone', label: Text('Everyone')),
-              ButtonSegment(value: 'following', label: Text('Following')),
-            ],
-            selected: {_filter},
-            onSelectionChanged: (selection) =>
-                _changeFeed(filter: selection.first),
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+          child: Container(
+            height: 42,
+            padding: const EdgeInsets.all(3),
+            decoration: BoxDecoration(
+              color: AppColors.kJobCardColor,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: AppColors.kSkyBlue.withValues(alpha: 0.5),
+                width: 1.2,
+              ),
+            ),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final halfWidth = constraints.maxWidth / 2;
+                return Stack(
+                  children: [
+                    // Smooth Sliding Indicator (Shape matches topics tab)
+                    AnimatedPositioned(
+                      duration: const Duration(milliseconds: 250),
+                      curve: Curves.easeInOutCubic,
+                      left: isEveryone ? 0 : halfWidth,
+                      top: 0,
+                      bottom: 0,
+                      width: halfWidth,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.kSkyBlue,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                      ),
+                    ),
+
+                    // Switcher Tap Targets
+                    Row(
+                      children: [
+                        Expanded(
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () => _changeFeed(filter: 'everyone'),
+                            child: Center(
+                              child: AnimatedDefaultTextStyle(
+                                duration: const Duration(milliseconds: 200),
+                                style: TextStyle(
+                                  color: isEveryone ? AppColors.kBlack : AppColors.kWhite,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13.5,
+                                ),
+                                child: const Text('Everyone'),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () => _changeFeed(filter: 'following'),
+                            child: Center(
+                              child: AnimatedDefaultTextStyle(
+                                duration: const Duration(milliseconds: 200),
+                                style: TextStyle(
+                                  color: !isEveryone ? AppColors.kBlack : AppColors.kWhite,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13.5,
+                                ),
+                                child: const Text('Following'),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                );
+              },
+            ),
           ),
         ),
+
+        // Professional Spacing Between Switcher & Topics
+        const SizedBox(height: 12),
+
+        // Topics Tab (Preserved EXACTLY as Previous Shape: borderRadius: 8)
         if (_topics.isNotEmpty)
           SizedBox(
-            height: 48,
+            height: 42,
             child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               scrollDirection: Axis.horizontal,
               children: [
-                _topicChip(null, 'All topics'),
-                ..._topics.map((topic) => _topicChip(
+                _topicPill(null, 'All topics'),
+                ..._topics.map((topic) => _topicPill(
                       topic['id'] as String?,
                       topic['name'] as String? ?? 'Topic',
                     )),
               ],
             ),
           ),
+        const SizedBox(height: 8),
       ],
     );
   }
 
-  Widget _topicChip(String? id, String label) {
+  Widget _topicPill(String? id, String label) {
     final selected = _topicId == id;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-      child: ChoiceChip(
-        label: Text(label),
-        selected: selected,
-        onSelected: (_) => _changeFeed(topicId: id, updateTopic: true),
-        selectedColor: AppColors.kPrimary,
-        backgroundColor: AppColors.kDarkestBlue,
-        labelStyle: TextStyle(color: selected ? Colors.white : Colors.white70),
+    return GestureDetector(
+      onTap: () => _changeFeed(topicId: id, updateTopic: true),
+      child: Container(
+        margin: const EdgeInsets.only(right: 8, bottom: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        decoration: BoxDecoration(
+          color: selected ? AppColors.kSkyBlue : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: AppColors.kSkyBlue.withValues(alpha: selected ? 1.0 : 0.65),
+            width: 1.2,
+          ),
+        ),
+        child: Center(
+          child: Text(
+            label,
+            style: TextStyle(
+              color: selected ? AppColors.kBlack : AppColors.kWhite,
+              fontWeight: selected ? FontWeight.bold : FontWeight.w500,
+              fontSize: 12.5,
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -728,15 +941,6 @@ class _CommunityViewState extends State<CommunityView> {
     final author = post['author'] is Map
         ? Map<String, dynamic>.from(post['author'] as Map)
         : const <String, dynamic>{};
-    final topic = post['topic'] is Map
-        ? Map<String, dynamic>.from(post['topic'] as Map)
-        : null;
-    final counts = post['counts'] is Map
-        ? Map<String, dynamic>.from(post['counts'] as Map)
-        : const <String, dynamic>{};
-    final imagePaths = post['images'] is List
-        ? (post['images'] as List).whereType<String>().toList()
-        : <String>[];
     final canFollow = !_isAuthor(author) &&
         (author['type'] == 'guard' || author['type'] == 'contractor');
     final accountKey = _accountKey(
@@ -744,195 +948,23 @@ class _CommunityViewState extends State<CommunityView> {
       author['id'] as String? ?? '',
     );
     final ownPost = _isAuthor(author);
-    final actions = <PopupMenuEntry<String>>[
-      if (ownPost && _canEdit(post))
-        const PopupMenuItem(value: 'edit', child: Text('Edit')),
-      if (ownPost) const PopupMenuItem(value: 'delete', child: Text('Delete')),
-      if (!_reportedTargets.contains('post:${post['id']}'))
-        const PopupMenuItem(value: 'report', child: Text('Report')),
-    ];
-    return InkWell(
-      onTap: () => _openThread(post),
-      borderRadius: BorderRadius.circular(10),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: AppColors.kDarkestBlue,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                _avatar(author['profileImage'] as String?),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(author['name'] as String? ?? 'Community member',
-                          style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600)),
-                      Text(
-                        '${_accountLabel(author['type'] as String?)} · ${_dateLabel(post['createdAt'] as String?)}${post['editedAt'] == null ? '' : ' · Edited'}',
-                        style: const TextStyle(
-                            color: Colors.white54, fontSize: 12),
-                      ),
-                    ],
-                  ),
-                ),
-                if (topic != null)
-                  Text(topic['name'] as String? ?? '',
-                      style: const TextStyle(color: Colors.lightBlueAccent)),
-                if (canFollow)
-                  IconButton(
-                    tooltip: _followedAccounts.contains(accountKey)
-                        ? 'Unfollow author'
-                        : 'Follow author',
-                    onPressed: () => _toggleFollow(author),
-                    icon: Icon(
-                      _followedAccounts.contains(accountKey)
-                          ? Icons.person_remove_outlined
-                          : Icons.person_add_alt_1_outlined,
-                      color: Colors.white70,
-                    ),
-                  ),
-                PopupMenuButton<String>(
-                  tooltip: 'Post actions',
-                  onSelected: (action) {
-                    if (action == 'edit') _editPost(post);
-                    if (action == 'delete') _deletePost(post);
-                    if (action == 'report') {
-                      _reportTarget('post', post['id'] as String);
-                    }
-                  },
-                  itemBuilder: (_) => actions,
-                ),
-              ],
-            ),
-            if ((post['text'] as String? ?? '').isNotEmpty) ...[
-              const SizedBox(height: 12),
-              Text(post['text'] as String,
-                  style: const TextStyle(color: Colors.white, height: 1.4)),
-            ],
-            if (post['job'] is Map) ...[
-              const SizedBox(height: 10),
-              _jobLink(Map<String, dynamic>.from(post['job'] as Map)),
-            ],
-            if (imagePaths.isNotEmpty) ...[
-              const SizedBox(height: 12),
-              SizedBox(
-                height: 190,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: imagePaths.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 8),
-                  itemBuilder: (context, index) => ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.network(
-                      _service!.imageUrl(imagePaths[index]),
-                      width: 240,
-                      height: 190,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
-                        width: 240,
-                        color: Colors.white10,
-                        child: const Icon(Icons.broken_image_outlined,
-                            color: Colors.white54),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                TextButton.icon(
-                  onPressed: () => _openThread(post),
-                  icon: const Icon(Icons.chat_bubble_outline, size: 18),
-                  label: Text('${counts['comments'] ?? 0}'),
-                ),
-                PopupMenuButton<String>(
-                  tooltip: 'React to post',
-                  onSelected: (reaction) => _reactToPost(post, reaction),
-                  itemBuilder: (_) => const [
-                    PopupMenuItem(value: 'like', child: Text('Like')),
-                    PopupMenuItem(value: 'useful', child: Text('Useful')),
-                    PopupMenuItem(value: 'support', child: Text('Support')),
-                  ],
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(_reactionIcon(post['myReaction'] as String?),
-                          size: 18, color: Colors.white70),
-                      const SizedBox(width: 6),
-                      Text('${counts['reactions'] ?? 0}',
-                          style: const TextStyle(color: Colors.white70)),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _jobLink(Map<String, dynamic> job) => InkWell(
-        onTap: () => _openJob(job),
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: AppColors.kDarkBlue,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Row(
-            children: [
-              const Icon(Icons.work_outline, color: Colors.lightBlueAccent),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(job['title'] as String? ?? 'Open job',
-                        style: const TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.w600)),
-                    Text(
-                      '${job['location'] ?? ''} · \$${job['payPerHour'] ?? ''}/hr',
-                      style: const TextStyle(color: Colors.white60),
-                    ),
-                  ],
-                ),
-              ),
-              const Icon(Icons.chevron_right, color: Colors.white54),
-            ],
-          ),
-        ),
-      );
-
-  IconData _reactionIcon(String? reaction) => switch (reaction) {
-        'like' => Icons.thumb_up,
-        'useful' => Icons.lightbulb,
-        'support' => Icons.volunteer_activism,
-        _ => Icons.favorite_border,
-      };
-
-  Widget _avatar(String? path) {
-    final image =
-        path == null || path.isEmpty ? null : _service!.imageUrl(path);
-    return CircleAvatar(
-      radius: 20,
-      backgroundColor: Colors.white12,
-      backgroundImage: image == null ? null : NetworkImage(image),
-      child: image == null
-          ? const Icon(Icons.person_outline, color: Colors.white70)
-          : null,
+    return LinkedInPostCard(
+      post: post,
+      service: _service!,
+      accountLabel: _accountLabel,
+      dateLabel: _dateLabel,
+      isFollowed: _followedAccounts.contains(accountKey),
+      canFollow: canFollow,
+      onFollowToggle: () => _toggleFollow(author),
+      onOpenThread: () => _openThread(post),
+      onReact: (reaction) => _reactToPost(post, reaction),
+      onEdit: () => _editPost(post),
+      onDelete: () => _deletePost(post),
+      onReport: () => _reportTarget('post', post['id'] as String),
+      onOpenJob: (job) => _openJob(job),
+      canEdit: ownPost && _canEdit(post),
+      ownPost: ownPost,
+      isReported: _reportedTargets.contains('post:${post['id']}'),
     );
   }
 
@@ -944,6 +976,12 @@ class _CommunityViewState extends State<CommunityView> {
   String _dateLabel(String? value) {
     final date = DateTime.tryParse(value ?? '')?.toLocal();
     if (date == null) return '';
+    final diff = DateTime.now().difference(date);
+    if (diff.inSeconds < 60) return 'Just now';
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m';
+    if (diff.inHours < 24) return '${diff.inHours}h';
+    if (diff.inDays < 7) return '${diff.inDays}d';
+    if (diff.inDays < 30) return '${(diff.inDays / 7).floor()}w';
     return '${date.day}/${date.month}/${date.year}';
   }
 }
@@ -951,39 +989,30 @@ class _CommunityViewState extends State<CommunityView> {
 Map<String, dynamic>? _mapValue(dynamic value) =>
     value is Map ? Map<String, dynamic>.from(value) : null;
 
-class CreatePostView extends StatefulWidget {
-  const CreatePostView({
-    super.key,
-    required this.service,
+class _EditPostSheet extends StatefulWidget {
+  final String initialText;
+  final String? initialTopicId;
+  final List<Map<String, dynamic>> topics;
+
+  const _EditPostSheet({
+    required this.initialText,
+    required this.initialTopicId,
     required this.topics,
-    required this.onPostingDenied,
-    required this.onInactive,
   });
 
-  final CommunityService service;
-  final List<Map<String, dynamic>> topics;
-  final VoidCallback onPostingDenied;
-  final VoidCallback onInactive;
-
   @override
-  State<CreatePostView> createState() => _CreatePostViewState();
+  State<_EditPostSheet> createState() => _EditPostSheetState();
 }
 
-class _CreatePostViewState extends State<CreatePostView> {
-  final TextEditingController _textController = TextEditingController();
-  final ImagePicker _imagePicker = ImagePicker();
-  final List<XFile> _images = [];
-  String? _topicId;
-  String? _jobId;
-  String? _error;
-  bool _submitting = false;
-  bool _loadingJobs = false;
-  List<MyjobsModel> _openJobs = [];
+class _EditPostSheetState extends State<_EditPostSheet> {
+  late final TextEditingController _textController;
+  late String? _selectedTopicId;
 
   @override
   void initState() {
     super.initState();
-    if (widget.service.accountType == 'contractor') _loadOpenJobs();
+    _textController = TextEditingController(text: widget.initialText);
+    _selectedTopicId = widget.initialTopicId;
   }
 
   @override
@@ -992,1023 +1021,155 @@ class _CreatePostViewState extends State<CreatePostView> {
     super.dispose();
   }
 
-  Future<void> _loadOpenJobs() async {
-    setState(() => _loadingJobs = true);
-    try {
-      final jobs = await widget.service.fetchOpenOwnedJobs();
-      if (mounted) setState(() => _openJobs = jobs);
-    } catch (_) {
-      if (mounted) setState(() => _openJobs = []);
-    } finally {
-      if (mounted) setState(() => _loadingJobs = false);
-    }
-  }
-
-  Future<void> _pickImages() async {
-    final remaining = 4 - _images.length;
-    if (remaining <= 0) return;
-    final source = await Get.bottomSheet<ImageSource>(
-      SafeArea(
-        child: Container(
-          color: AppColors.kDarkestBlue,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.photo_library_outlined,
-                    color: Colors.white),
-                title: const Text('Choose from gallery',
-                    style: TextStyle(color: Colors.white)),
-                onTap: () => Get.back(result: ImageSource.gallery),
-              ),
-              ListTile(
-                leading:
-                    const Icon(Icons.camera_alt_outlined, color: Colors.white),
-                title: const Text('Take a photo',
-                    style: TextStyle(color: Colors.white)),
-                onTap: () => Get.back(result: ImageSource.camera),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-    if (source == null) return;
-    final selected = source == ImageSource.gallery
-        ? await _imagePicker.pickMultiImage(imageQuality: 85)
-        : await _imagePicker
-            .pickImage(source: ImageSource.camera, imageQuality: 85)
-            .then((image) => image == null ? <XFile>[] : [image]);
-    if (!mounted || selected.isEmpty) return;
-    final accepted = <XFile>[];
-    for (final image in selected) {
-      final extension = image.name.split('.').last.toLowerCase();
-      if (!{'jpg', 'jpeg', 'png', 'webp'}.contains(extension)) continue;
-      if (accepted.length < remaining) accepted.add(image);
-    }
-    setState(() {
-      _images.addAll(accepted);
-      if (accepted.length < selected.length) {
-        _error = 'Choose up to 4 JPEG, PNG, or WebP images.';
-      } else {
-        _error = null;
-      }
-    });
-  }
-
-  Future<void> _submit() async {
-    final text = _textController.text.trim();
-    if (text.isEmpty || text.length > 2000) {
-      setState(
-          () => _error = 'Post text must be between 1 and 2000 characters.');
-      return;
-    }
-    if (_images.length > 4) {
-      setState(() => _error = 'A post can include up to 4 images.');
-      return;
-    }
-    setState(() {
-      _submitting = true;
-      _error = null;
-    });
-    try {
-      final dataUris = <String>[];
-      for (final image in _images) {
-        final extension = image.name.split('.').last.toLowerCase();
-        final mimeType = switch (extension) {
-          'jpg' || 'jpeg' => 'image/jpeg',
-          'png' => 'image/png',
-          'webp' => 'image/webp',
-          _ => null,
-        };
-        if (mimeType == null) {
-          throw const CommunityApiException(
-              400, 'Each image must be a JPEG, PNG, or WebP.');
-        }
-        dataUris.add(
-            'data:$mimeType;base64,${base64Encode(await image.readAsBytes())}');
-      }
-      final post = await widget.service.createPost(
-        text: text,
-        images: dataUris,
-        topicId: _topicId,
-        jobId: _jobId,
-      );
-      if (mounted) Get.back(result: post);
-    } on CommunityApiException catch (exception) {
-      if (!mounted) return;
-      if (exception.statusCode == 401) {
-        Get.offAllNamed(AppRoutes.signIn);
-        return;
-      }
-      if (exception.statusCode == 403 &&
-          exception.message == 'Account is inactive') {
-        widget.onInactive();
-        Get.back();
-        return;
-      }
-      if (exception.statusCode == 403 &&
-          exception.message == 'Only verified accounts can post') {
-        widget.onPostingDenied();
-        Get.back();
-        return;
-      }
-      setState(() {
-        _submitting = false;
-        _error = exception.message;
-      });
-    } catch (_) {
-      if (mounted) {
-        setState(() {
-          _submitting = false;
-          _error = 'Could not create the post. Check your connection.';
-        });
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.kDarkBlue,
-      appBar: AppBar(
-        backgroundColor: AppColors.kDarkBlue,
-        foregroundColor: Colors.white,
-        title: const Text('Create post'),
-        actions: [
-          TextButton(
-            onPressed: _submitting ? null : _submit,
-            child: _submitting
-                ? const SizedBox.square(
-                    dimension: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Text('Post'),
-          ),
-        ],
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          TextField(
-            controller: _textController,
-            autofocus: true,
-            maxLength: 2000,
-            maxLines: 7,
-            minLines: 4,
-            style: const TextStyle(color: Colors.white),
-            decoration: const InputDecoration(
-              hintText: 'What would you like to share?',
-              hintStyle: TextStyle(color: Colors.white54),
-              filled: true,
-              fillColor: AppColors.kDarkestBlue,
-              border: OutlineInputBorder(),
-            ),
-          ),
-          if (widget.topics.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            DropdownButtonFormField<String?>(
-              value: _topicId,
-              dropdownColor: AppColors.kDarkestBlue,
-              style: const TextStyle(color: Colors.white),
-              decoration: const InputDecoration(
-                labelText: 'Topic',
-                labelStyle: TextStyle(color: Colors.white70),
-                border: OutlineInputBorder(),
-              ),
-              items: [
-                const DropdownMenuItem<String?>(
-                    value: null, child: Text('No topic')),
-                ...widget.topics.map((topic) => DropdownMenuItem<String?>(
-                      value: topic['id'] as String?,
-                      child: Text(topic['name'] as String? ?? 'Topic'),
-                    )),
-              ],
-              onChanged: (value) => setState(() => _topicId = value),
-            ),
-          ],
-          if (widget.service.accountType == 'contractor' &&
-              (_loadingJobs || _openJobs.isNotEmpty)) ...[
-            const SizedBox(height: 12),
-            DropdownButtonFormField<String?>(
-              value: _jobId,
-              dropdownColor: AppColors.kDarkestBlue,
-              style: const TextStyle(color: Colors.white),
-              decoration: InputDecoration(
-                labelText:
-                    _loadingJobs ? 'Loading open jobs' : 'Attach open job',
-                labelStyle: const TextStyle(color: Colors.white70),
-                border: const OutlineInputBorder(),
-              ),
-              items: [
-                const DropdownMenuItem<String?>(
-                    value: null, child: Text('No job')),
-                ..._openJobs.map((job) => DropdownMenuItem<String?>(
-                      value: job.jobId,
-                      child:
-                          Text(job.jobTitle, overflow: TextOverflow.ellipsis),
-                    )),
-              ],
-              onChanged: _loadingJobs
-                  ? null
-                  : (value) => setState(() => _jobId = value),
-            ),
-          ],
-          const SizedBox(height: 16),
-          OutlinedButton.icon(
-            onPressed: _submitting || _images.length >= 4 ? null : _pickImages,
-            icon: const Icon(Icons.image_outlined),
-            label: Text('Add images (${_images.length}/4)'),
-          ),
-          if (_images.isNotEmpty) ...[
-            const SizedBox(height: 10),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: List.generate(_images.length, (index) {
-                return Stack(
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: FutureBuilder(
-                        future: _images[index].readAsBytes(),
-                        builder: (context, snapshot) {
-                          if (!snapshot.hasData) {
-                            return const SizedBox(
-                              width: 88,
-                              height: 88,
-                              child: Center(child: CircularProgressIndicator()),
-                            );
-                          }
-                          return Image.memory(
-                            snapshot.data!,
-                            width: 88,
-                            height: 88,
-                            fit: BoxFit.cover,
-                          );
-                        },
-                      ),
-                    ),
-                    Positioned(
-                      right: 0,
-                      top: 0,
-                      child: IconButton(
-                        tooltip: 'Remove image',
-                        onPressed: () =>
-                            setState(() => _images.removeAt(index)),
-                        icon: const Icon(Icons.cancel, color: Colors.white),
-                      ),
-                    ),
-                  ],
-                );
-              }),
-            ),
-          ],
-          if (_error != null) ...[
-            const SizedBox(height: 14),
-            Text(_error!, style: const TextStyle(color: Colors.redAccent)),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class CommunityThreadView extends StatefulWidget {
-  const CommunityThreadView({
-    super.key,
-    required this.service,
-    required this.postId,
-    this.commentId,
-    required this.canComment,
-    required this.onVerifiedPostDenied,
-    required this.onHiddenPost,
-  });
-
-  final CommunityService service;
-  final String postId;
-  final String? commentId;
-  final bool canComment;
-  final VoidCallback onVerifiedPostDenied;
-  final VoidCallback onHiddenPost;
-
-  @override
-  State<CommunityThreadView> createState() => _CommunityThreadViewState();
-}
-
-class _CommunityThreadViewState extends State<CommunityThreadView> {
-  final TextEditingController _commentController = TextEditingController();
-  final ScrollController _scrollController = ScrollController();
-  final Map<String, String?> _replyCursors = {};
-  final Map<String, GlobalKey> _commentKeys = {};
-  final Set<String> _reportedTargets = {};
-  final Set<String> _locallyCreatedCommentIds = {};
-  StreamSubscription<Map<String, dynamic>>? _socketSubscription;
-  Map<String, dynamic>? _post;
-  List<Map<String, dynamic>> _comments = [];
-  String? _commentsCursor;
-  Map<String, dynamic>? _replyTarget;
-  String? _error;
-  bool _loading = true;
-  bool _loadingOlder = false;
-  bool _sending = false;
-  bool _composerBlocked = false;
-  bool _inactive = false;
-
-  @override
-  void initState() {
-    super.initState();
-    SocketService().initialize();
-    _socketSubscription =
-        SocketService().communityEvents.listen(_onCommunityEvent);
-    _loadThread();
-  }
-
-  @override
-  void dispose() {
-    _commentController.dispose();
-    _scrollController.dispose();
-    _socketSubscription?.cancel();
-    super.dispose();
-  }
-
-  void _onCommunityEvent(Map<String, dynamic> event) {
-    if (!mounted) return;
-    final name = event['event'] as String?;
-    final payload = _mapValue(event['payload']);
-    if (name == null || payload == null) return;
-
-    if (name == 'community:moderation' &&
-        payload['targetType'] == 'post' &&
-        payload['targetId'] == widget.postId) {
-      if (payload['status'] == 'visible') {
-        _loadThread();
-      } else if (payload['status'] == 'hidden' ||
-          payload['status'] == 'removed') {
-        widget.onHiddenPost();
-        Get.back();
-      }
-      return;
-    }
-
-    setState(() {
-      if (name == 'community:comment-created' &&
-          payload['postId'] == widget.postId) {
-        final id = payload['id'] as String?;
-        if (id == null || _locallyCreatedCommentIds.remove(id)) return;
-        if (_comments.any((comment) => comment['id'] == id)) return;
-        final parentId = payload['parentCommentId'] as String?;
-        if (parentId == null) {
-          _comments.add(payload);
-          _incrementCount(_post, 'comments');
-        } else {
-          final parent = _comments
-              .firstWhereOrNull((comment) => comment['id'] == parentId);
-          if (parent == null) return;
-          final replies = _mapList(parent['replies']);
-          if (!replies.any((reply) => reply['id'] == id)) replies.add(payload);
-          parent['replies'] = replies;
-          _incrementCount(parent, 'replies');
-        }
-      } else if (name == 'community:reaction-updated') {
-        final targetType = payload['targetType'];
-        final targetId = payload['targetId'];
-        final counts = _mapValue(payload['counts']);
-        if (counts == null) return;
-        if (targetType == 'post' && _post?['id'] == targetId) {
-          _setReactionCount(_post!, counts['reactions']);
-        } else if (targetType == 'comment') {
-          final comment = _findComment(targetId);
-          if (comment != null) {
-            _setReactionCount(comment, counts['reactions']);
-          }
-        }
-      } else if (name == 'community:moderation' &&
-          payload['targetType'] == 'comment' &&
-          (payload['status'] == 'hidden' || payload['status'] == 'removed')) {
-        _comments
-            .removeWhere((comment) => comment['id'] == payload['targetId']);
-        for (final comment in _comments) {
-          final replies = _mapList(comment['replies']);
-          replies.removeWhere((reply) => reply['id'] == payload['targetId']);
-          comment['replies'] = replies;
-        }
-      }
-    });
-  }
-
-  Map<String, dynamic>? _findComment(dynamic id) {
-    for (final comment in _comments) {
-      if (comment['id'] == id) return comment;
-      for (final reply in _mapList(comment['replies'])) {
-        if (reply['id'] == id) return reply;
-      }
-    }
-    return null;
-  }
-
-  void _setReactionCount(Map<String, dynamic> target, dynamic count) {
-    final counts = _mapValue(target['counts']) ?? <String, dynamic>{};
-    counts['reactions'] = count;
-    target['counts'] = counts;
-  }
-
-  void _incrementCount(Map<String, dynamic>? target, String field) {
-    if (target == null) return;
-    final counts = _mapValue(target['counts']) ?? <String, dynamic>{};
-    counts[field] = ((counts[field] as num?)?.toInt() ?? 0) + 1;
-    target['counts'] = counts;
-  }
-
-  bool _isAuthor(Map<String, dynamic>? author) =>
-      author?['id'] == widget.service.accountId &&
-      author?['type'] == widget.service.accountType;
-
-  bool _canEdit(Map<String, dynamic> comment) {
-    final createdAt = DateTime.tryParse(comment['createdAt'] as String? ?? '');
-    if (createdAt == null || !_isAuthor(_mapValue(comment['author']))) {
-      return false;
-    }
-    final age = DateTime.now().toUtc().difference(createdAt.toUtc());
-    return !age.isNegative && age <= const Duration(minutes: 15);
-  }
-
-  Future<void> _loadThread() async {
-    try {
-      final post = await widget.service.fetchPost(widget.postId);
-      if (!mounted) return;
-      setState(() {
-        _post = post;
-        _comments = _mapList(post['comments']);
-        _commentsCursor = post['commentsCursor'] as String?;
-        _loading = false;
-      });
-      if (widget.commentId != null) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          final commentContext = _commentKeys[widget.commentId]?.currentContext;
-          if (commentContext != null) {
-            Scrollable.ensureVisible(commentContext, alignment: 0.2);
-          }
-        });
-      }
-    } on CommunityApiException catch (exception) {
-      _handleError(exception);
-    } catch (_) {
-      if (mounted) {
-        setState(() {
-          _error = 'Could not load this discussion.';
-          _loading = false;
-        });
-      }
-    }
-  }
-
-  Future<void> _loadOlderComments() async {
-    if (_commentsCursor == null || _loadingOlder) return;
-    setState(() => _loadingOlder = true);
-    try {
-      final page = await widget.service.fetchComments(
-        widget.postId,
-        cursor: _commentsCursor,
-      );
-      if (!mounted) return;
-      setState(() {
-        _appendUnique(_comments, page.posts);
-        _commentsCursor = page.nextCursor;
-        _loadingOlder = false;
-      });
-    } on CommunityApiException catch (exception) {
-      if (mounted) setState(() => _loadingOlder = false);
-      _handleError(exception);
-    }
-  }
-
-  Future<void> _loadReplies(Map<String, dynamic> comment) async {
-    final commentId = comment['id'] as String?;
-    if (commentId == null) return;
-    try {
-      final page = await widget.service.fetchReplies(
-        commentId,
-        cursor: _replyCursors[commentId],
-      );
-      if (!mounted) return;
-      final replies = _mapList(comment['replies']);
-      _appendUnique(replies, page.posts);
-      setState(() {
-        comment['replies'] = replies;
-        _replyCursors[commentId] = page.nextCursor;
-      });
-    } on CommunityApiException catch (exception) {
-      _handleError(exception);
-    }
-  }
-
-  void _appendUnique(
-    List<Map<String, dynamic>> target,
-    List<Map<String, dynamic>> incoming,
-  ) {
-    final existingIds = target.map((item) => item['id']).toSet();
-    target.addAll(incoming.where((item) => !existingIds.contains(item['id'])));
-  }
-
-  List<Map<String, dynamic>> _mapList(dynamic value) => value is List
-      ? value
-          .whereType<Map>()
-          .map((item) => Map<String, dynamic>.from(item))
-          .toList()
-      : <Map<String, dynamic>>[];
-
-  Future<void> _sendComment() async {
-    final text = _commentController.text.trim();
-    if (text.isEmpty || text.length > 1000 || _sending) return;
-    final parentId = _replyTarget?['id'] as String?;
-    if (_replyTarget != null && _replyTarget?['parentCommentId'] != null) {
-      setState(() => _replyTarget = null);
-      return;
-    }
-    setState(() => _sending = true);
-    try {
-      final comment = await widget.service.createComment(
-        widget.postId,
-        text: text,
-        parentCommentId: parentId,
-      );
-      if (!mounted) return;
-      setState(() {
-        if (comment['id'] is String) {
-          _locallyCreatedCommentIds.add(comment['id'] as String);
-        }
-        if (parentId == null) {
-          final previousLength = _comments.length;
-          _appendUnique(_comments, [comment]);
-          if (_comments.length > previousLength) {
-            _incrementCount(_post, 'comments');
-          }
-        } else {
-          final parent =
-              _comments.firstWhereOrNull((item) => item['id'] == parentId);
-          if (parent != null) {
-            final replies = _mapList(parent['replies']);
-            final previousLength = replies.length;
-            _appendUnique(replies, [comment]);
-            parent['replies'] = replies;
-            if (replies.length > previousLength) {
-              _incrementCount(parent, 'replies');
-            }
-          }
-        }
-        _commentController.clear();
-        _replyTarget = null;
-        _sending = false;
-      });
-    } on CommunityApiException catch (exception) {
-      if (mounted) setState(() => _sending = false);
-      if (exception.statusCode == 403 &&
-          exception.message == 'Only verified accounts can post') {
-        widget.onVerifiedPostDenied();
-        setState(() => _composerBlocked = true);
-      }
-      _handleError(exception);
-    }
-  }
-
-  void _handleError(CommunityApiException exception) {
-    if (exception.statusCode == 401) {
-      Get.offAllNamed(AppRoutes.signIn);
-      return;
-    }
-    if (exception.statusCode == 404) {
-      Get.back();
-      return;
-    }
-    if (!mounted) return;
-    setState(() {
-      _error = exception.message;
-      if (exception.statusCode == 403 &&
-          exception.message == 'Account is inactive') {
-        _inactive = true;
-      }
-    });
-    Get.snackbar('Community', exception.message);
-  }
-
-  Future<void> _react(
-    Map<String, dynamic> target, {
-    required String targetType,
-    required String reaction,
-  }) async {
-    final id = target['id'] as String?;
-    if (id == null) return;
-    try {
-      final result = await widget.service.react(
-        targetType: targetType,
-        targetId: id,
-        type: reaction,
-      );
-      if (!mounted) return;
-      setState(() {
-        target['myReaction'] = result['myReaction'];
-        final counts = _mapValue(target['counts']) ?? <String, dynamic>{};
-        final resultCounts = _mapValue(result['counts']);
-        if (resultCounts != null)
-          counts['reactions'] = resultCounts['reactions'];
-        target['counts'] = counts;
-      });
-    } on CommunityApiException catch (exception) {
-      _handleError(exception);
-    }
-  }
-
-  Future<void> _report(
-    Map<String, dynamic> target, {
-    required String targetType,
-  }) async {
-    final targetId = target['id'] as String?;
-    if (targetId == null ||
-        _reportedTargets.contains('$targetType:$targetId')) {
-      return;
-    }
-    final reason = await Get.bottomSheet<String>(
-      SafeArea(
-        child: Container(
-          color: AppColors.kDarkestBlue,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: ['spam', 'harassment', 'unsafe', 'other']
-                .map((value) => ListTile(
-                      title: Text(value,
-                          style: const TextStyle(color: Colors.white)),
-                      onTap: () => Get.back(result: value),
-                    ))
-                .toList(),
-          ),
-        ),
-      ),
-    );
-    if (reason == null) return;
-    try {
-      final result = await widget.service.report(
-        targetType: targetType,
-        targetId: targetId,
-        reason: reason,
-      );
-      if (!mounted) return;
-      setState(() {
-        _reportedTargets.add('$targetType:$targetId');
-        if (result['hidden'] == true) {
-          if (targetType == 'post') {
-            widget.onHiddenPost();
-            Get.back();
-          } else {
-            _comments.removeWhere((item) => item['id'] == targetId);
-          }
-        }
-      });
-    } on CommunityApiException catch (exception) {
-      if (exception.statusCode == 409) {
-        setState(() => _reportedTargets.add('$targetType:$targetId'));
-      }
-      _handleError(exception);
-    }
-  }
-
-  Future<void> _editComment(Map<String, dynamic> comment) async {
-    final controller = TextEditingController(text: comment['text'] as String?);
-    final updatedText = await Get.dialog<String>(
-      AlertDialog(
-        title: const Text('Edit comment'),
-        content: TextField(
-          controller: controller,
-          maxLength: 1000,
-          maxLines: 4,
-          decoration: const InputDecoration(labelText: 'Comment'),
-        ),
-        actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
-          TextButton(
-            onPressed: () => Get.back(result: controller.text.trim()),
-            child: const Text('Save'),
-          ),
-        ],
-      ),
-    );
-    controller.dispose();
-    if (updatedText == null || updatedText.isEmpty) return;
-    try {
-      final response = await widget.service.editComment(
-        comment['id'] as String,
-        text: updatedText,
-      );
-      if (!mounted) return;
-      setState(() {
-        comment['text'] = response['text'] ?? updatedText;
-        comment['editedAt'] =
-            response['editedAt'] ?? DateTime.now().toUtc().toIso8601String();
-      });
-    } on CommunityApiException catch (exception) {
-      _handleError(exception);
-    }
-  }
-
-  Future<void> _deleteComment(Map<String, dynamic> comment) async {
-    final confirmed = await Get.dialog<bool>(
-      AlertDialog(
-        title: const Text('Delete comment?'),
-        actions: [
-          TextButton(
-              onPressed: () => Get.back(result: false),
-              child: const Text('Cancel')),
-          TextButton(
-              onPressed: () => Get.back(result: true),
-              child: const Text('Delete')),
-        ],
-      ),
-    );
-    if (confirmed != true) return;
-    try {
-      await widget.service.deleteComment(comment['id'] as String);
-      if (mounted) {
-        setState(() {
-          comment['removed'] = true;
-          comment['text'] = 'Comment removed';
-        });
-      }
-    } on CommunityApiException catch (exception) {
-      _handleError(exception);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.kDarkBlue,
-      appBar: AppBar(
-        backgroundColor: AppColors.kDarkBlue,
-        foregroundColor: Colors.white,
-        title: const Text('Discussion'),
-      ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : _inactive
-              ? const Center(
-                  child: Text('Your account is inactive.',
-                      style: TextStyle(color: Colors.white70)))
-              : Column(
-                  children: [
-                    Expanded(
-                      child: ListView(
-                        controller: _scrollController,
-                        padding: const EdgeInsets.fromLTRB(12, 12, 12, 16),
-                        children: [
-                          if (_post != null) _threadPost(_post!),
-                          if (_commentsCursor != null)
-                            Center(
-                              child: TextButton(
-                                onPressed:
-                                    _loadingOlder ? null : _loadOlderComments,
-                                child: Text(_loadingOlder
-                                    ? 'Loading...'
-                                    : 'Load older comments'),
-                              ),
-                            ),
-                          ..._comments.map((comment) => _commentCard(comment)),
-                          if (_comments.isEmpty)
-                            const Padding(
-                              padding: EdgeInsets.all(24),
-                              child: Center(
-                                child: Text('Be the first to comment',
-                                    style: TextStyle(color: Colors.white60)),
-                              ),
-                            ),
-                          if (_error != null)
-                            Padding(
-                              padding: const EdgeInsets.all(12),
-                              child: Text(_error!,
-                                  style:
-                                      const TextStyle(color: Colors.redAccent)),
-                            ),
-                        ],
-                      ),
-                    ),
-                    if (widget.canComment && !_composerBlocked)
-                      _commentComposer(),
-                  ],
-                ),
-    );
-  }
-
-  Widget _threadPost(Map<String, dynamic> post) {
-    final author = _mapValue(post['author']) ?? const <String, dynamic>{};
-    final counts = _mapValue(post['counts']) ?? const <String, dynamic>{};
-    final images = post['images'] is List
-        ? (post['images'] as List).whereType<String>().toList()
-        : <String>[];
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.kDarkestBlue,
-        borderRadius: BorderRadius.circular(10),
+      padding: EdgeInsets.fromLTRB(20, 16, 20, 20 + bottomInset),
+      decoration: const BoxDecoration(
+        color: AppColors.kDarkBlue,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(author['name'] as String? ?? 'Community member',
-              style: const TextStyle(
-                  color: Colors.white, fontWeight: FontWeight.w600)),
-          const SizedBox(height: 12),
-          Text(post['text'] as String? ?? '',
-              style: const TextStyle(color: Colors.white, height: 1.4)),
-          if (images.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            SizedBox(
-              height: 190,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: images.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 8),
-                itemBuilder: (_, index) => ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.network(widget.service.imageUrl(images[index]),
-                      width: 240, height: 190, fit: BoxFit.cover),
-                ),
-              ),
-            ),
-          ],
-          Row(
-            children: [
-              Text('${counts['comments'] ?? 0} comments',
-                  style: const TextStyle(color: Colors.white60)),
-              const Spacer(),
-              _reactionMenu(post, 'post'),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _reactionMenu(Map<String, dynamic> target, String targetType) {
-    final counts = _mapValue(target['counts']) ?? const <String, dynamic>{};
-    return PopupMenuButton<String>(
-      tooltip: 'React',
-      onSelected: (reaction) => _react(
-        target,
-        targetType: targetType,
-        reaction: reaction,
-      ),
-      itemBuilder: (_) => const [
-        PopupMenuItem(value: 'like', child: Text('Like')),
-        PopupMenuItem(value: 'useful', child: Text('Useful')),
-        PopupMenuItem(value: 'support', child: Text('Support')),
-      ],
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(Icons.favorite_border, color: Colors.white70, size: 18),
-          const SizedBox(width: 5),
-          Text('${counts['reactions'] ?? 0}',
-              style: const TextStyle(color: Colors.white70)),
-        ],
-      ),
-    );
-  }
-
-  Widget _commentCard(Map<String, dynamic> comment, {bool isReply = false}) {
-    final author = _mapValue(comment['author']) ?? const <String, dynamic>{};
-    final replies = _mapList(comment['replies']);
-    final counts = _mapValue(comment['counts']) ?? const <String, dynamic>{};
-    final removed = comment['removed'] == true;
-    final id = comment['id'] as String? ?? '';
-    final owner = _isAuthor(author);
-    final actionItems = <PopupMenuEntry<String>>[
-      if (owner && _canEdit(comment) && !removed)
-        const PopupMenuItem(value: 'edit', child: Text('Edit')),
-      if (owner && !removed)
-        const PopupMenuItem(value: 'delete', child: Text('Delete')),
-      if (!_reportedTargets.contains('comment:$id'))
-        const PopupMenuItem(value: 'report', child: Text('Report')),
-    ];
-    return Padding(
-      key: id.isEmpty ? null : _commentKeys.putIfAbsent(id, GlobalKey.new),
-      padding: EdgeInsets.only(left: isReply ? 30 : 0, bottom: 8),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: AppColors.kDarkestBlue,
-          borderRadius: BorderRadius.circular(8),
-        ),
+      child: SingleChildScrollView(
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(author['name'] as String? ?? 'Community member',
-                      style: const TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.w600)),
+            Center(
+              child: Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.white24,
+                  borderRadius: BorderRadius.circular(2),
                 ),
-                PopupMenuButton<String>(
-                  onSelected: (action) {
-                    if (action == 'edit') _editComment(comment);
-                    if (action == 'delete') _deleteComment(comment);
-                    if (action == 'report') {
-                      _report(comment, targetType: 'comment');
-                    }
-                  },
-                  itemBuilder: (_) => actionItems,
-                ),
-              ],
-            ),
-            Text(
-              removed ? 'Comment removed' : (comment['text'] as String? ?? ''),
-              style: TextStyle(
-                color: removed ? Colors.white54 : Colors.white,
-                fontStyle: removed ? FontStyle.italic : FontStyle.normal,
               ),
             ),
+            const SizedBox(height: 16),
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _reactionMenu(comment, 'comment'),
-                if (!isReply && comment['parentCommentId'] == null)
-                  TextButton(
-                    onPressed: () => setState(() => _replyTarget = comment),
-                    child: const Text('Reply'),
+                const Text(
+                  'Edit Post',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                   ),
-                if (!isReply &&
-                    (counts['replies'] as num? ?? 0) > replies.length)
-                  TextButton(
-                    onPressed: () => _loadReplies(comment),
-                    child: Text(_replyCursors.containsKey(id) &&
-                            _replyCursors[id] != null
-                        ? 'More replies'
-                        : 'Load replies (${counts['replies']})'),
-                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close_rounded, color: Colors.white54),
+                  onPressed: () => Navigator.of(context).pop(),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                ),
               ],
             ),
-            if (replies.isNotEmpty)
-              ...replies.map((reply) => _commentCard(reply, isReply: true)),
+            const SizedBox(height: 12),
+            // Topic Selector
+            if (widget.topics.isNotEmpty) ...[
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    ChoiceChip(
+                      label: const Text('No Topic'),
+                      selected: _selectedTopicId == null,
+                      selectedColor: AppColors.kSkyBlue,
+                      backgroundColor: AppColors.kJobCardColor,
+                      labelStyle: TextStyle(
+                        color: _selectedTopicId == null
+                            ? Colors.black
+                            : Colors.white70,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      onSelected: (_) =>
+                          setState(() => _selectedTopicId = null),
+                    ),
+                    ...widget.topics.map((t) {
+                      final tid = t['id'] as String?;
+                      final isSel = _selectedTopicId == tid;
+                      return Padding(
+                        padding: const EdgeInsets.only(left: 8),
+                        child: ChoiceChip(
+                          label: Text(t['name'] as String? ?? 'Topic'),
+                          selected: isSel,
+                          selectedColor: AppColors.kSkyBlue,
+                          backgroundColor: AppColors.kJobCardColor,
+                          labelStyle: TextStyle(
+                            color: isSel ? Colors.black : Colors.white70,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          onSelected: (_) =>
+                              setState(() => _selectedTopicId = tid),
+                        ),
+                      );
+                    }),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
+            // Text Field
+            Container(
+              decoration: BoxDecoration(
+                color: AppColors.kJobCardColor,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.white12),
+              ),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              child: TextField(
+                controller: _textController,
+                maxLength: 2000,
+                maxLines: 5,
+                style: const TextStyle(color: Colors.white, fontSize: 14),
+                cursorColor: AppColors.kSkyBlue,
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                  hintText: "What's on your mind?",
+                  hintStyle:
+                      TextStyle(color: Colors.white38, fontSize: 14),
+                  counterStyle:
+                      TextStyle(color: Colors.white38, fontSize: 11),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            // Save Button
+            SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: ElevatedButton(
+                onPressed: () {
+                  final text = _textController.text.trim();
+                  if (text.isEmpty) return;
+                  Navigator.of(context).pop({
+                    'text': text,
+                    'topicId': _selectedTopicId,
+                  });
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.kSkyBlue,
+                  foregroundColor: Colors.black,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: const Text(
+                  'Save Changes',
+                  style:
+                      TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                ),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
-
-  Widget _commentComposer() => SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (_replyTarget != null)
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'Replying to ${_mapValue(_replyTarget!['author'])?['name'] ?? 'comment'}',
-                        style: const TextStyle(color: Colors.white60),
-                      ),
-                    ),
-                    IconButton(
-                      tooltip: 'Cancel reply',
-                      onPressed: () => setState(() => _replyTarget = null),
-                      icon: const Icon(Icons.close, color: Colors.white70),
-                    ),
-                  ],
-                ),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _commentController,
-                      maxLength: 1000,
-                      minLines: 1,
-                      maxLines: 4,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: const InputDecoration(
-                        hintText: 'Write a comment',
-                        counterText: '',
-                        filled: true,
-                        fillColor: AppColors.kDarkestBlue,
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    tooltip: 'Send comment',
-                    onPressed: _sending ? null : _sendComment,
-                    icon: _sending
-                        ? const SizedBox.square(
-                            dimension: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Icon(Icons.send, color: Colors.white),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      );
 }
+
+

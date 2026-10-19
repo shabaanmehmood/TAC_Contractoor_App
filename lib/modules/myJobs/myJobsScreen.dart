@@ -195,6 +195,13 @@ class _MyJobsScreenState extends State<MyJobsScreen> {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: AppColors.kDarkBlue,
+      floatingActionButton: FloatingActionButton(
+        tooltip: 'Create job',
+        backgroundColor: AppColors.kSkyBlue,
+        foregroundColor: Colors.black,
+        onPressed: () => Get.to(() => SetJobDetailsScreen()),
+        child: const Icon(Icons.add_rounded, size: 28),
+      ),
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(
@@ -228,11 +235,6 @@ class _MyJobsScreenState extends State<MyJobsScreen> {
                         onPressed: refreshJobs,
                         icon: const Icon(Icons.refresh, color: AppColors.kSkyBlue),
                         tooltip: 'Refresh jobs',
-                      ),
-                      GestureDetector(
-                        onTap: () => Get.to(() => SetJobDetailsScreen()),
-                        child: Image.asset("assets/icon/plus.png",
-                            scale: Get.width * 0.003, color: AppColors.kSkyBlue),
                       ),
                     ],
                   ),
