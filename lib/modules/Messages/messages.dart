@@ -173,7 +173,6 @@
 //   }
 // }
 
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:taccontractor/controllers/user_controller.dart';
@@ -183,6 +182,7 @@ import 'package:taccontractor/data/data/constants/app_spacing.dart';
 import 'package:taccontractor/data/data/constants/app_assets.dart';
 import 'package:taccontractor/dataproviders/api_service.dart';
 import 'package:taccontractor/modules/Messages/socket_file.dart';
+import 'package:taccontractor/modules/Messages/support_chat_screen.dart';
 import 'chat_screen.dart';
 import 'messages_controller.dart';
 
@@ -270,6 +270,49 @@ class _MessagesScreenState extends State<MessagesScreen> {
                   ),
                   Icon(Icons.search, color: Colors.white),
                 ],
+              ),
+            ),
+            SizedBox(height: AppSpacing.twentyVertical),
+            Material(
+              color: AppColors.kJobCardColor,
+              borderRadius: BorderRadius.circular(12),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap: () => Get.to<void>(
+                  () => const SupportChatListScreen(),
+                ),
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  child: Row(
+                    children: [
+                      Icon(Icons.support_agent, color: AppColors.kSkyBlue),
+                      SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Support chat',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            SizedBox(height: 3),
+                            Text(
+                              'Get help from our support team',
+                              style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Icon(Icons.chevron_right, color: Colors.white70),
+                    ],
+                  ),
+                ),
               ),
             ),
             SizedBox(height: AppSpacing.twentyVertical),

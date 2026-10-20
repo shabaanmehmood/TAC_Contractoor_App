@@ -26,6 +26,7 @@ class HomeView extends StatelessWidget {
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       NotificationServices.openPendingCommunityNotification();
+      NotificationServices.openPendingSupportNotification();
     });
     return Scaffold(
       backgroundColor: AppColors.kDarkBlue,

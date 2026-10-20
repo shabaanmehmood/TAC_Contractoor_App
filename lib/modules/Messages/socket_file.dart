@@ -34,7 +34,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 import '../../controllers/user_controller.dart';
@@ -43,6 +42,7 @@ class SocketService {
   String? get userId => Get.find<UserController>().accountId;
   String? _currentUserType;
   String? _connectedAccountKey;
+  String? _connectedToken;
   static final SocketService _instance = SocketService._internal();
   factory SocketService() => _instance;
   SocketService._internal();
@@ -66,17 +66,26 @@ class SocketService {
 
   final StreamController<Map<String, dynamic>> _communityController =
       StreamController<Map<String, dynamic>>.broadcast();
+  final StreamController<Map<String, dynamic>> _supportController =
+      StreamController<Map<String, dynamic>>.broadcast();
+  final StreamController<bool> _connectionController =
+      StreamController<bool>.broadcast();
 
   Stream<Map<String, dynamic>> get chatListStream => _chatListController.stream;
   Stream<Map<String, dynamic>> get communityEvents =>
       _communityController.stream;
+  Stream<Map<String, dynamic>> get supportEvents => _supportController.stream;
+  Stream<bool> get connectionEvents => _connectionController.stream;
 
   void initialize() {
     final userController = Get.find<UserController>();
     final accountId = userController.accountId;
     final accountType = userController.accountType;
+    final token = userController.accessToken;
     final accountKey = '$accountType:$accountId';
-    if (_socket != null && _connectedAccountKey == accountKey) {
+    if (_socket != null &&
+        _connectedAccountKey == accountKey &&
+        _connectedToken == token) {
       if (!_isConnected) _socket!.connect();
       debugPrint('Socket already connected');
       return;
@@ -96,10 +105,12 @@ class SocketService {
           : '${accountType[0].toUpperCase()}${accountType.substring(1)}';
     }
     _connectedAccountKey = accountKey;
+    _connectedToken = token;
 
     _socket = IO.io(socketUrl, <String, dynamic>{
       'transports': ['websocket'],
       'query': query,
+      'auth': {'token': token},
       'autoConnect': false,
       'reconnection': true,
       'reconnectionAttempts': maxReconnectAttempts,
@@ -114,6 +125,7 @@ class SocketService {
     _socket!.onConnect((_) {
       debugPrint('✅ Socket connected successfully');
       _isConnected = true;
+      if (!_connectionController.isClosed) _connectionController.add(true);
       _reconnectAttempts = 0;
       _reconnectTimer?.cancel();
     });
@@ -121,12 +133,14 @@ class SocketService {
     _socket!.onDisconnect((_) {
       debugPrint('❌ Socket disconnected');
       _isConnected = false;
+      if (!_connectionController.isClosed) _connectionController.add(false);
       _attemptReconnect();
     });
 
     _socket!.onConnectError((error) {
       debugPrint('⚠️ Socket connection error: $error');
       _isConnected = false;
+      if (!_connectionController.isClosed) _connectionController.add(false);
       _attemptReconnect();
     });
 
@@ -181,6 +195,19 @@ class SocketService {
         final payload = _toMap(data);
         if (payload != null && !_communityController.isClosed) {
           _communityController.add({'event': event, 'payload': payload});
+        }
+      });
+    }
+
+    for (final event in [
+      'support:ticket-updated',
+      'support:message',
+      'support:error',
+    ]) {
+      _socket!.on(event, (data) {
+        final payload = _toMap(data);
+        if (payload != null && !_supportController.isClosed) {
+          _supportController.add({'event': event, 'payload': payload});
         }
       });
     }
@@ -258,6 +285,14 @@ class SocketService {
     _autoRefreshChatList();
   }
 
+  void joinSupportTicket(String ticketId) {
+    _socket?.emit('support:join', {'ticketId': ticketId});
+  }
+
+  void leaveSupportTicket(String ticketId) {
+    _socket?.emit('support:leave', {'ticketId': ticketId});
+  }
+
   void disconnect() {
     debugPrint('🔌 Disconnecting socket');
     _reconnectTimer?.cancel();
@@ -269,6 +304,8 @@ class SocketService {
 
   void dispose() {
     _chatListController.close();
+    _supportController.close();
+    _connectionController.close();
     disconnect();
   }
 }

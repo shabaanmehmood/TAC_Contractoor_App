@@ -6,12 +6,14 @@ import 'package:get/get.dart';
 import 'package:taccontractor/controllers/user_controller.dart';
 import 'package:taccontractor/modules/community/community_service.dart';
 import 'package:taccontractor/modules/community/community_view.dart';
+import 'package:taccontractor/modules/Messages/support_chat_screen.dart';
 
 class NotificationServices {
   static final FirebaseMessaging messaging = FirebaseMessaging.instance;
   static final FlutterLocalNotificationsPlugin
       _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   static Map<String, dynamic>? _pendingCommunityPayload;
+  static Map<String, dynamic>? _pendingSupportPayload;
 
   /// Request notification permissions from the user
   static Future<void> requestNotificationPermission() async {
@@ -115,9 +117,13 @@ class NotificationServices {
   }
 
   static void handleRemoteNotificationData(Map<String, dynamic> data) {
-    if (data['type'] != 'community' || data['postId'] is! String) return;
-    _pendingCommunityPayload = Map<String, dynamic>.from(data);
-    openPendingCommunityNotification();
+    if (data['type'] == 'community' && data['postId'] is String) {
+      _pendingCommunityPayload = Map<String, dynamic>.from(data);
+      openPendingCommunityNotification();
+    } else if (data['type'] == 'support' && data['ticketId'] is String) {
+      _pendingSupportPayload = Map<String, dynamic>.from(data);
+      openPendingSupportNotification();
+    }
   }
 
   static void openPendingCommunityNotification() {
@@ -142,6 +148,20 @@ class NotificationServices {
               accountType == 'admin',
           onVerifiedPostDenied: () {},
           onHiddenPost: () {},
+        ));
+  }
+
+  static void openPendingSupportNotification() {
+    final payload = _pendingSupportPayload;
+    if (payload == null || !Get.isRegistered<UserController>()) return;
+    final userController = Get.find<UserController>();
+    if (userController.accessToken == null ||
+        userController.accountType != 'contractor') {
+      return;
+    }
+    _pendingSupportPayload = null;
+    Get.to<void>(() => SupportChatThreadScreen(
+          ticketId: payload['ticketId'] as String,
         ));
   }
 
