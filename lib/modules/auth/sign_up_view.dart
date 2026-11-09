@@ -57,7 +57,7 @@ class SignUpViewController extends GetxController {
 
   // ✅ Call this when form 1 is validated
   void savePersonalInfoAndGoNext() {
-    if (formKey.currentState!.validate() && imageBase64.isNotEmpty) {
+    if (formKey.currentState!.validate()) {
       Get.to(() => SetPasswordView()); // Navigate to screen 2
     }
   }
@@ -238,15 +238,16 @@ class SignUpView extends StatelessWidget {
                       ),
                       SizedBox(height: AppSpacing.fifteenVertical),
                       CustomTextField(
-                        hintText: "Master Security License",
+                        hintText: "Master Security License (Optional)",
                         iconPath: AppAssets.kPersonalCard,
                         controller: controller.masterSecurityIdController,
                         keyboardType: TextInputType.number,
                         inputFormatters: [LengthLimitingTextInputFormatter(14)],
                         validator: (value) {
-                          if (value == null ||
-                              value.trim().isEmpty ||
-                              value.length < 14) {
+                          if (value == null || value.trim().isEmpty) {
+                            return null;
+                          }
+                          if (value.trim().length != 14) {
                             return 'Please enter 14 digit master security license #';
                           }
                           return null;
@@ -257,19 +258,14 @@ class SignUpView extends StatelessWidget {
                       ),
                       SizedBox(height: AppSpacing.fifteenVertical),
                       CustomTextField(
-                        hintText: "Upload Photo ID",
+                        hintText: "Upload Photo ID (Optional)",
                         iconPath: AppAssets.kGalleryAdd,
                         controller: controller.photoIdController,
                         keyboardType: TextInputType.none,
                         onChanged: (value) {
                           controller.formKey.currentState!.validate();
                         },
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Photo ID is required';
-                          }
-                          return null;
-                        },
+                        validator: (_) => null,
                         onTap: () async {
                           // pickImageAndConvertToBase64().then((base64Image) {
                           //   if (base64Image != null) {

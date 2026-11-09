@@ -63,9 +63,7 @@
 	<key>NSFaceIDUsageDescription</key>
 	<string>We need to use Face ID to authenticate you</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>We use your location to provide nearby job updates even when the app is in the background.</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>This app needs access to location when in the background to update your location on the map.</string>
+	<string>Your location is used to find nearby work opportunities and set worksite locations while you use the app.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>We need your location to show nearby places</string>
 	<key>NSPhotoLibraryUsageDescription</key>
@@ -97,7 +95,6 @@
 	<true/>
 	<key>UIBackgroundModes</key>
 	<array>
-		<string>location</string>
 		<string>remote-notification</string>
 	</array>
 	<key>UILaunchStoryboardName</key>

@@ -1064,30 +1064,25 @@ class MyApIService {
   }
 
   Future<http.Response> appleLogin({
-    required String? identityToken,
-    required String? authorizationCode,
+    required String identityToken,
     required String fcmToken,
-    String? email,
     String? firstName,
     String? lastName,
   }) async {
-    final Map<String, dynamic> requestBody = {
-      'fcm_token': fcmToken,
-      if (identityToken != null) 'identity_token': identityToken,
-      if (authorizationCode != null) 'authorization_code': authorizationCode,
-      if (email != null) 'email': email,
-      if (firstName != null) 'first_name': firstName,
-      if (lastName != null) 'last_name': lastName,
+    final requestBody = <String, dynamic>{
+      'identityToken': identityToken,
+      'firstName': firstName,
+      'lastName': lastName,
+      'fcmToken': fcmToken,
     };
-
-    // Remove null values
     requestBody.removeWhere((key, value) => value == null);
 
-    debugPrint("Apple Login Request: ${jsonEncode(requestBody)}");
-
     return await http.post(
-      Uri.parse('$baseurl/auth/apple-login'), // Your Apple login endpoint
-
+      Uri.parse('${baseurl}contractorAuth/apple-login'),
+      headers: {
+        'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true',
+      },
       body: jsonEncode(requestBody),
     );
   }

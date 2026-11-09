@@ -54,7 +54,7 @@ Widget build(BuildContext context) {
             child: Row(
               children: [
                 GestureDetector(
-                  onTap: () => Get.back(),
+                  onTap: () => Get.back(closeOverlays: false),
                   child: Image.asset(
                     AppAssets.kBack,
                     height: Get.height * 0.07,

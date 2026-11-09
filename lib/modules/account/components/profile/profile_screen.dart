@@ -46,7 +46,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           // centerTitle: false,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.kWhite),
-            onPressed: () => Get.back(),
+            onPressed: () => Get.back(closeOverlays: false),
           ),
         ),
         body: Obx(

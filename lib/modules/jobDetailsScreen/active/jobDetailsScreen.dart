@@ -66,7 +66,7 @@ class _ContractorActiveJobDetailsScreenState
           actions: [
             // Don't Cancel Button
             OutlinedButton(
-              onPressed: () => Get.back(),
+                  onPressed: () => Get.back(),
               style: OutlinedButton.styleFrom(
                 side: BorderSide(color: AppColors.kSkyBlue),
                 shape: RoundedRectangleBorder(
@@ -166,7 +166,7 @@ class _ContractorActiveJobDetailsScreenState
               child: Row(
                 children: [
                   GestureDetector(
-                    onTap: () => Get.back(),
+                    onTap: () => Get.back(closeOverlays: false),
                     child: Image.asset(
                       AppAssets.kBack,
                       height: Get.height * 0.07,

@@ -210,7 +210,7 @@ class _SelectAccountTypeScreenState extends State<SelectAccountTypeScreen> {
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 10),
                   child: Text(
-                    'Powered by TAC Solutions',
+                    'Powered by Control Security',
                     style: AppTypography.kLight14
                         .copyWith(color: AppColors.ktextlight),
                   ),

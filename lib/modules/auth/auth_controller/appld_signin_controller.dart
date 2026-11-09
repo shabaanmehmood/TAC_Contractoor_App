@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
@@ -27,15 +26,6 @@ class AppleAuthService {
           AppleIDAuthorizationScopes.email,
           AppleIDAuthorizationScopes.fullName,
         ],
-        webAuthenticationOptions: WebAuthenticationOptions(
-          // ✅ Use your Apple Service ID for web (if needed)
-          clientId: 'com.yourcompany.taccontractor.service',
-          redirectUri: Uri.parse(
-            'https://your-domain.com/callbacks/sign_in_with_apple',
-          ),
-        ),
-        // Nonce is important for security - generate a random one
-        nonce: _generateNonce(),
       );
 
       debugPrint("Apple Sign-In success!");
@@ -48,8 +38,8 @@ class AppleAuthService {
       debugPrint("Authorization Code: ${'Received'}");
 
       // Check if we have the required tokens
-      if (credential.identityToken == null &&
-          credential.authorizationCode == null) {
+      final identityToken = credential.identityToken;
+      if (identityToken == null) {
         Get.snackbar("Error", "No authentication tokens received from Apple.");
         return;
       }
@@ -64,12 +54,9 @@ class AppleAuthService {
       debugPrint("Calling API with Apple credentials...");
 
       // Call your API with Apple credentials
-      // You can send either identityToken or authorizationCode to your backend
       final response = await myApIService.appleLogin(
-        identityToken: credential.identityToken,
-        authorizationCode: credential.authorizationCode,
+        identityToken: identityToken,
         fcmToken: fcmToken,
-        email: credential.email,
         firstName: credential.givenName,
         lastName: credential.familyName,
       );
@@ -148,15 +135,6 @@ class AppleAuthService {
       Get.snackbar(
           "Error", "An unexpected error occurred: ${error.toString()}");
     }
-  }
-
-  // Generate a cryptographically secure nonce for Apple Sign-In
-  String _generateNonce([int length = 32]) {
-    const charset =
-        '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._';
-    final random = Random.secure();
-    return List.generate(length, (_) => charset[random.nextInt(charset.length)])
-        .join();
   }
 
   // Check if Apple Sign-In is available on this device

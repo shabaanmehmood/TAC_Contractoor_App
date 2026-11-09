@@ -18,7 +18,7 @@ class NotificationScreen extends StatelessWidget {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
-          onPressed: () => Get.back(),
+          onPressed: () => Get.back(closeOverlays: false),
         ),
         title: const Text(
           "Notifications",
