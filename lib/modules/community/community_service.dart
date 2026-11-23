@@ -94,6 +94,25 @@ class CommunityService {
     return _dataMap(response);
   }
 
+  Future<Map<String, dynamic>> fetchHistory({
+    required String type,
+    required String id,
+    int page = 1,
+    int limit = 20,
+  }) async {
+    final response = await _send(
+      'GET',
+      'history',
+      query: {
+        'type': type,
+        'id': id,
+        'page': '$page',
+        'limit': '${limit.clamp(1, 50)}',
+      },
+    );
+    return _dataMap(response);
+  }
+
   Future<CommunityPage> fetchComments(
     String postId, {
     String? cursor,

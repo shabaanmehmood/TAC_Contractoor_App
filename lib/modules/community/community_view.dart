@@ -12,6 +12,7 @@ import 'package:taccontractor/routes/app_routes.dart';
 
 import 'community_service.dart';
 import 'components/create_post_view.dart';
+import 'components/community_history_view.dart';
 import 'components/post_card.dart';
 import 'components/report_reason_sheet.dart';
 import 'components/thread_view.dart';
@@ -655,6 +656,22 @@ class _CommunityViewState extends State<CommunityView> {
         ));
   }
 
+  void _openCommunityHistory(Map<String, dynamic> author) {
+    final type = author['type'] as String?;
+    final id = author['id'] as String?;
+    if (_service == null ||
+        id == null ||
+        (type != 'guard' && type != 'contractor')) {
+      return;
+    }
+    Get.to<void>(() => CommunityHistoryView(
+          service: _service!,
+          type: type!,
+          personId: id,
+          canComment: _canPost,
+        ));
+  }
+
   void _openThread(Map<String, dynamic> post) {
     final id = post['id'] as String?;
     if (id == null || _service == null) return;
@@ -965,6 +982,7 @@ class _CommunityViewState extends State<CommunityView> {
       canEdit: ownPost && _canEdit(post),
       ownPost: ownPost,
       isReported: _reportedTargets.contains('post:${post['id']}'),
+      onOpenAuthor: _openCommunityHistory,
     );
   }
 
