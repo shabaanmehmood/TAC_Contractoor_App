@@ -17,6 +17,7 @@ class LinkedInPostCard extends StatefulWidget {
   final VoidCallback onEdit;
   final VoidCallback onDelete;
   final VoidCallback onReport;
+  final VoidCallback? onRepost;
   final Function(Map<String, dynamic>) onOpenJob;
   final bool canEdit;
   final bool ownPost;
@@ -37,6 +38,7 @@ class LinkedInPostCard extends StatefulWidget {
     required this.onEdit,
     required this.onDelete,
     required this.onReport,
+    this.onRepost,
     required this.onOpenJob,
     required this.canEdit,
     required this.ownPost,
@@ -426,85 +428,121 @@ class _LinkedInPostCardState extends State<LinkedInPostCard> {
             color: AppColors.kJobCardColor,
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Center(
-                child: Container(
-                  width: 38,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: 14),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.25),
-                    borderRadius: BorderRadius.circular(2),
+          child: Material(
+            type: MaterialType.transparency,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Center(
+                  child: Container(
+                    width: 38,
+                    height: 4,
+                    margin: const EdgeInsets.only(bottom: 14),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.25),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
                   ),
                 ),
-              ),
-              if (widget.canEdit)
-                ListTile(
-                  leading: const Icon(Icons.edit_outlined,
-                      color: Colors.white, size: 22),
-                  title: const Text(
-                    'Edit post',
-                    style: TextStyle(
+                if (widget.canEdit)
+                  ListTile(
+                    leading: const Icon(Icons.edit_outlined,
+                        color: Colors.white, size: 22),
+                    title: const Text(
+                      'Edit post',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                      ),
+                    ),
+                    subtitle: Text(
+                      'Edit text and audience topic',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.5),
+                        fontSize: 12,
+                      ),
+                    ),
+                    onTap: () => Navigator.pop(sheetContext, 'edit'),
+                  ),
+                if (widget.ownPost)
+                  ListTile(
+                    leading: const Icon(Icons.delete_outline_rounded,
+                        color: Colors.redAccent, size: 22),
+                    title: const Text(
+                      'Delete post',
+                      style: TextStyle(
+                        color: Colors.redAccent,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                      ),
+                    ),
+                    subtitle: Text(
+                      'Permanently remove this post from the feed',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.5),
+                        fontSize: 12,
+                      ),
+                    ),
+                    onTap: () => Navigator.pop(sheetContext, 'delete'),
+                  ),
+                if (widget.canFollow)
+                  ListTile(
+                    leading: Icon(
+                      widget.isFollowed
+                          ? Icons.person_remove_outlined
+                          : Icons.person_add_alt_1_outlined,
                       color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 15,
+                      size: 22,
                     ),
-                  ),
-                  subtitle: Text(
-                    'Edit text and audience topic',
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.5),
-                      fontSize: 12,
+                    title: Text(
+                      widget.isFollowed ? 'Unfollow' : 'Follow',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                      ),
                     ),
+                    onTap: () => Navigator.pop(sheetContext, 'follow'),
                   ),
-                  onTap: () => Navigator.pop(sheetContext, 'edit'),
-                ),
-              if (widget.ownPost)
-                ListTile(
-                  leading: const Icon(Icons.delete_outline_rounded,
-                      color: Colors.redAccent, size: 22),
-                  title: const Text(
-                    'Delete post',
-                    style: TextStyle(
-                      color: Colors.redAccent,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 15,
+                if (widget.onRepost != null)
+                  ListTile(
+                    leading: const Icon(Icons.repeat_rounded,
+                        color: Colors.white, size: 22),
+                    title: const Text(
+                      'Repost',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                      ),
                     ),
+                    onTap: () => Navigator.pop(sheetContext, 'repost'),
                   ),
-                  subtitle: Text(
-                    'Permanently remove this post from the feed',
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.5),
-                      fontSize: 12,
+                if (!widget.ownPost && !widget.isReported)
+                  ListTile(
+                    leading: const Icon(Icons.flag_outlined,
+                        color: Colors.white70, size: 22),
+                    title: const Text(
+                      'Report post',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                      ),
                     ),
-                  ),
-                  onTap: () => Navigator.pop(sheetContext, 'delete'),
-                ),
-              if (!widget.ownPost && !widget.isReported)
-                ListTile(
-                  leading: const Icon(Icons.flag_outlined,
-                      color: Colors.white70, size: 22),
-                  title: const Text(
-                    'Report post',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 15,
+                    subtitle: Text(
+                      'Flag this post if it violates community policies',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.5),
+                        fontSize: 12,
+                      ),
                     ),
+                    onTap: () => Navigator.pop(sheetContext, 'report'),
                   ),
-                  subtitle: Text(
-                    'Flag this post if it violates community policies',
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.5),
-                      fontSize: 12,
-                    ),
-                  ),
-                  onTap: () => Navigator.pop(sheetContext, 'report'),
-                ),
-              const SizedBox(height: 6),
-            ],
+                const SizedBox(height: 6),
+              ],
+            ),
           ),
         ),
       ),
@@ -516,6 +554,20 @@ class _LinkedInPostCardState extends State<LinkedInPostCard> {
       widget.onDelete();
     } else if (action == 'report') {
       widget.onReport();
+    } else if (action == 'follow') {
+      if (widget.isFollowed) {
+        final author = widget.post['author'] is Map
+            ? Map<String, dynamic>.from(widget.post['author'] as Map)
+            : const <String, dynamic>{};
+        await _showUnfollowSheet(
+          context,
+          author['name'] as String? ?? 'this user',
+        );
+      } else {
+        widget.onFollowToggle();
+      }
+    } else if (action == 'repost') {
+      widget.onRepost?.call();
     }
   }
 
@@ -786,6 +838,22 @@ class _LinkedInPostCardState extends State<LinkedInPostCard> {
                                       ),
                                     ],
                                   ),
+                          ),
+                        ),
+                      if (widget.onRepost != null ||
+                          widget.canFollow ||
+                          widget.ownPost)
+                        IconButton(
+                          tooltip: 'More post actions',
+                          visualDensity: VisualDensity.compact,
+                          constraints: const BoxConstraints.tightFor(
+                              width: 34, height: 34),
+                          padding: EdgeInsets.zero,
+                          onPressed: () => _showPostActionsSheet(context),
+                          icon: const Icon(
+                            Icons.more_horiz_rounded,
+                            color: Colors.white70,
+                            size: 23,
                           ),
                         ),
                     ],

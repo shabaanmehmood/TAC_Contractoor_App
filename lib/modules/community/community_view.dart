@@ -554,8 +554,8 @@ class _CommunityViewState extends State<CommunityView> {
                     ),
                     child: const Text('Delete',
                         style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold)),
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold)),
                   ),
                 ),
               ],
@@ -625,6 +625,83 @@ class _CommunityViewState extends State<CommunityView> {
       } else {
         _handleApiError(exception);
       }
+    }
+  }
+
+  Future<void> _repostPost(Map<String, dynamic> post) async {
+    if (_service == null || !_canPost) return;
+    final author = _mapValue(post['author']);
+    final authorName = author?['name'] as String? ?? 'a community member';
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: AppColors.kJobCardColor,
+        title: const Text('Repost this post?',
+            style: TextStyle(color: Colors.white)),
+        content: Text(
+          'This will publish the post to your community feed, with attribution to $authorName.',
+          style: const TextStyle(color: Colors.white70),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Repost'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    final originalText = (post['text'] as String? ?? '').trim();
+    final attribution = 'Reposted from $authorName';
+    final availableTextLength = 2000 - attribution.length - 2;
+    final repostText = originalText.isEmpty
+        ? attribution
+        : '$attribution\n\n${originalText.length > availableTextLength ? originalText.substring(0, availableTextLength).trimRight() : originalText}';
+    final imagePaths = post['images'] is List
+        ? (post['images'] as List).whereType<String>().take(4).toList()
+        : <String>[];
+    final topicId = _mapValue(post['topic'])?['id'] as String?;
+    final jobId =
+        post['jobId'] as String? ?? _mapValue(post['job'])?['id'] as String?;
+
+    try {
+      final repost = await _service!.createPost(
+        text: repostText,
+        images: imagePaths,
+        topicId: topicId,
+        jobId: jobId,
+      );
+      if (!mounted) return;
+      setState(() {
+        if (repost['id'] is String) {
+          _locallyCreatedPostIds.add(repost['id'] as String);
+        }
+        _posts.removeWhere((item) => item['id'] == repost['id']);
+        _posts.insert(0, repost);
+      });
+      Get.snackbar(
+        'Reposted',
+        'The post was added to your community feed.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColors.kDarkestBlue,
+        colorText: Colors.white,
+      );
+    } on CommunityApiException catch (exception) {
+      _handleApiError(exception);
+    } catch (_) {
+      if (!mounted) return;
+      Get.snackbar(
+        'Repost failed',
+        'Could not repost this item. Check your connection and try again.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColors.kDarkestBlue,
+        colorText: Colors.white,
+      );
     }
   }
 
@@ -978,6 +1055,7 @@ class _CommunityViewState extends State<CommunityView> {
       onEdit: () => _editPost(post),
       onDelete: () => _deletePost(post),
       onReport: () => _reportTarget('post', post['id'] as String),
+      onRepost: _canPost ? () => _repostPost(post) : null,
       onOpenJob: (job) => _openJob(job),
       canEdit: ownPost && _canEdit(post),
       ownPost: ownPost,
@@ -1189,5 +1267,3 @@ class _EditPostSheetState extends State<_EditPostSheet> {
     );
   }
 }
-
-
